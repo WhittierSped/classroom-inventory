@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Resource Inventory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Rainbow theme - Pink, Orange, Yellow, Green, Blue, Indigo, Violet */
+            --rainbow-pink: #ec4899;
+            --rainbow-orange: #f97316;
+            --rainbow-yellow: #eab308;
+            --rainbow-green: #10b981;
+            --rainbow-blue: #3b82f6;
+            --rainbow-indigo: #6366f1;
+            --rainbow-violet: #8b5cf6;
+            
+            --primary: var(--rainbow-indigo);
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: var(--rainbow-pink);
+            --success: var(--rainbow-green);
+            --warning: var(--rainbow-orange);
+            --bg: #fafaf9;
+            --surface: #ffffff;
+            --text: #1c1917;
+            --text-muted: #78716c;
+            --border: #e7e5e4;
+            --shadow: rgba(0, 0, 0, 0.08);
+            
+            /* Domain colors for goal cards */
+            --domain-math: var(--rainbow-yellow);
+            --domain-literacy: var(--rainbow-violet);
+            --domain-behavior: var(--rainbow-pink);
+            --domain-sel: var(--rainbow-pink);
+            --domain-communication: var(--rainbow-pink);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, 
+                var(--rainbow-pink) 0%, 
+                var(--rainbow-orange) 20%, 
+                var(--rainbow-yellow) 40%, 
+                var(--rainbow-green) 60%, 
+                var(--rainbow-blue) 80%, 
+                var(--rainbow-violet) 100%);
+            color: white;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 4px 6px -1px var(--shadow);
+        }
+
+        .header h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 0.95rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .toggle-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--border);
+            background: var(--surface);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--rainbow-violet);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+
+        .toggle-btn.active {
+            background: linear-gradient(135deg, var(--rainbow-indigo), var(--rainbow-violet));
+            color: white;
+            border-color: var(--rainbow-violet);
+        }
+
+        .filters {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .pill:hover {
+            border-color: var(--primary-light);
+        }
+
+        .pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .content-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .two-column {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 968px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .section-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .goal-card, .resource-card {
+            padding: 1.25rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        /* Domain-specific goal card styling */
+        .goal-card[data-domain="Math"] {
+            border-left: 5px solid var(--domain-math);
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.05) 0%, rgba(234, 179, 8, 0.02) 100%);
+        }
+        
+        .goal-card[data-domain="Literacy"] {
+            border-left: 5px solid var(--domain-literacy);
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(139, 92, 246, 0.02) 100%);
+        }
+        
+        .goal-card[data-domain="Behavior"],
+        .goal-card[data-domain="SEL"],
+        .goal-card[data-domain="Communication"] {
+            border-left: 5px solid var(--domain-sel);
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.05) 0%, rgba(236, 72, 153, 0.02) 100%);
+        }
+
+        .goal-card:hover, .resource-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px var(--shadow);
+        }
+        
+        .goal-card[data-domain="Math"]:hover {
+            border-color: var(--domain-math);
+        }
+        
+        .goal-card[data-domain="Literacy"]:hover {
+            border-color: var(--domain-literacy);
+        }
+        
+        .goal-card[data-domain="Behavior"]:hover,
+        .goal-card[data-domain="SEL"]:hover,
+        .goal-card[data-domain="Communication"]:hover {
+            border-color: var(--domain-sel);
+        }
+
+        .goal-card.selected, .resource-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(99, 102, 241, 0.1) 100%);
+        }
+
+        .goal-id, .resource-id {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .domain-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .subcategory-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.25rem;
+            margin-top: 0.25rem;
+            background: #e9d5ff;
+            color: #6b21a8;
+        }
+
+        .domain-Math {
+            background: rgba(234, 179, 8, 0.15);
+            color: #854d0e;
+        }
+
+        .domain-Literacy {
+            background: rgba(139, 92, 246, 0.15);
+            color: #5b21b6;
+        }
+
+        .domain-Behavior,
+        .domain-SEL,
+        .domain-Communication {
+            background: rgba(236, 72, 153, 0.15);
+            color: #9f1239;
+        }
+
+        .format-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .format-Digital {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .format-Physical {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .goal-desc, .resource-name {
+            font-weight: 600;
+            margin: 0.5rem 0;
+            color: var(--text);
+        }
+
+        .supporting-item {
+            padding: 1rem;
+            background: var(--surface);
+            border-left: 3px solid var(--primary);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+
+        .supporting-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .supporting-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+            text-align: center;
+            border-top: 4px solid var(--rainbow-violet);
+        }
+        
+        .stat-card:nth-child(1) {
+            border-top-color: var(--rainbow-pink);
+        }
+        
+        .stat-card:nth-child(2) {
+            border-top-color: var(--rainbow-yellow);
+        }
+        
+        .stat-card:nth-child(3) {
+            border-top-color: var(--rainbow-green);
+        }
+        
+        .stat-card:nth-child(4) {
+            border-top-color: var(--rainbow-blue);
+        }
+
+        .stat-number {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--rainbow-pink), var(--rainbow-violet));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .resource-details {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .category-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg);
+            border-radius: 4px;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Classroom Resource Inventory</h1>
+        <p>Click on any goal or resource to see what supports it</p>
+    </div>
+
+    <div class="container">
+        <div class="stats" id="stats"></div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn active" onclick="setView('goals')">View by Goals</button>
+            <button class="toggle-btn" onclick="setView('resources')">View by Resources</button>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group" style="margin-bottom: 1rem;">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search goals or resources...">
+            </div>
+            <div class="filter-group" id="domainFilters"></div>
+        </div>
+
+        <div class="content-grid two-column" id="contentGrid"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // GOOGLE SHEETS CONFIGURATION
+        // ============================================
+        // INSTRUCTIONS:
+        // 1. Upload your classroom_inventory.xlsx to Google Sheets
+        // 2. Click "Share" → "Anyone with the link can VIEW"
+        // 3. Copy the Sheet ID from the URL (the long string between /d/ and /edit)
+        //    Example URL: https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit
+        // 4. Paste your Sheet ID below:
+        
+        const GOOGLE_SHEET_ID = '1LYczFajdWtN3qGOSlqayUpjbZQQUYZhapI4fzL7SUlQ';  // ← PASTE YOUR SHEET ID HERE
+        
+        // Sheet names (these match your Excel tabs - don't change unless you renamed them)
+        const SHEET_NAMES = {
+            resources: 'Resources Inventory',
+            goals: 'IEP Goals',
+            mappings: 'Resource-Goal Mapping'
+        };
+        
+        // ============================================
+        // DON'T EDIT BELOW THIS LINE
+        // ============================================
+        
+        let DATA = {
+            resources: [],
+            goals: [],
+            mappings: []
+        };
+        
+        let isLoading = true;
+        
+        // Show loading state
+        document.addEventListener('DOMContentLoaded', function() {
+            if (GOOGLE_SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+                document.body.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; font-family: 'DM Sans', sans-serif; padding: 2rem; text-align: center;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+                        <h2 style="color: #dc2626; margin-bottom: 1rem;">Google Sheet Not Connected</h2>
+                        <p style="color: #78716c; max-width: 600px; line-height: 1.6;">
+                            Please edit this HTML file and add your Google Sheet ID at the top of the script section.
+                            <br><br>
+                            <strong>Instructions:</strong><br>
+                            1. Open this HTML file in a text editor<br>
+                            2. Find the line: <code style="background: #f5f5f4; padding: 0.2rem 0.5rem; border-radius: 4px;">const GOOGLE_SHEET_ID = 'YOUR_SHEET_ID_HERE';</code><br>
+                            3. Replace YOUR_SHEET_ID_HERE with your actual Google Sheet ID<br>
+                            4. Save and reload this page
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+            
+            loadGoogleSheetsData();
+        });
+        
+        async function loadGoogleSheetsData() {
+            try {
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 4rem 2rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem; animation: pulse 2s ease-in-out infinite;">📚</div>
+                            <h2 style="font-family: 'Fredoka', sans-serif; color: var(--primary); margin-bottom: 0.5rem;">Loading Your Classroom Inventory...</h2>
+                            <p style="color: var(--text-muted);">Fetching data from Google Sheets</p>
+                            <style>
+                                @keyframes pulse {
+                                    0%, 100% { transform: scale(1); }
+                                    50% { transform: scale(1.1); }
+                                }
+                            </style>
+                        </div>
+                    `;
+                }
+                
+                // Fetch all three sheets in parallel
+                const [resourcesData, goalsData, mappingsData] = await Promise.all([
+                    fetchSheetData(SHEET_NAMES.resources),
+                    fetchSheetData(SHEET_NAMES.goals),
+                    fetchSheetData(SHEET_NAMES.mappings)
+                ]);
+                
+                DATA.resources = resourcesData;
+                DATA.goals = goalsData;
+                DATA.mappings = mappingsData;
+                
+                isLoading = false;
+                initApp();
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                const container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 4rem 2rem;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                            <h2 style="font-family: 'Fredoka', sans-serif; color: #dc2626; margin-bottom: 1rem;">Unable to Load Data</h2>
+                            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                                <strong>Possible issues:</strong><br><br>
+                                1. Make sure your Google Sheet is set to "Anyone with the link can VIEW"<br>
+                                2. Check that the Sheet ID is correct<br>
+                                3. Verify your sheet tab names match: "${SHEET_NAMES.resources}", "${SHEET_NAMES.goals}", "${SHEET_NAMES.mappings}"<br><br>
+                                <strong>Error details:</strong> ${error.message}
+                            </p>
+                            <button onclick="location.reload()" style="margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                Try Again
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        async function fetchSheetData(sheetName) {
+            const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+            
+            const response = await fetch(url);
+            const text = await response.text();
+            
+            // Google Sheets returns JSONP, need to extract JSON
+            const json = JSON.parse(text.substring(47).slice(0, -2));
+            
+            // Convert to array of objects
+            const rows = json.table.rows;
+            const cols = json.table.cols;
+            
+            // First row is headers
+            const headers = cols.map(col => col.label);
+            
+            // Convert rows to objects
+            return rows.map(row => {
+                const obj = {};
+                row.c.forEach((cell, index) => {
+                    obj[headers[index]] = cell ? cell.v : '';
+                });
+                return obj;
+            });
+        }
+        
+        // Rest of the code below...
+                        {
+
+        let currentView = 'goals';
+        let selectedItem = null;
+        let domainFilter = 'all';
+        let subdomainFilter = 'all';
+        let searchTerm = '';
+
+        function initApp() {
+            renderStats();
+            renderDomainFilters();
+            renderContent();
+            
+            document.getElementById('searchBox').addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderContent();
+            });
+        }
+
+        function renderStats() {
+            const totalResources = DATA.resources.length;
+            const totalGoals = DATA.goals.length;
+            const totalMappings = DATA.mappings.length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${totalResources}</div>
+                    <div class="stat-label">Total Resources</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalGoals}</div>
+                    <div class="stat-label">IEP Goals</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${totalMappings}</div>
+                    <div class="stat-label">Connections</div>
+                </div>
+            `;
+        }
+
+        function renderDomainFilters() {
+            const domains = [...new Set(DATA.goals.map(g => g.Domain))];
+            
+            // Get subdomains for the current domain filter
+            let subdomains = [];
+            if (domainFilter !== 'all') {
+                const goalsInDomain = DATA.goals.filter(g => g.Domain === domainFilter);
+                const allSubcategories = goalsInDomain.flatMap(g => {
+                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
+                        return g.Subcategories;
+                    } else if (g.Subcategory) {
+                        return [g.Subcategory];
+                    }
+                    return [];
+                });
+                subdomains = [...new Set(allSubcategories)].sort();
+            }
+            
+            let html = `
+                <div style="margin-bottom: 1rem;">
+                    <span class="filter-label">Filter by Domain:</span>
+                    <div class="filter-pills">
+                        <div class="pill ${domainFilter === 'all' ? 'active' : ''}" onclick="setDomainFilter('all')">All Domains</div>
+                        ${domains.map(d => `
+                            <div class="pill ${domainFilter === d ? 'active' : ''}" onclick="setDomainFilter('${d}')">${d}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            if (subdomains.length > 0) {
+                html += `
+                    <div>
+                        <span class="filter-label">Filter by Subdomain:</span>
+                        <div class="filter-pills">
+                            <div class="pill ${subdomainFilter === 'all' ? 'active' : ''}" onclick="setSubdomainFilter('all')">All Subdomains</div>
+                            ${subdomains.map(s => `
+                                <div class="pill ${subdomainFilter === s ? 'active' : ''}" onclick="setSubdomainFilter('${s}')">${s}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('domainFilters').innerHTML = html;
+        }
+
+        function setDomainFilter(domain) {
+            domainFilter = domain;
+            subdomainFilter = 'all';
+            selectedItem = null;
+            renderDomainFilters();
+            renderContent();
+        }
+        
+        function setSubdomainFilter(subdomain) {
+            subdomainFilter = subdomain;
+            selectedItem = null;
+            renderDomainFilters();
+            renderContent();
+        }
+
+        function setView(view) {
+            currentView = view;
+            selectedItem = null;
+            domainFilter = 'all';
+            subdomainFilter = 'all';
+            searchTerm = '';
+            document.getElementById('searchBox').value = '';
+            
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderDomainFilters();
+            renderContent();
+        }
+
+        function renderContent() {
+            if (currentView === 'goals') {
+                renderGoalsView();
+            } else {
+                renderResourcesView();
+            }
+        }
+
+        function renderGoalsView() {
+            let filteredGoals = DATA.goals;
+            
+            if (domainFilter !== 'all') {
+                filteredGoals = filteredGoals.filter(g => g.Domain === domainFilter);
+            }
+            
+            if (subdomainFilter !== 'all') {
+                filteredGoals = filteredGoals.filter(g => {
+                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
+                        return g.Subcategories.includes(subdomainFilter);
+                    } else if (g.Subcategory) {
+                        return g.Subcategory === subdomainFilter;
+                    }
+                    return false;
+                });
+            }
+            
+            if (searchTerm) {
+                filteredGoals = filteredGoals.filter(g => 
+                    g['Goal/Objective Description'].toLowerCase().includes(searchTerm) ||
+                    g['Goal ID'].toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const leftPanel = filteredGoals.map(goal => {
+                const isSelected = selectedItem === goal['Goal ID'];
+                
+                // Handle both array of subcategories and single subcategory
+                let subcategoryBadges = '';
+                if (goal.Subcategories && Array.isArray(goal.Subcategories)) {
+                    subcategoryBadges = goal.Subcategories.map(sc => 
+                        `<span class="subcategory-badge">${sc}</span>`
+                    ).join('');
+                } else if (goal.Subcategory) {
+                    subcategoryBadges = `<span class="subcategory-badge">${goal.Subcategory}</span>`;
+                }
+                
+                return `
+                    <div class="goal-card ${isSelected ? 'selected' : ''}" data-domain="${goal.Domain}" onclick="selectGoal('${goal['Goal ID']}')">
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 0.5rem;">
+                            <span class="goal-id">${goal['Goal ID']}</span>
+                            <span class="domain-badge domain-${goal.Domain}">${goal.Domain}</span>
+                            ${subcategoryBadges}
+                        </div>
+                        <div class="goal-desc">${goal['Goal/Objective Description']}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const rightPanel = selectedItem ? renderSupportingResources() : `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👈</div>
+                    <p>Click on a goal to see all resources that support it</p>
+                </div>
+            `;
+
+            document.getElementById('contentGrid').innerHTML = `
+                <div class="section">
+                    <div class="section-title">IEP Goals (${filteredGoals.length})</div>
+                    ${leftPanel || '<div class="empty-state"><p>No goals match your search</p></div>'}
+                </div>
+                <div class="section">
+                    <div class="section-title">Supporting Resources</div>
+                    ${rightPanel}
+                </div>
+            `;
+        }
+
+        function renderResourcesView() {
+            let filteredResources = DATA.resources;
+            
+            // Filter by domain/subdomain if selected
+            if (domainFilter !== 'all' || subdomainFilter !== 'all') {
+                filteredResources = filteredResources.filter(resource => {
+                    // Find goals this resource supports
+                    const supportedGoalIds = DATA.mappings
+                        .filter(m => m['Resource ID'] === resource['Resource ID'])
+                        .map(m => m['Goal ID']);
+                    
+                    const supportedGoals = DATA.goals.filter(g => supportedGoalIds.includes(g['Goal ID']));
+                    
+                    // Check domain filter
+                    if (domainFilter !== 'all') {
+                        const hasDomain = supportedGoals.some(g => g.Domain === domainFilter);
+                        if (!hasDomain) return false;
+                    }
+                    
+                    // Check subdomain filter
+                    if (subdomainFilter !== 'all') {
+                        const hasSubdomain = supportedGoals.some(g => {
+                            if (g.Subcategories && Array.isArray(g.Subcategories)) {
+                                return g.Subcategories.includes(subdomainFilter);
+                            } else if (g.Subcategory) {
+                                return g.Subcategory === subdomainFilter;
+                            }
+                            return false;
+                        });
+                        if (!hasSubdomain) return false;
+                    }
+                    
+                    return true;
+                });
+            }
+            
+            if (searchTerm) {
+                filteredResources = filteredResources.filter(r => 
+                    r['Resource Name'].toLowerCase().includes(searchTerm) ||
+                    r['Resource ID'].toLowerCase().includes(searchTerm) ||
+                    r.Category.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const leftPanel = filteredResources.map(resource => {
+                const isSelected = selectedItem === resource['Resource ID'];
+                
+                // Find all goals this resource supports
+                const supportedGoals = DATA.mappings
+                    .filter(m => m['Resource ID'] === resource['Resource ID'])
+                    .map(m => DATA.goals.find(g => g['Goal ID'] === m['Goal ID']))
+                    .filter(g => g); // Remove undefined
+                
+                // Extract unique domains and subdomains
+                const domains = [...new Set(supportedGoals.map(g => g.Domain))];
+                const subdomains = [...new Set(supportedGoals.flatMap(g => {
+                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
+                        return g.Subcategories;
+                    } else if (g.Subcategory) {
+                        return [g.Subcategory];
+                    }
+                    return [];
+                }))];
+                
+                return `
+                    <div class="resource-card ${isSelected ? 'selected' : ''}" onclick="selectResource('${resource['Resource ID']}')">
+                        <div>
+                            <span class="resource-id">${resource['Resource ID']}</span>
+                            <span class="format-badge format-${resource.Format}">${resource.Format}</span>
+                        </div>
+                        <div class="resource-name">${resource['Resource Name']}</div>
+                        ${domains.length > 0 ? `
+                            <div style="margin: 0.75rem 0 0.5rem 0;">
+                                ${domains.map(d => `<span class="domain-badge domain-${d}">${d}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        ${subdomains.length > 0 ? `
+                            <div style="margin: 0.25rem 0 0.5rem 0;">
+                                ${subdomains.map(s => `<span class="subcategory-badge">${s}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="resource-details">
+                            <span class="category-tag">${resource.Category}</span>
+                            ${resource['Description/Notes']}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const rightPanel = selectedItem ? renderSupportingGoals() : `
+                <div class="empty-state">
+                    <div class="empty-state-icon">👈</div>
+                    <p>Click on a resource to see which goals it supports</p>
+                </div>
+            `;
+
+            document.getElementById('contentGrid').innerHTML = `
+                <div class="section">
+                    <div class="section-title">Resources (${filteredResources.length})</div>
+                    ${leftPanel || '<div class="empty-state"><p>No resources match your search</p></div>'}
+                </div>
+                <div class="section">
+                    <div class="section-title">Supports These Goals</div>
+                    ${rightPanel}
+                </div>
+            `;
+        }
+
+        function selectGoal(goalId) {
+            selectedItem = goalId;
+            renderContent();
+        }
+
+        function selectResource(resourceId) {
+            selectedItem = resourceId;
+            renderContent();
+        }
+
+        function renderSupportingResources() {
+            const supportingMappings = DATA.mappings.filter(m => m['Goal ID'] === selectedItem);
+            
+            if (supportingMappings.length === 0) {
+                return '<div class="empty-state"><p>No resources mapped to this goal yet.<br>Add mappings in your Excel file!</p></div>';
+            }
+
+            return supportingMappings.map(mapping => `
+                <div class="supporting-item">
+                    <div class="supporting-title">
+                        <span class="resource-id">${mapping['Resource ID']}</span>
+                        <span class="format-badge format-${mapping.Format}">${mapping.Format}</span>
+                    </div>
+                    <div class="resource-name">${mapping['Resource Name']}</div>
+                    <div class="supporting-desc">${mapping['How Resource Supports Goal']}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderSupportingGoals() {
+            const supportingMappings = DATA.mappings.filter(m => m['Resource ID'] === selectedItem);
+            
+            if (supportingMappings.length === 0) {
+                return '<div class="empty-state"><p>No goals mapped to this resource yet.<br>Add mappings in your Excel file!</p></div>';
+            }
+
+            return supportingMappings.map(mapping => `
+                <div class="supporting-item">
+                    <div class="supporting-title">
+                        <span class="goal-id">${mapping['Goal ID']}</span>
+                        <span class="domain-badge domain-${mapping['Goal Domain']}">${mapping['Goal Domain']}</span>
+                    </div>
+                    <div class="goal-desc">${mapping['Goal Description']}</div>
+                    <div class="supporting-desc">${mapping['How Resource Supports Goal']}</div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize app
+        initApp();
+    </script>
+</body>
+</html>
