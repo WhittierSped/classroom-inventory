@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resource-Goal Mapper + Goal Editor</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -638,13 +639,17 @@
 
         <div id="mappingMode">
             <div class="instructions">
-                <h3>Mapping Mode Instructions:</h3>
+                <h3>🌈 Hybrid Mapper Instructions:</h3>
                 <ol>
-                    <li>Select a resource from the left panel</li>
-                    <li>Check the boxes for goals it supports</li>
-                    <li>For each checked goal, describe how the resource supports it</li>
-                    <li>Click "Save All Data" to download</li>
+                    <li><strong>Load Latest Data:</strong> Click "📊 Load from Google Sheets" to get current inventory</li>
+                    <li><strong>Make Edits:</strong> Add resources/goals, create mappings using the nice interface</li>
+                    <li><strong>Save to Excel:</strong> Click "💾 Save to Excel" when done - downloads your updated file</li>
+                    <li><strong>Update Google Sheets:</strong> Go to your Sheet → File → Import → Replace with new file</li>
+                    <li><strong>Everyone sees updates!</strong> Colleagues refresh and see your changes</li>
                 </ol>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: #78716c;">
+                    💡 <strong>Tip:</strong> Works offline too! If you haven't set up Google Sheets, just use the embedded data.
+                </p>
             </div>
 
             <div class="progress-bar">
@@ -656,10 +661,11 @@
 
             <div class="toolbar">
                 <input type="text" class="search-box" id="resourceSearch" placeholder="🔍 Search resources...">
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="openAddResourceModal()">➕ Add New Resource</button>
+                    <button class="btn" style="background: #3b82f6; color: white;" onclick="loadFromGoogleSheets()" id="loadSheetsBtn">📊 Load from Google Sheets</button>
                     <button class="btn btn-primary" onclick="clearCurrentMappings()">Clear This Resource</button>
-                    <button class="btn btn-success" onclick="saveAllData()">💾 Save All Data</button>
+                    <button class="btn btn-success" onclick="saveAllData()">💾 Save to Excel</button>
                 </div>
             </div>
 
@@ -699,9 +705,10 @@
 
             <div class="toolbar">
                 <input type="text" class="search-box" id="goalSearch" placeholder="🔍 Search goals...">
-                <div style="display: flex; gap: 1rem;">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                     <button class="btn btn-secondary" onclick="openAddGoalModal()">➕ Add New Goal</button>
-                    <button class="btn btn-success" onclick="saveAllData()">💾 Save All Data</button>
+                    <button class="btn" style="background: #3b82f6; color: white;" onclick="loadFromGoogleSheets()">📊 Load from Google Sheets</button>
+                    <button class="btn btn-success" onclick="saveAllData()">💾 Save to Excel</button>
                 </div>
             </div>
 
@@ -812,18 +819,13 @@
 
     <script>
         // ============================================
-        // GOOGLE SHEETS CONFIGURATION
+        // GOOGLE SHEETS CONFIGURATION (OPTIONAL)
         // ============================================
-        // INSTRUCTIONS:
-        // 1. Upload your classroom_inventory.xlsx to Google Sheets
-        // 2. Click "Share" → "Anyone with the link can VIEW"
-        // 3. Copy the Sheet ID from the URL (the long string between /d/ and /edit)
-        //    Example URL: https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit
-        // 4. Paste your Sheet ID below:
+        // Leave as 'YOUR_SHEET_ID_HERE' to work offline with embedded data
+        // OR paste your Sheet ID to load latest data from Google Sheets
         
-        const GOOGLE_SHEET_ID = '1LYczFajdWtN3qGOSlqayUpjbZQQUYZhapI4fzL7SUlQ';  // ← PASTE YOUR SHEET ID HERE
+        const GOOGLE_SHEET_ID = '1LYczFajdWtN3qGOSlqayUpjbZQQUYZhapI4fzL7SUlQ';  // ← OPTIONAL: Paste Sheet ID to sync
         
-        // Sheet names (these match your Excel tabs - don't change unless you renamed them)
         const SHEET_NAMES = {
             resources: 'Resources Inventory',
             goals: 'IEP Goals',
@@ -832,7 +834,1836 @@
         
         // ============================================
         
-        // Initialize empty - will be loaded from Google Sheets
+        // Data embedded from your inventory
+        const EMBEDDED_RESOURCES = [
+        {
+                "Resource ID": "D001",
+                "Resource Name": "I Spy Worksheet Bundle",
+                "Format": "Digital",
+                "Category": "Literacy/Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Multi",
+                "Description/Notes": "Letters, Sounds, Numbers, Shapes - 87 worksheets",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D002",
+                "Resource Name": "Math Worksheets Differentiated Support",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Primary grades differentiation",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D003",
+                "Resource Name": "Teen Numbers Worksheets",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Decomposing teen numbers",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D004",
+                "Resource Name": "Kindergarten Math Numbers 1-10",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Counting and cardinality",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D005",
+                "Resource Name": "Grade 1 Reading Comprehension",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Main idea, key details, compare/contrast",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D006",
+                "Resource Name": "Add & Subtract to 10 Word Problems",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "CVC word problems",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D007",
+                "Resource Name": "Thanksgiving Math Craft",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "Shape turkeys",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D008",
+                "Resource Name": "Penguin Craft 2D Shapes",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "Winter geometry",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D009",
+                "Resource Name": "Winter Writing Journal K-2",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "No prep writing",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D010",
+                "Resource Name": "Winter Math Craft Counting",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "Snow globes addition",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D011",
+                "Resource Name": "Winter Math Crafts Teen Numbers",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "Place value, fact families",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D012",
+                "Resource Name": "Phonics Labeling Practice",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Science of Reading",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D013",
+                "Resource Name": "Label the Alphabet",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Beginning letters & sounds",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D014",
+                "Resource Name": "Building Snowman Decodables",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "Differentiated nonfiction readers",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D015",
+                "Resource Name": "Token Economy Boards",
+                "Format": "Digital",
+                "Category": "Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Behavior",
+                "Description/Notes": "Interchanging expectations",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D016",
+                "Resource Name": "Lifetime Decodables Vault",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Endless access bundle",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D017",
+                "Resource Name": "Short Vowels Medial Sounds",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Sorting worksheets K-1",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D018",
+                "Resource Name": "Daily Doodle Alphabet Formation",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Handwriting",
+                "Description/Notes": "52 directed drawings",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D019",
+                "Resource Name": "Writing Bundle Labels/Dialogue",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Writing",
+                "Description/Notes": "Labels, dialogue, onomatopoeias",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D020",
+                "Resource Name": "Phonological Awareness Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Warm-ups, task cards, practice",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D021",
+                "Resource Name": "Goal-Trackers System",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Student goal setting",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D022",
+                "Resource Name": "Sub Plan Pack",
+                "Format": "Digital",
+                "Category": "General",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Classroom",
+                "Description/Notes": "My Teacher Is Missing",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D023",
+                "Resource Name": "Text Evidence Passages",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Beginning readers",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D024",
+                "Resource Name": "Place Value Activities 1st Grade",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "1.NBT.2 aligned",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D025",
+                "Resource Name": "CVC Mapping Practice",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Science of Reading",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D026",
+                "Resource Name": "Guided Phonics Extension Activities",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR growing bundle",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D027",
+                "Resource Name": "Phonics I Spy Hidden Pictures",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Games bundle",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D028",
+                "Resource Name": "Errorless Learning Task Boxes",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Special needs activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D029",
+                "Resource Name": "Alphabet Missing Pieces Task Box",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Task box activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D030",
+                "Resource Name": "Task Boxes Bundle 100 Sets",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Independent work systems",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D031",
+                "Resource Name": "IEP Skills Bundle Progress Monitoring",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Low prep tasks",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D032",
+                "Resource Name": "Shape Matching Task Boxes",
+                "Format": "Digital",
+                "Category": "Special Ed/Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Independent work",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D033",
+                "Resource Name": "Alphabet Hunt Recognition",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "All 26 letters",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D034",
+                "Resource Name": "Classroom Transitions Social Skills",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Social emotional learning",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D035",
+                "Resource Name": "Emotional Regulation Strategies",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Self control activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D036",
+                "Resource Name": "Transitions Interactive Story",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Visuals and more",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D037",
+                "Resource Name": "Following Directions Visual Cards",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Editable for PreK-K-Sped",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D038",
+                "Resource Name": "FirstieMath 1st Grade Intervention",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Intervention curriculum",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D039",
+                "Resource Name": "Fine Motor Lessons & Activities",
+                "Format": "Digital",
+                "Category": "Special Ed/OT",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Fine motor skills",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D040",
+                "Resource Name": "Alphabet Search to Find Sheets",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Hands-on engaging",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D041",
+                "Resource Name": "Numbers 0-20 Handwriting",
+                "Format": "Digital",
+                "Category": "Math/Handwriting",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Hands-on notebook",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D042",
+                "Resource Name": "Secret CVC Words Short Vowels",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "A E I O U practice",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D043",
+                "Resource Name": "Part Part Whole Number Sense Bundle",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "1st grade place value",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D044",
+                "Resource Name": "Short Vowel CVC Word Work Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Science of Reading phonics",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D045",
+                "Resource Name": "Fall/Thanksgiving Bingo",
+                "Format": "Digital",
+                "Category": "General",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "30 cards included",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D046",
+                "Resource Name": "Color by Beginning Sounds",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Letter sounds review",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D047",
+                "Resource Name": "CVC Words Worksheets",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Beginning/ending sounds, segmenting",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D048",
+                "Resource Name": "Beginning Sounds Printable Pack",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Kindergarten phonics",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D049",
+                "Resource Name": "Read and Find Phonics I Spy",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "CVC, long vowels, digraphs",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D050",
+                "Resource Name": "Social Skills Printables Autism",
+                "Format": "Digital",
+                "Category": "SEL/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Special needs focused",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D051",
+                "Resource Name": "Alphabet Worksheet Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Letter work & beginning sounds",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D052",
+                "Resource Name": "Counting On Addition/Subtraction",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Ten frames addition",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D053",
+                "Resource Name": "Winter Cut-And-Paste Activities",
+                "Format": "Digital",
+                "Category": "General",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Seasonal",
+                "Description/Notes": "2 levels",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D054",
+                "Resource Name": "CVC 3-in-1 Fluency Checks",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR based",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D055",
+                "Resource Name": "Place Value Cut & Paste",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Base ten blocks",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D056",
+                "Resource Name": "Close Reading Comprehension",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Passages & questions",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D057",
+                "Resource Name": "IEP Parent Input Questionnaire",
+                "Format": "Digital",
+                "Category": "Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Google Form included",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D058",
+                "Resource Name": "Orton-Gillingham Master Skills List",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Reference sheet",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D059",
+                "Resource Name": "b and d Reversal Worksheets",
+                "Format": "Digital",
+                "Category": "Literacy/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Dyslexia support",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D060",
+                "Resource Name": "p/b/d Reversal Remediation",
+                "Format": "Digital",
+                "Category": "Literacy/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "13 printables",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D061",
+                "Resource Name": "Personal Reference Rings",
+                "Format": "Digital",
+                "Category": "General",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Classroom",
+                "Description/Notes": "Mini anchor charts",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D062",
+                "Resource Name": "Syllable Types & Division",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Orton-Gillingham",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D063",
+                "Resource Name": "Syllable Division Posters",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Practice pages with Google",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D064",
+                "Resource Name": "Multisyllabic Words Decoding",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Using syllable types",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D065",
+                "Resource Name": "Level 1 OG Lesson Plans",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Phonemic awareness",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D066",
+                "Resource Name": "2nd Grade Reading Comprehension",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Main idea & details",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D067",
+                "Resource Name": "Level 1 OG Illustrated Cards",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Literacy concept cards",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D068",
+                "Resource Name": "Sight Words Orthographic Mapping",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "440 pages + Google",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D069",
+                "Resource Name": "OG Lesson Plans Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Decodables, assessments 620+ pgs",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D070",
+                "Resource Name": "Worry Workbook",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Anxiety coping skills",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D071",
+                "Resource Name": "Word Chains",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Phonics practice",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D072",
+                "Resource Name": "OG Student Notebook Pages Level 1",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Student materials",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D073",
+                "Resource Name": "Orton Gillingham Red Word Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Distance learning friendly",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D074",
+                "Resource Name": "Closed Open Silent e Syllables",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Worksheets & activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D075",
+                "Resource Name": "Context Clues Practice Sheets",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Common Core no prep",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D076",
+                "Resource Name": "Ultimate Binder Bundle",
+                "Format": "Digital",
+                "Category": "Literacy/Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Multi",
+                "Description/Notes": "Reading & math intervention",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D077",
+                "Resource Name": "Phonics Decodable Readers Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR comprehension",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D078",
+                "Resource Name": "Nonfiction Decodable Readers",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Structured literacy",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D079",
+                "Resource Name": "Pre A Guided Reading Binders",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Literacy",
+                "Description/Notes": "Small group activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D080",
+                "Resource Name": "3rd Grade Error Analysis Math",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Google Slides digital",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D081",
+                "Resource Name": "Word Problem Intervention Bundle",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "RTI focused",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D082",
+                "Resource Name": "3rd Grade Numberless Word Problems",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Mixed operations",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D083",
+                "Resource Name": "Phonics Reading Intervention Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Phonics-based packs",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D084",
+                "Resource Name": "Math Assessments Bundle 1st-6th",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Pre-assessment intervention",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D085",
+                "Resource Name": "No Prep Assessment Binder Bundle",
+                "Format": "Digital",
+                "Category": "Multi",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Assessment",
+                "Description/Notes": "Distance learning",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D086",
+                "Resource Name": "Place Value Activities 3 Digit",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "3 digit place value bundle",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D087",
+                "Resource Name": "Working Memory Brain Games",
+                "Format": "Digital",
+                "Category": "Special Ed/SEL",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "15 games, executive function",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D088",
+                "Resource Name": "Executive Functioning Skills",
+                "Format": "Digital",
+                "Category": "SEL/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Worksheets & lessons elementary",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D089",
+                "Resource Name": "Executive Functioning Games",
+                "Format": "Digital",
+                "Category": "SEL/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Self-regulation breaks",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D090",
+                "Resource Name": "Working Memory Bundle",
+                "Format": "Digital",
+                "Category": "Special Ed/SEL",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Comprehensive memory work",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D091",
+                "Resource Name": "Decodable Texts OG Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Orton-Gillingham lessons",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D092",
+                "Resource Name": "Executive Functioning MEGA Bundle",
+                "Format": "Digital",
+                "Category": "SEL/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "16 interactive PowerPoints",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D093",
+                "Resource Name": "Addition & Subtraction within 20",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Word problems RTI",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D094",
+                "Resource Name": "Self Control Bundle",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Thinking, choices, social filter",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D095",
+                "Resource Name": "Social Filter Worksheets",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "Task cards, social skills",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D096",
+                "Resource Name": "Base Ten Block Structures",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Hands-on place value",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D097",
+                "Resource Name": "Reading Intervention Upper Grade",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "Phonics intervention activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D098",
+                "Resource Name": "2nd Grade Place Value Unit",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Small group intervention",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D099",
+                "Resource Name": "Diagnostic Reading Assessment",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Assessment",
+                "Description/Notes": "For intervention",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D100",
+                "Resource Name": "Multisyllabic Word Practice",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR syllables growing",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D101",
+                "Resource Name": "Guided Phonics + Beyond Curriculum",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR curriculum + sound wall",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D102",
+                "Resource Name": "Guided Phonics Endless MEGA Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR decodable based",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D103",
+                "Resource Name": "Guided Phonics Writing Center U2",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR decodable writing",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D104",
+                "Resource Name": "Guided Phonics Interactive Notebooks",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "SOR bundle",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D105",
+                "Resource Name": "Place Value Daily Practice SpecEd",
+                "Format": "Digital",
+                "Category": "Math/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Number sense intervention",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D106",
+                "Resource Name": "Multi-Digit Add/Subtract Lessons",
+                "Format": "Digital",
+                "Category": "Math/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "Word problems special ed",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D107",
+                "Resource Name": "Tracing Cursive Font",
+                "Format": "Digital",
+                "Category": "Handwriting",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Handwriting",
+                "Description/Notes": "Cursive writing practice",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D108",
+                "Resource Name": "Instant Stretch & Blend Sheets",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "17 packets, 400+ sheets CVC-variants",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D109",
+                "Resource Name": "iReady Math 1st Grade Bundle",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "6 units: addition, subtraction, geometry",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D110",
+                "Resource Name": "Math Worksheets K Curriculum",
+                "Format": "Digital",
+                "Category": "Math/Special Ed",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SpecialEd",
+                "Description/Notes": "800+ sheets, counting, shapes, addition",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D111",
+                "Resource Name": "Thematic Phonics & Math Centers",
+                "Format": "Digital",
+                "Category": "Literacy/Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Multi",
+                "Description/Notes": "200 phonics + 200 math, 40 themes",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D112",
+                "Resource Name": "Handwriting In-a-Click Bundle",
+                "Format": "Digital",
+                "Category": "Handwriting/Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Handwriting",
+                "Description/Notes": "200 sheets, phonics-based SOR",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D113",
+                "Resource Name": "Phonics Centers GP+ Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "120 centers, 6 units SOR aligned",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D114",
+                "Resource Name": "Part Part Whole Bundle",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Bonds, addends, place value 1st grade",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D115",
+                "Resource Name": "Social Stories Emotional Reg Bundle",
+                "Format": "Digital",
+                "Category": "SEL/Behavior",
+                "Quantity": "1",
+                "Location/File Path": "TPT/SEL",
+                "Description/Notes": "7 stories, coping skills, visuals",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D116",
+                "Resource Name": "Guided Phonics MEGA Bundle",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "55 packets SOR centers & activities",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D117",
+                "Resource Name": "Place Value Activities 3-Digit",
+                "Format": "Digital",
+                "Category": "Math",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Math",
+                "Description/Notes": "Comparing, expanded form, base ten",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "D118",
+                "Resource Name": "OG Decodable Readers Nonfiction",
+                "Format": "Digital",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "TPT/Phonics",
+                "Description/Notes": "121 passages CVC-contractions",
+                "Source": "Teachers Pay Teachers"
+        },
+        {
+                "Resource ID": "P001",
+                "Resource Name": "Place Value Whiteboards (HTO)",
+                "Format": "Physical",
+                "Category": "Math",
+                "Quantity": "Class Set",
+                "Location/File Path": "Math Cabinet",
+                "Description/Notes": "Hundreds-Tens-Ones columns",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P002",
+                "Resource Name": "Rainbow Pop-Its 100-Board",
+                "Format": "Physical",
+                "Category": "Math",
+                "Quantity": "Multiple",
+                "Location/File Path": "Math Shelf",
+                "Description/Notes": "100-grid version for counting",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P003",
+                "Resource Name": "Class Set Whiteboards",
+                "Format": "Physical",
+                "Category": "General",
+                "Quantity": "Class Set",
+                "Location/File Path": "Storage Cabinet",
+                "Description/Notes": "Handheld dry-erase boards",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P004",
+                "Resource Name": "Place Value Regrouping Boards",
+                "Format": "Physical",
+                "Category": "Math",
+                "Quantity": "Class Set",
+                "Location/File Path": "Math Cabinet",
+                "Description/Notes": "Regrouping practice",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P005",
+                "Resource Name": "Base Ten Blocks",
+                "Format": "Physical",
+                "Category": "Math",
+                "Quantity": "1 Set",
+                "Location/File Path": "Math Manipulatives Bin",
+                "Description/Notes": "Physical rods and units",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P006",
+                "Resource Name": "Dice",
+                "Format": "Physical",
+                "Category": "Math",
+                "Quantity": "Multiple",
+                "Location/File Path": "Games Bin",
+                "Description/Notes": "Roll Em Up and centers",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P007",
+                "Resource Name": "Snap & Build Phonics CVC",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "CVC set",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P008",
+                "Resource Name": "Splash Reading Games",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "5",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "Blends, digraphs, vowels, syllables, sight words",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P009",
+                "Resource Name": "Match & Sort Language Quickies",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "3",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "Phonics K-1, 2-3, Vocabulary",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P010",
+                "Resource Name": "Stack & Build Phonics Flip Books",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "Flip book phonics",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P011",
+                "Resource Name": "Can Do Informational Text Game",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "1",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "Reading game",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P012",
+                "Resource Name": "Phonemic Awareness Boxes",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "1 Set",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "Object-based sound sorting",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P013",
+                "Resource Name": "Sequencing Cards",
+                "Format": "Physical",
+                "Category": "Literacy/SEL",
+                "Quantity": "3 Sets",
+                "Location/File Path": "Lakeshore Shelf",
+                "Description/Notes": "3, 4, and 6-step stories",
+                "Source": "Lakeshore Learning"
+        },
+        {
+                "Resource ID": "P014",
+                "Resource Name": "Rainbow Pop-Its Alphabet",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "Multiple",
+                "Location/File Path": "Literacy Shelf",
+                "Description/Notes": "Alphabet version",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P015",
+                "Resource Name": "Textured Touch & Trace Cards",
+                "Format": "Physical",
+                "Category": "Literacy/Math",
+                "Quantity": "2 Sets",
+                "Location/File Path": "Literacy Shelf",
+                "Description/Notes": "Sandpaper letters & numbers",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P016",
+                "Resource Name": "Alphabet Stamps",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "1 Set",
+                "Location/File Path": "Writing Center",
+                "Description/Notes": "Rubber stamps for activities",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P017",
+                "Resource Name": "Alphabet Magnet Trays & Letters",
+                "Format": "Physical",
+                "Category": "Literacy",
+                "Quantity": "Class Set",
+                "Location/File Path": "Literacy Center",
+                "Description/Notes": "Magnetic letter activities",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P018",
+                "Resource Name": "Plastic Linking Chains",
+                "Format": "Physical",
+                "Category": "General",
+                "Quantity": "Multiple",
+                "Location/File Path": "Center Bins",
+                "Description/Notes": "Link-up centers",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P019",
+                "Resource Name": "Breathing Visuals Cards",
+                "Format": "Physical",
+                "Category": "SEL/Behavior",
+                "Quantity": "1 Deck",
+                "Location/File Path": "Calm Down Area",
+                "Description/Notes": "Physical card deck",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P020",
+                "Resource Name": "Muscle Relaxation Cards",
+                "Format": "Physical",
+                "Category": "SEL/Behavior",
+                "Quantity": "1 Deck",
+                "Location/File Path": "Calm Down Area",
+                "Description/Notes": "Physical card deck",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P021",
+                "Resource Name": "Visual Posters & Anchor Charts",
+                "Format": "Physical",
+                "Category": "General",
+                "Quantity": "Multiple",
+                "Location/File Path": "Classroom Walls",
+                "Description/Notes": "Classroom displays",
+                "Source": ""
+        },
+        {
+                "Resource ID": "P022",
+                "Resource Name": "Dry-Erase Sleeves",
+                "Format": "Physical",
+                "Category": "General",
+                "Quantity": "Class Set",
+                "Location/File Path": "Center Bins",
+                "Description/Notes": "Reusable worksheet sleeves",
+                "Source": ""
+        }
+];
+        const EMBEDDED_GOALS = [
+        {
+                "Goal ID": "G001",
+                "Domain": "Math",
+                "Goal/Objective Description": "Solve 10-16 math facts (addition/subtraction within 20) in one minute"
+        },
+        {
+                "Goal ID": "G002",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given addition or subtraction problems within 5, solve using objects, drawings, or verbal responses"
+        },
+        {
+                "Goal ID": "G003",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given addition problems within 20, solve using math drawings or manipulatives"
+        },
+        {
+                "Goal ID": "G004",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given subtraction problems within 20, solve using math drawings or manipulatives"
+        },
+        {
+                "Goal ID": "G005",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given two numbers from 0-100, use place value strategies to identify the larger number"
+        },
+        {
+                "Goal ID": "G006",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given a set of up to 10 objects, count each object using one-to-one correspondence"
+        },
+        {
+                "Goal ID": "G007",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given numeral cards and sets of objects within 10, match the correct numeral to quantity"
+        },
+        {
+                "Goal ID": "G008",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given two groups of objects within 10, identify which group has more, fewer, or same"
+        },
+        {
+                "Goal ID": "G009",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given 2-digit numbers, identify tens and ones by matching/drawing base ten blocks"
+        },
+        {
+                "Goal ID": "G010",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given a list of numbers 0-99, read the numbers aloud"
+        },
+        {
+                "Goal ID": "G011",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given pairs of numbers 0-99 and timer, identify the larger number"
+        },
+        {
+                "Goal ID": "G012",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given 5 addition/subtraction problems within 20, solve using manipulatives or drawings"
+        },
+        {
+                "Goal ID": "G013",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given addition/subtraction facts within 20 and timer, solve using counting strategies"
+        },
+        {
+                "Goal ID": "G014",
+                "Domain": "Math",
+                "Goal/Objective Description": "Using concrete/pictorial models, represent word problems with addition/subtraction within 20"
+        },
+        {
+                "Goal ID": "G015",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given one-step word problem, use manipulatives to represent and solve"
+        },
+        {
+                "Goal ID": "G016",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given one-step word problem, create math drawing to represent and solve"
+        },
+        {
+                "Goal ID": "G017",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given word problem or math drawing, write matching number sentence with +, -, ="
+        },
+        {
+                "Goal ID": "G018",
+                "Domain": "Math",
+                "Goal/Objective Description": "Given mix of addition/subtraction word problems, identify correct operation"
+        },
+        {
+                "Goal ID": "G019",
+                "Domain": "Math",
+                "Goal/Objective Description": "Solve addition/subtraction word problems within 20 using objects or drawings"
+        },
+        {
+                "Goal ID": "G020",
+                "Domain": "Math",
+                "Goal/Objective Description": "Solve for unknown in addition/subtraction equation (e.g., 5 + ? = 12)"
+        },
+        {
+                "Goal ID": "G021",
+                "Domain": "Math",
+                "Goal/Objective Description": "Order 3 objects by length, shortest to longest"
+        },
+        {
+                "Goal ID": "G022",
+                "Domain": "Math",
+                "Goal/Objective Description": "Order 3 objects by height, shortest to tallest"
+        },
+        {
+                "Goal ID": "G023",
+                "Domain": "Math",
+                "Goal/Objective Description": "Instantly recognize quantity of group by structured arrangements (subitizing)"
+        },
+        {
+                "Goal ID": "G024",
+                "Domain": "Math",
+                "Goal/Objective Description": "Sort size bears (large, medium, small) into correct sections"
+        },
+        {
+                "Goal ID": "G025",
+                "Domain": "Math",
+                "Goal/Objective Description": "Use language to describe how groups are similar and different"
+        },
+        {
+                "Goal ID": "G026",
+                "Domain": "Math",
+                "Goal/Objective Description": "Sort shapes (circle, triangle, square, diamond) into correct sections"
+        },
+        {
+                "Goal ID": "G027",
+                "Domain": "Math",
+                "Goal/Objective Description": "Differentiate between long/tall and short objects"
+        },
+        {
+                "Goal ID": "G028",
+                "Domain": "Math",
+                "Goal/Objective Description": "Compare the size of 2 objects"
+        },
+        {
+                "Goal ID": "G029",
+                "Domain": "Math",
+                "Goal/Objective Description": "Identify objects that are short/long or tall/short when asked"
+        },
+        {
+                "Goal ID": "G030",
+                "Domain": "Math",
+                "Goal/Objective Description": "Sequence objects by size from largest to smallest"
+        },
+        {
+                "Goal ID": "G031",
+                "Domain": "Math",
+                "Goal/Objective Description": "Identify and represent numbers up to 20 using manipulatives"
+        },
+        {
+                "Goal ID": "G032",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Decode and read 8 out of 10 CVC words independently"
+        },
+        {
+                "Goal ID": "G033",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Write the correct letter for 8 out of 10 random letter sounds"
+        },
+        {
+                "Goal ID": "G034",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Read 1st/2nd grade passage with 30-40 WCPM at 95% accuracy"
+        },
+        {
+                "Goal ID": "G035",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Read 1st-grade passage (UFLI patterns) for one minute at 30 WCPM"
+        },
+        {
+                "Goal ID": "G036",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Read 1st-grade passage aloud for one minute at 35 WCPM with 95% accuracy"
+        },
+        {
+                "Goal ID": "G037",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Read at least 9 out of 10 short vowel words (CVC, CVCC, or CCVC)"
+        },
+        {
+                "Goal ID": "G038",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Identify own name among 2-3 other names when prompted"
+        },
+        {
+                "Goal ID": "G039",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "State the correct sound for 26 lowercase letters out of order"
+        },
+        {
+                "Goal ID": "G040",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "State the correct sound for 8 out of 10 random lowercase letters"
+        },
+        {
+                "Goal ID": "G041",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Correctly write 4 out of 5 short vowel words (CVC, CCVC, or CVCC)"
+        },
+        {
+                "Goal ID": "G042",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Match 5 uppercase letters to their lowercase partners"
+        },
+        {
+                "Goal ID": "G043",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Identify name and sound for 10 random letters with support"
+        },
+        {
+                "Goal ID": "G044",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Identify (point to or read) 3 of 4 CVC words in short supported sentence"
+        },
+        {
+                "Goal ID": "G045",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Match CVC word to picture when given 5 pictures and choice of 3 words"
+        },
+        {
+                "Goal ID": "G046",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Decode and blend 10 CVC words aloud with at least 90% accuracy"
+        },
+        {
+                "Goal ID": "G047",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Write the letter that makes a specific sound when given 10 letter sounds"
+        },
+        {
+                "Goal ID": "G048",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Sound out lowercase letters shown out of order with 100% accuracy"
+        },
+        {
+                "Goal ID": "G049",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Follow along with text in book with finger when read aloud"
+        },
+        {
+                "Goal ID": "G050",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Follow along with book and read story through interpreting pictures"
+        },
+        {
+                "Goal ID": "G051",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Read book through interpreting pictures to tell story to others"
+        },
+        {
+                "Goal ID": "G052",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Point to correct uppercase/lowercase letter when asked"
+        },
+        {
+                "Goal ID": "G053",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Point to correct uppercase letter when asked"
+        },
+        {
+                "Goal ID": "G054",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Produce beginning consonants corresponding to word card"
+        },
+        {
+                "Goal ID": "G055",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Tell if sounds are the same or different"
+        },
+        {
+                "Goal ID": "G056",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Write own name (first, last, or nickname)"
+        },
+        {
+                "Goal ID": "G057",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Arrange word cards with visuals (including question mark) in correct order"
+        },
+        {
+                "Goal ID": "G058",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Use context clues to determine meaning of unfamiliar word (5 sentences)"
+        },
+        {
+                "Goal ID": "G059",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "Organize story information into graphic organizer with 3 details/events"
+        },
+        {
+                "Goal ID": "G060",
+                "Domain": "Literacy",
+                "Goal/Objective Description": "MAZE passage completion"
+        },
+        {
+                "Goal ID": "G061",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Utilize functional communication (break card/phrase) to request break or delay"
+        },
+        {
+                "Goal ID": "G062",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Request break using practiced phrase or visual card instead of verbal outbursts"
+        },
+        {
+                "Goal ID": "G063",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Identify and demonstrate one calming strategy when calm"
+        },
+        {
+                "Goal ID": "G064",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Maintain safe body (no hitting, biting, kicking, spitting, pulling hair) during transitions"
+        },
+        {
+                "Goal ID": "G065",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Walk to and utilize designated calming area for minimum 3 minutes"
+        },
+        {
+                "Goal ID": "G066",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Move to next activity without behavioral overreactions"
+        },
+        {
+                "Goal ID": "G067",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Identify basic emotions (happy, sad, etc.) in pictures of characters"
+        },
+        {
+                "Goal ID": "G068",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Ask for help at least twice per day when stuck or confused"
+        },
+        {
+                "Goal ID": "G069",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Name one confident step or past success before starting new academic task"
+        },
+        {
+                "Goal ID": "G070",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Select alternate pre-approved task to work on while waiting for adult assistance"
+        },
+        {
+                "Goal ID": "G071",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Order 4-picture story sequence and describe one feeling/action for character"
+        },
+        {
+                "Goal ID": "G072",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Order 2-3 picture sequence to tell simple story with visual/verbal cues"
+        },
+        {
+                "Goal ID": "G073",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Suggest one appropriate action and one feeling in simple social situation"
+        },
+        {
+                "Goal ID": "G074",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Identify character's feeling and cause of that feeling in story"
+        },
+        {
+                "Goal ID": "G075",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Match own feelings to character's emotions"
+        },
+        {
+                "Goal ID": "G076",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Begin and complete academic task with no more than one verbal prompt"
+        },
+        {
+                "Goal ID": "G077",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Follow two-step directions with no more than one verbal/visual cue"
+        },
+        {
+                "Goal ID": "G078",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Work out small conflicts with peers"
+        },
+        {
+                "Goal ID": "G079",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Distinguish between appropriate and inappropriate behaviors"
+        },
+        {
+                "Goal ID": "G080",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Demonstrate understanding of emotions by identifying emotions and explaining why"
+        },
+        {
+                "Goal ID": "G081",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Demonstrate learned techniques to manage emotions"
+        },
+        {
+                "Goal ID": "G082",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Share with others when appropriate"
+        },
+        {
+                "Goal ID": "G083",
+                "Domain": "SEL",
+                "Goal/Objective Description": "Participate in cooperative play with others"
+        },
+        {
+                "Goal ID": "G084",
+                "Domain": "Communication",
+                "Goal/Objective Description": "Communicate whether two pictures are same or different"
+        },
+        {
+                "Goal ID": "G085",
+                "Domain": "Communication",
+                "Goal/Objective Description": "Communicate whether pictures are different and describe differences"
+        }
+];
         let resources = [];
         let goals = [];
         let mappings = {};
@@ -923,24 +2754,20 @@
             });
         }
         
-        async function loadGoogleSheetsData() {
+        async function loadFromGoogleSheets() {
+            if (GOOGLE_SHEET_ID === 'YOUR_SHEET_ID_HERE') {
+                alert('❌ Google Sheet ID not configured!\n\nTo use this feature:\n1. Open this HTML file in a text editor\n2. Find: const GOOGLE_SHEET_ID = \'YOUR_SHEET_ID_HERE\';\n3. Replace YOUR_SHEET_ID_HERE with your actual Google Sheet ID\n4. Save the file\n\nFor now, you can keep using the embedded data!');
+                return;
+            }
+            
+            const loadBtn = document.getElementById('loadSheetsBtn');
+            if (loadBtn) {
+                loadBtn.disabled = true;
+                loadBtn.textContent = '⏳ Loading...';
+            }
+            
             try {
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 4rem 2rem;">
-                            <div style="font-size: 4rem; margin-bottom: 1rem; animation: pulse 2s ease-in-out infinite;">🔗</div>
-                            <h2 style="font-family: 'Fredoka', sans-serif; color: var(--primary); margin-bottom: 0.5rem;">Loading Your Data...</h2>
-                            <p style="color: var(--text-muted);">Fetching from Google Sheets</p>
-                            <style>
-                                @keyframes pulse {
-                                    0%, 100% { transform: scale(1); }
-                                    50% { transform: scale(1.1); }
-                                }
-                            </style>
-                        </div>
-                    `;
-                }
+                showNotification('Loading from Google Sheets...');
                 
                 // Fetch all three sheets in parallel
                 const [resourcesData, goalsData, mappingsData] = await Promise.all([
@@ -959,84 +2786,53 @@
                     const goalId = row['Goal ID'];
                     const howSupported = row['How Resource Supports Goal'] || '';
                     
-                    if (!mappings[resourceId]) {
-                        mappings[resourceId] = {};
+                    if (resourceId && goalId) {
+                        if (!mappings[resourceId]) {
+                            mappings[resourceId] = {};
+                        }
+                        mappings[resourceId][goalId] = {
+                            checked: true,
+                            description: howSupported
+                        };
                     }
-                    mappings[resourceId][goalId] = {
-                        checked: true,
-                        description: howSupported
-                    };
                 });
                 
-                // Restore page and initialize app
-                document.body.innerHTML = document.body.innerHTML; // Reset
-                window.location.reload(); // Reload to restore HTML
+                // Save to localStorage so it persists
+                localStorage.setItem('resources', JSON.stringify(resources));
+                localStorage.setItem('goals', JSON.stringify(goals));
+                localStorage.setItem('resourceGoalMappings', JSON.stringify(mappings));
                 
-                initAppWithData();
+                // Re-render everything
+                renderResourceList();
+                renderGoalList();
+                updateProgress();
+                renderGoalDomainFilter();
+                if (currentResource) renderEditor();
+                if (currentGoal) renderGoalEditor(currentGoal);
+                
+                showNotification('✅ Loaded latest data from Google Sheets!');
                 
             } catch (error) {
-                console.error('Error loading data:', error);
-                const container = document.querySelector('.container');
-                if (container) {
-                    container.innerHTML = `
-                        <div style="text-align: center; padding: 4rem 2rem;">
-                            <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
-                            <h2 style="font-family: 'Fredoka', sans-serif; color: #dc2626; margin-bottom: 1rem;">Unable to Load Data</h2>
-                            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; line-height: 1.6;">
-                                <strong>Possible issues:</strong><br><br>
-                                1. Make sure your Google Sheet is set to "Anyone with the link can VIEW"<br>
-                                2. Check that the Sheet ID is correct<br>
-                                3. Verify your sheet tab names match exactly<br><br>
-                                <strong>Error:</strong> ${error.message}
-                            </p>
-                            <button onclick="location.reload()" style="margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
-                                Try Again
-                            </button>
-                        </div>
-                    `;
+                console.error('Error loading from Google Sheets:', error);
+                alert('❌ Error loading from Google Sheets!\n\nPossible issues:\n1. Make sure your Sheet is set to "Anyone with link can VIEW"\n2. Check that the Sheet ID is correct\n3. Verify sheet tab names match exactly\n\nError: ' + error.message);
+            } finally {
+                if (loadBtn) {
+                    loadBtn.disabled = false;
+                    loadBtn.textContent = '📊 Load from Google Sheets';
                 }
             }
         }
 
         function initApp() {
-            if (GOOGLE_SHEET_ID === 'YOUR_SHEET_ID_HERE') {
-                document.body.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; font-family: 'DM Sans', sans-serif; padding: 2rem; text-align: center;">
-                        <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
-                        <h2 style="color: #dc2626; margin-bottom: 1rem;">Google Sheet Not Connected</h2>
-                        <p style="color: #78716c; max-width: 600px; line-height: 1.6;">
-                            Please edit this HTML file and add your Google Sheet ID.<br><br>
-                            Find the line near the top: <code style="background: #f5f5f4; padding: 0.2rem 0.5rem; border-radius: 4px;">const GOOGLE_SHEET_ID = 'YOUR_SHEET_ID_HERE';</code><br>
-                            Replace YOUR_SHEET_ID_HERE with your Google Sheet ID and save.
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            loadGoogleSheetsData();
-        }
-        
-        function initAppWithData() {
-            // Load saved local changes from localStorage if any
-            const savedMappings = localStorage.getItem('resourceGoalMappings');
+            // Try to load from localStorage first (saved edits)
+            const savedResources = localStorage.getItem('resources');
             const savedGoals = localStorage.getItem('goals');
+            const savedMappings = localStorage.getItem('resourceGoalMappings');
             
-            if (savedMappings) {
-                // Merge saved mappings with loaded data
-                const localMappings = JSON.parse(savedMappings);
-                Object.keys(localMappings).forEach(resourceId => {
-                    if (!mappings[resourceId]) {
-                        mappings[resourceId] = {};
-                    }
-                    Object.assign(mappings[resourceId], localMappings[resourceId]);
-                });
-            }
-            
-            if (savedGoals) {
-                // Use local goals if they exist (user has made edits)
-                goals = JSON.parse(savedGoals);
-            }
+            // Use saved data if available, otherwise use embedded data
+            resources = savedResources ? JSON.parse(savedResources) : EMBEDDED_RESOURCES;
+            goals = savedGoals ? JSON.parse(savedGoals) : EMBEDDED_GOALS;
+            mappings = savedMappings ? JSON.parse(savedMappings) : {};
 
             renderResourceList();
             renderGoalList();
@@ -1050,10 +2846,6 @@
             document.getElementById('goalSearch').addEventListener('input', (e) => {
                 renderGoalList(e.target.value);
             });
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initApp);
         }
 
         function setMode(mode) {
@@ -1882,7 +3674,7 @@
         }
 
         function saveAllData() {
-            // Convert mappings to array format
+            // Convert mappings to array format for export
             const mappingArray = [];
             
             for (const [resourceId, goalMappings] of Object.entries(mappings)) {
@@ -1900,29 +3692,63 @@
                         "Goal ID": goalId,
                         "Goal Domain": goal.Domain,
                         "Goal Description": goal['Goal/Objective Description'],
-                        "How Resource Supports Goal": support
+                        "How Resource Supports Goal": support.description || ''
                     });
                 }
             }
 
-            // Create complete export
-            const exportData = {
-                resources: resources,
-                goals: goals,
-                mappings: mappingArray
-            };
-
-            // Download
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
+            // Create Excel workbook with multiple sheets
+            const wb = XLSX.utils.book_new();
             
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'classroom_inventory_data.json';
-            link.click();
+            // Instructions sheet
+            const instructionsData = [
+                ['CLASSROOM RESOURCE INVENTORY - INSTRUCTIONS'],
+                [''],
+                ['PURPOSE:'],
+                ['This workbook helps you track classroom resources and map them to IEP goals/objectives for effective lesson planning.'],
+                [''],
+                ['SHEET DESCRIPTIONS:'],
+                ['1. Resources Inventory - Complete list of all digital (TPT) and physical classroom resources'],
+                ['   - Resource ID: Unique identifier (D### for digital, P### for physical)'],
+                ['   - Use this to see everything you have available'],
+                [''],
+                ['2. IEP Goals - All IEP goals and objectives organized by domain (Math, Literacy, SEL)'],
+                ['   - Goal ID: G### identifier'],
+                ['   - Use this to see all your teaching targets'],
+                [''],
+                ['3. Resource-Goal Mapping - Shows which resources support which goals'],
+                ['   - Organized by resource (one resource supporting multiple goals)'],
+                ['   - Add rows to map your resources to goals'],
+                ['   - Include "How Resource Supports Goal" to document your implementation ideas'],
+                [''],
+                ['HOW TO UPDATE GOOGLE SHEETS:'],
+                ['1. Go to sheets.google.com'],
+                ['2. Open your classroom inventory Sheet'],
+                ['3. File → Import'],
+                ['4. Upload tab → Select this file'],
+                ['5. Choose "Replace spreadsheet"'],
+                ['6. Click Import data'],
+                ['7. Done! Everyone sees your updates!']
+            ];
+            const wsInstructions = XLSX.utils.aoa_to_sheet(instructionsData);
+            XLSX.utils.book_append_sheet(wb, wsInstructions, 'Instructions');
+            
+            // Resources Inventory sheet
+            const wsResources = XLSX.utils.json_to_sheet(resources);
+            XLSX.utils.book_append_sheet(wb, wsResources, 'Resources Inventory');
+            
+            // IEP Goals sheet
+            const wsGoals = XLSX.utils.json_to_sheet(goals);
+            XLSX.utils.book_append_sheet(wb, wsGoals, 'IEP Goals');
+            
+            // Resource-Goal Mapping sheet
+            const wsMappings = XLSX.utils.json_to_sheet(mappingArray);
+            XLSX.utils.book_append_sheet(wb, wsMappings, 'Resource-Goal Mapping');
 
-            showNotification('Data saved! File downloaded.');
+            // Download Excel file
+            XLSX.writeFile(wb, 'classroom_inventory.xlsx');
+
+            showNotification('✅ Excel file downloaded! Upload to Google Sheets to share updates.');
         }
 
         function showNotification(message) {
@@ -1934,6 +3760,8 @@
             }, 3000);
         }
 
+        // Initialize
+        initApp();
     </script>
 </body>
 </html>
