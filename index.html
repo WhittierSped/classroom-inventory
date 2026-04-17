@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Inventory - Choose a Tool</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #ec4899 0%, #f97316 20%, #eab308 40%, #10b981 60%, #3b82f6 80%, #8b5cf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #1c1917;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.75rem;
+            margin-bottom: 0.75rem;
+            color: #1c1917;
+        }
+
+        .card-description {
+            color: #78716c;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-features li {
+            padding: 0.5rem 0;
+            color: #78716c;
+            font-size: 0.95rem;
+        }
+
+        .card-features li::before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .card-button {
+            display: inline-block;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .card:hover .card-button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            transform: scale(1.02);
+        }
+
+        .card.mapper .card-button {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        .card.mapper:hover .card-button {
+            background: linear-gradient(135deg, #db2777, #9f1239);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            color: white;
+            opacity: 0.9;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌈 Classroom Inventory Tools</h1>
+            <p class="subtitle">Choose a tool to explore your resources and IEP goals</p>
+        </div>
+
+        <div class="cards">
+            <a href="classroom_inventory_viewer_sheets.html" class="card viewer">
+                <div class="card-icon">📚</div>
+                <h2 class="card-title">Resource Viewer</h2>
+                <p class="card-description">
+                    Browse your complete classroom inventory with powerful filtering and search.
+                </p>
+                <ul class="card-features">
+                    <li>View all 118 digital + 22 physical resources</li>
+                    <li>Filter by domain and subdomain</li>
+                    <li>See which resources support each goal</li>
+                    <li>Color-coded by subject area</li>
+                </ul>
+                <div class="card-button">Open Viewer →</div>
+            </a>
+
+            <a href="resource_goal_mapper_sheets.html" class="card mapper">
+                <div class="card-icon">🔗</div>
+                <h2 class="card-title">Resource Mapper</h2>
+                <p class="card-description">
+                    Map resources to goals, add new items, and manage your complete inventory.
+                </p>
+                <ul class="card-features">
+                    <li>Connect resources to IEP goals</li>
+                    <li>Add new resources and goals</li>
+                    <li>Edit and manage mappings</li>
+                    <li>Export your complete inventory</li>
+                </ul>
+                <div class="card-button">Open Mapper →</div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>
+                💡 <strong>Tip:</strong> Bookmark this page for quick access!<br>
+                Data automatically syncs from Google Sheets
+            </p>
+        </div>
+    </div>
+</body>
+</html>
