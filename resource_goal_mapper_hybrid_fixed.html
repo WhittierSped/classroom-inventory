@@ -3452,8 +3452,12 @@
             }
 
             const goalsHtml = filteredGoals.map(goal => {
-                const isChecked = resourceMappings[goal['Goal ID']] !== undefined;
-                const supportText = resourceMappings[goal['Goal ID']] || '';
+                const mapping = resourceMappings[goal['Goal ID']];
+                const isChecked = mapping !== undefined;
+                // Handle both string (old format) and object (new format)
+                const supportText = mapping ? 
+                    (typeof mapping === 'object' ? mapping.description : mapping) : 
+                    '';
                 
                 // Handle both array of subcategories and single subcategory
                 let subcategoryBadges = '';
@@ -3529,7 +3533,11 @@
             const container = document.getElementById(`goal-${goalId}`);
 
             if (checkbox.checked) {
-                mappings[currentResource][goalId] = textarea.value || '';
+                // Store as object to match Google Sheets format
+                mappings[currentResource][goalId] = {
+                    checked: true,
+                    description: textarea.value || ''
+                };
                 textarea.disabled = false;
                 container.classList.add('checked');
                 textarea.focus();
@@ -3551,7 +3559,15 @@
             }
 
             const textarea = document.getElementById(`support-${goalId}`);
-            mappings[currentResource][goalId] = textarea.value;
+            // Update description in object format
+            if (mappings[currentResource][goalId]) {
+                mappings[currentResource][goalId].description = textarea.value;
+            } else {
+                mappings[currentResource][goalId] = {
+                    checked: true,
+                    description: textarea.value
+                };
+            }
             saveMappingsToLocalStorage();
         }
 
