@@ -53,7 +53,7 @@
         .header {
             background: linear-gradient(135deg, 
                 var(--rainbow-pink) 0%, 
-                var(--rainbow-orange) 25%, 
+                var(--rainbow-orange) 20%, 
                 var(--rainbow-yellow) 40%, 
                 var(--rainbow-green) 60%, 
                 var(--rainbow-blue) 80%, 
@@ -3322,6 +3322,12 @@
                 const fullResource = DATA.resources.find(r => r['Resource ID'] === mapping['Resource ID']);
                 const tptLink = fullResource ? fullResource['TPT Link'] : null;
                 
+                // Handle the "How Resource Supports Goal" - might be null or empty
+                const supportText = mapping['How Resource Supports Goal'];
+                const displaySupport = (supportText && supportText !== 'null' && supportText.trim() !== '') 
+                    ? supportText 
+                    : '<em style="color: var(--text-muted); font-size: 0.9rem;">No description added yet</em>';
+                
                 return `
                     <div class="supporting-item">
                         <div class="supporting-title">
@@ -3329,7 +3335,7 @@
                             <span class="format-badge format-${mapping.Format}">${mapping.Format}</span>
                         </div>
                         <div class="resource-name">${mapping['Resource Name']}</div>
-                        <div class="supporting-desc">${mapping['How Resource Supports Goal']}</div>
+                        <div class="supporting-desc">${displaySupport}</div>
                         ${tptLink && tptLink.trim() && !tptLink.includes('Add TPT product') ? `
                             <div style="margin-top: 0.5rem;">
                                 <a href="${tptLink}" target="_blank" rel="noopener noreferrer" 
