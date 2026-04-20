@@ -2930,7 +2930,7 @@
                         <div style="width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 2px solid var(--border);"></div>
                         <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilter('all')">All ${domainFilter}</div>
                         ${subcats.map(sc => `
-                            <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick='setSubcategoryFilter("${sc}")'>${sc}</div>
+                            <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick='setSubcategoryFilter("${sc.replace(/"/g, '&quot;')}")'>${sc}</div>
                         `).join('')}
                     `;
                 }
@@ -3391,15 +3391,38 @@
                             <div class="filter-pill ${domainFilter === d ? 'active' : ''}" onclick="setDomainFilterMapping('${d}')">${d}</div>
                         `).join('')}
                     </div>
-                    ${domainFilter !== 'all' && SUBCATEGORIES[domainFilter] ? `
-                        <div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text);">📌 Step 2: Narrow by subcategory (optional)</div>
-                        <div class="domain-filter">
-                            <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilterMapping('all')">All ${domainFilter}</div>
-                            ${SUBCATEGORIES[domainFilter].map(sc => `
-                                <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick="setSubcategoryFilterMapping('${sc}')">${sc}</div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
+                    ${domainFilter !== 'all' ? (() => {
+                        // Dynamically get subcategories for the selected domain from actual data
+                        const domainGoals = goals.filter(g => g.Domain === domainFilter);
+                        const subcatsSet = new Set();
+                        
+                        domainGoals.forEach(goal => {
+                            if (goal.Subcategories) {
+                                if (Array.isArray(goal.Subcategories)) {
+                                    goal.Subcategories.forEach(sc => subcatsSet.add(sc));
+                                } else if (typeof goal.Subcategories === 'string' && goal.Subcategories.trim()) {
+                                    goal.Subcategories.split(',').forEach(sc => subcatsSet.add(sc.trim()));
+                                }
+                            } else if (goal.Subcategory) {
+                                subcatsSet.add(goal.Subcategory);
+                            }
+                        });
+                        
+                        const subcats = Array.from(subcatsSet).sort();
+                        
+                        if (subcats.length > 0) {
+                            return `
+                                <div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text);">📌 Step 2: Narrow by subcategory (optional)</div>
+                                <div class="domain-filter">
+                                    <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilterMapping('all')">All ${domainFilter}</div>
+                                    ${subcats.map(sc => `
+                                        <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick='setSubcategoryFilterMapping("${sc.replace(/"/g, '&quot;')}")'>${sc}</div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                        return '';
+                    })() : ''}
                 </div>
             `;
 
@@ -3409,9 +3432,19 @@
             }
             if (subcategoryFilter !== 'all') {
                 filteredGoals = filteredGoals.filter(g => {
-                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
-                        return g.Subcategories.includes(subcategoryFilter);
-                    } else if (g.Subcategory) {
+                    // Handle Subcategories as comma-separated string from Google Sheets
+                    if (g.Subcategories) {
+                        if (Array.isArray(g.Subcategories)) {
+                            return g.Subcategories.includes(subcategoryFilter);
+                        } else if (typeof g.Subcategories === 'string' && g.Subcategories.trim() !== '') {
+                            const subcats = g.Subcategories.split(',')
+                                .map(s => s.trim())
+                                .filter(s => s !== '');
+                            return subcats.includes(subcategoryFilter);
+                        }
+                    }
+                    // Fallback to old single Subcategory field
+                    if (g.Subcategory) {
                         return g.Subcategory === subcategoryFilter;
                     }
                     return false;
