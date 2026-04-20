@@ -2940,9 +2940,14 @@
         }
 
         function setSubcategoryFilter(subcat) {
+            console.log('=== setSubcategoryFilter called ===');
+            console.log('Setting subcategoryFilter to:', subcat);
             subcategoryFilter = subcat;
+            console.log('Calling renderGoalDomainFilter...');
             renderGoalDomainFilter();
+            console.log('Calling renderGoalList...');
             renderGoalList(document.getElementById('goalSearch').value);
+            console.log('=== setSubcategoryFilter complete ===');
         }
 
         function setGoalDomainFilter(domain) {
@@ -3043,8 +3048,14 @@
                 `;
             }).join('');
 
+            console.log('Filtered goals to render:', filtered.length);
+            console.log('HTML length:', html.length);
+            console.log('HTML preview:', html.substring(0, 200));
+            
             document.getElementById('goalList').innerHTML = html || '<div class="empty-state"><p>No goals found</p></div>';
-            document.getElementById('totalGoals').textContent = goals.length;
+            document.getElementById('totalGoals').textContent = filtered.length; // Show filtered count, not total
+            
+            console.log('Updated goalList innerHTML');
         }
 
         function selectGoalForEdit(goalId) {
