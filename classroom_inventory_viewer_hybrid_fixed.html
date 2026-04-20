@@ -3317,16 +3317,32 @@
                 return '<div class="empty-state"><p>No resources mapped to this goal yet.<br>Add mappings in your Excel file!</p></div>';
             }
 
-            return supportingMappings.map(mapping => `
-                <div class="supporting-item">
-                    <div class="supporting-title">
-                        <span class="resource-id">${mapping['Resource ID']}</span>
-                        <span class="format-badge format-${mapping.Format}">${mapping.Format}</span>
+            return supportingMappings.map(mapping => {
+                // Look up the full resource to get TPT Link
+                const fullResource = DATA.resources.find(r => r['Resource ID'] === mapping['Resource ID']);
+                const tptLink = fullResource ? fullResource['TPT Link'] : null;
+                
+                return `
+                    <div class="supporting-item">
+                        <div class="supporting-title">
+                            <span class="resource-id">${mapping['Resource ID']}</span>
+                            <span class="format-badge format-${mapping.Format}">${mapping.Format}</span>
+                        </div>
+                        <div class="resource-name">${mapping['Resource Name']}</div>
+                        <div class="supporting-desc">${mapping['How Resource Supports Goal']}</div>
+                        ${tptLink && tptLink.trim() && !tptLink.includes('Add TPT product') ? `
+                            <div style="margin-top: 0.5rem;">
+                                <a href="${tptLink}" target="_blank" rel="noopener noreferrer" 
+                                   style="display: inline-flex; align-items: center; gap: 0.5rem; color: #059669; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.4rem 0.8rem; background: #d1fae5; border-radius: 6px; transition: all 0.2s;"
+                                   onmouseover="this.style.background='#a7f3d0'" 
+                                   onmouseout="this.style.background='#d1fae5'">
+                                    🔗 View on TPT
+                                </a>
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="resource-name">${mapping['Resource Name']}</div>
-                    <div class="supporting-desc">${mapping['How Resource Supports Goal']}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function renderSupportingGoals() {
