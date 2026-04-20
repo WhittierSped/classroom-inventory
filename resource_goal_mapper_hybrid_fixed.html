@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2905,16 +2906,35 @@
                 `).join('')}
             `;
             
-            // Add subcategory filter if domain is selected and has subcategories
-            if (domainFilter !== 'all' && SUBCATEGORIES[domainFilter]) {
-                const subcats = SUBCATEGORIES[domainFilter];
-                html += `
-                    <div style="width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 2px solid var(--border);"></div>
-                    <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilter('all')">All ${domainFilter}</div>
-                    ${subcats.map(sc => `
-                        <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick="setSubcategoryFilter('${sc}')">${sc}</div>
-                    `).join('')}
-                `;
+            // Dynamically get subcategories for the selected domain from actual data
+            if (domainFilter !== 'all') {
+                const domainGoals = goals.filter(g => g.Domain === domainFilter);
+                const subcatsSet = new Set();
+                
+                domainGoals.forEach(goal => {
+                    if (goal.Subcategories) {
+                        if (Array.isArray(goal.Subcategories)) {
+                            goal.Subcategories.forEach(sc => subcatsSet.add(sc));
+                        } else if (typeof goal.Subcategories === 'string' && goal.Subcategories.trim()) {
+                            // Handle comma-separated subcategories from Google Sheets
+                            goal.Subcategories.split(',').forEach(sc => subcatsSet.add(sc.trim()));
+                        }
+                    } else if (goal.Subcategory) {
+                        subcatsSet.add(goal.Subcategory);
+                    }
+                });
+                
+                const subcats = Array.from(subcatsSet).sort();
+                
+                if (subcats.length > 0) {
+                    html += `
+                        <div style="width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 2px solid var(--border);"></div>
+                        <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilter('all')">All ${domainFilter}</div>
+                        ${subcats.map(sc => `
+                            <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick="setSubcategoryFilter('${sc}')">${sc}</div>
+                        `).join('')}
+                    `;
+                }
             }
             
             document.getElementById('goalDomainFilter').innerHTML = html;
@@ -2942,10 +2962,18 @@
 
             if (subcategoryFilter !== 'all') {
                 filtered = filtered.filter(g => {
-                    // Check both old single Subcategory and new Subcategories array
-                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
-                        return g.Subcategories.includes(subcategoryFilter);
-                    } else if (g.Subcategory) {
+                    // Handle Subcategories as comma-separated string from Google Sheets
+                    if (g.Subcategories) {
+                        if (Array.isArray(g.Subcategories)) {
+                            return g.Subcategories.includes(subcategoryFilter);
+                        } else if (typeof g.Subcategories === 'string') {
+                            // Split by comma and check if subcategoryFilter is in the list
+                            const subcats = g.Subcategories.split(',').map(s => s.trim());
+                            return subcats.includes(subcategoryFilter);
+                        }
+                    }
+                    // Fallback to old single Subcategory field
+                    if (g.Subcategory) {
                         return g.Subcategory === subcategoryFilter;
                     }
                     return false;
@@ -2962,10 +2990,17 @@
             const html = filtered.map(goal => {
                 const isActive = currentGoal === goal['Goal ID'];
                 
-                // Handle both array of subcategories and single subcategory
+                // Handle subcategories for display
                 let subcategoryBadges = '';
-                if (goal.Subcategories && Array.isArray(goal.Subcategories)) {
-                    subcategoryBadges = goal.Subcategories.map(sc => 
+                if (goal.Subcategories) {
+                    let subcatArray = [];
+                    if (Array.isArray(goal.Subcategories)) {
+                        subcatArray = goal.Subcategories;
+                    } else if (typeof goal.Subcategories === 'string' && goal.Subcategories.trim()) {
+                        subcatArray = goal.Subcategories.split(',').map(s => s.trim());
+                    }
+                    
+                    subcategoryBadges = subcatArray.map(sc => 
                         `<span class="domain-badge" style="background: #e9d5ff; color: #6b21a8; margin-left: 0.25rem; margin-top: 0.25rem; font-size: 0.7rem; display: inline-block;">${sc}</span>`
                     ).join('');
                 } else if (goal.Subcategory) {
