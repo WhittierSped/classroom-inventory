@@ -57,7 +57,7 @@
                 var(--rainbow-yellow) 40%, 
                 var(--rainbow-green) 60%, 
                 var(--rainbow-blue) 80%, 
-                var(--rainbow-violet) 95%);
+                var(--rainbow-violet) 100%);
             color: white;
             padding: 2rem 1.5rem;
             box-shadow: 0 4px 6px -1px var(--shadow);
@@ -463,7 +463,7 @@
         // Leave as 'YOUR_SHEET_ID_HERE' to work offline with embedded data
         // OR paste your Sheet ID to load latest data from Google Sheets
         
-        const GOOGLE_SHEET_ID = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8uk';  // ← OPTIONAL: Paste Sheet ID to sync
+        const GOOGLE_SHEET_ID = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8uk';  // ← Your Classroom Inventory Sheet
         
         const SHEET_NAMES = {
             resources: 'Resources Inventory',
@@ -3017,9 +3017,15 @@
             if (domainFilter !== 'all') {
                 const goalsInDomain = DATA.goals.filter(g => g.Domain === domainFilter);
                 const allSubcategories = goalsInDomain.flatMap(g => {
-                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
-                        return g.Subcategories;
-                    } else if (g.Subcategory) {
+                    if (g.Subcategories) {
+                        if (Array.isArray(g.Subcategories)) {
+                            return g.Subcategories;
+                        } else if (typeof g.Subcategories === 'string' && g.Subcategories.trim()) {
+                            // Handle comma-separated subcategories from Google Sheets
+                            return g.Subcategories.split(',').map(s => s.trim()).filter(s => s !== '');
+                        }
+                    }
+                    if (g.Subcategory) {
                         return [g.Subcategory];
                     }
                     return [];
@@ -3103,9 +3109,16 @@
             
             if (subdomainFilter !== 'all') {
                 filteredGoals = filteredGoals.filter(g => {
-                    if (g.Subcategories && Array.isArray(g.Subcategories)) {
-                        return g.Subcategories.includes(subdomainFilter);
-                    } else if (g.Subcategory) {
+                    if (g.Subcategories) {
+                        if (Array.isArray(g.Subcategories)) {
+                            return g.Subcategories.includes(subdomainFilter);
+                        } else if (typeof g.Subcategories === 'string' && g.Subcategories.trim()) {
+                            // Handle comma-separated subcategories from Google Sheets
+                            const subcats = g.Subcategories.split(',').map(s => s.trim()).filter(s => s !== '');
+                            return subcats.includes(subdomainFilter);
+                        }
+                    }
+                    if (g.Subcategory) {
                         return g.Subcategory === subdomainFilter;
                     }
                     return false;
@@ -3185,9 +3198,15 @@
                     // Check subdomain filter
                     if (subdomainFilter !== 'all') {
                         const hasSubdomain = supportedGoals.some(g => {
-                            if (g.Subcategories && Array.isArray(g.Subcategories)) {
-                                return g.Subcategories.includes(subdomainFilter);
-                            } else if (g.Subcategory) {
+                            if (g.Subcategories) {
+                                if (Array.isArray(g.Subcategories)) {
+                                    return g.Subcategories.includes(subdomainFilter);
+                                } else if (typeof g.Subcategories === 'string' && g.Subcategories.trim()) {
+                                    const subcats = g.Subcategories.split(',').map(s => s.trim()).filter(s => s !== '');
+                                    return subcats.includes(subdomainFilter);
+                                }
+                            }
+                            if (g.Subcategory) {
                                 return g.Subcategory === subdomainFilter;
                             }
                             return false;
@@ -3247,6 +3266,16 @@
                         <div class="resource-details">
                             <span class="category-tag">${resource.Category}</span>
                             ${resource['Description/Notes']}
+                            ${resource['TPT Link'] && resource['TPT Link'].trim() && !resource['TPT Link'].includes('Add TPT product') ? `
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="${resource['TPT Link']}" target="_blank" rel="noopener noreferrer" 
+                                       style="display: inline-flex; align-items: center; gap: 0.5rem; color: #059669; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.4rem 0.8rem; background: #d1fae5; border-radius: 6px; transition: all 0.2s;"
+                                       onmouseover="this.style.background='#a7f3d0'" 
+                                       onmouseout="this.style.background='#d1fae5'">
+                                        🔗 View on TPT
+                                    </a>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 `;
