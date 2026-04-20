@@ -2930,7 +2930,7 @@
                         <div style="width: 100%; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 2px solid var(--border);"></div>
                         <div class="filter-pill ${subcategoryFilter === 'all' ? 'active' : ''}" onclick="setSubcategoryFilter('all')">All ${domainFilter}</div>
                         ${subcats.map(sc => `
-                            <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick="setSubcategoryFilter('${sc}')">${sc}</div>
+                            <div class="filter-pill ${subcategoryFilter === sc ? 'active' : ''}" onclick='setSubcategoryFilter("${sc}")'>${sc}</div>
                         `).join('')}
                     `;
                 }
