@@ -450,11 +450,11 @@ function parseEmbraceText(){
   var raw=document.getElementById('embrace-input').value.trim();
   if(!raw){alert('Please paste IEP text first.');return;}
 
-  var blocks=raw.split(/(?=Goal\s*#\s*\d+\s*[-])/i).filter(function(b){return b.trim();});
+  var blocks=raw.split(/(?=Goal\s*#\s*\d+\s*[-–])/i).filter(function(b){return b.trim();});
   parsedGoals=[];
 
   blocks.forEach(function(block,i){
-    var headerMatch=block.match(/Goal\s*#\s*(\d+)\s*[-]\s*([\w\/\s]+?)\s*Goal\s*Statement\s*:/i);
+    var headerMatch=block.match(/Goal\s*#\s*(\d+)\s*[-–]\s*([\w\/\s]+?)\s*Goal\s*Statement\s*:/i);
     var stmtMatch=block.match(/Goal\s*Statement\s*:([\s\S]*?)(?:Benchmark|$)/i);
     var benchSection=block.match(/Benchmark[\s\S]*?(?:Objective[s]?\)?[:\)])([\s\S]*)/i);
 
@@ -467,7 +467,7 @@ function parseEmbraceText(){
     var dl=domainHint.toLowerCase()+' '+statement.toLowerCase();
     if(/math|number|addition|subtraction|count|place value|equation|measurement|shape|digit|solve/.test(dl)) domain='Math';
     else if(/read|literacy|phonics|decode|fluency|comprehension|letter|sound|writing|spell|word|passage|cvc|vowel/.test(dl)) domain='Literacy';
-    else if(/calm|emotion|feeling|regulation|behavior|social|break|frustrat|transition|self.control|communicat/.test(dl)) domain='SEL';
+    else if(/calm|emotion|feeling|regulation|behavior|social|break|frustrat|transition|self.control|communicat|safe body/.test(dl)) domain='SEL';
 
     var benchmarks=[];
     if(benchSection){
