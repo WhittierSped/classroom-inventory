@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,7 +54,7 @@
         .header {
             background: linear-gradient(135deg, 
                 var(--rainbow-pink) 0%, 
-                var(--rainbow-orange) 25%, 
+                var(--rainbow-orange) 20%, 
                 var(--rainbow-yellow) 40%, 
                 var(--rainbow-green) 60%, 
                 var(--rainbow-blue) 80%, 
@@ -3318,9 +3319,10 @@
             }
 
             return supportingMappings.map(mapping => {
-                // Look up the full resource to get TPT Link
+                // Look up the full resource to get TPT Link and Description
                 const fullResource = DATA.resources.find(r => r['Resource ID'] === mapping['Resource ID']);
                 const tptLink = fullResource ? fullResource['TPT Link'] : null;
+                const resourceDescription = fullResource ? fullResource['Description/Notes'] : null;
                 
                 // Handle the "How Resource Supports Goal" - might be null or empty
                 const supportText = mapping['How Resource Supports Goal'];
@@ -3334,15 +3336,26 @@
                             <span class="resource-id">${mapping['Resource ID']}</span>
                             <span class="format-badge format-${mapping.Format}">${mapping.Format}</span>
                         </div>
-                        <div class="resource-name">${mapping['Resource Name']}</div>
-                        <div class="supporting-desc">${displaySupport}</div>
+                        <div class="resource-name" style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem;">${mapping['Resource Name']}</div>
+                        
+                        ${resourceDescription && resourceDescription.trim() ? `
+                            <div style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: 6px;">
+                                <strong>About this resource:</strong> ${resourceDescription}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-bottom: 0.5rem;">
+                            <strong style="color: var(--text-secondary); font-size: 0.85rem;">How it supports this goal:</strong>
+                        </div>
+                        <div class="supporting-desc" style="margin-bottom: 0.75rem;">${displaySupport}</div>
+                        
                         ${tptLink && tptLink.trim() && !tptLink.includes('Add TPT product') ? `
                             <div style="margin-top: 0.5rem;">
                                 <a href="${tptLink}" target="_blank" rel="noopener noreferrer" 
-                                   style="display: inline-flex; align-items: center; gap: 0.5rem; color: #059669; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.4rem 0.8rem; background: #d1fae5; border-radius: 6px; transition: all 0.2s;"
-                                   onmouseover="this.style.background='#a7f3d0'" 
-                                   onmouseout="this.style.background='#d1fae5'">
-                                    🔗 View on TPT
+                                   style="display: inline-flex; align-items: center; gap: 0.5rem; color: #059669; text-decoration: none; font-weight: 600; font-size: 0.95rem; padding: 0.5rem 1rem; background: #d1fae5; border-radius: 6px; transition: all 0.2s; border: 2px solid #059669;"
+                                   onmouseover="this.style.background='#a7f3d0'; this.style.transform='translateY(-1px)'" 
+                                   onmouseout="this.style.background='#d1fae5'; this.style.transform='translateY(0)'">
+                                    🔗 View on Teachers Pay Teachers
                                 </a>
                             </div>
                         ` : ''}
