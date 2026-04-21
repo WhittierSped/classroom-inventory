@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classroom Inventory - Choose a Tool</title>
+    <title>Whittier Sped Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -47,8 +47,10 @@
 
         .cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .card {
@@ -151,47 +153,88 @@
             .cards {
                 grid-template-columns: 1fr;
             }
+            
+            h2 {
+                font-size: 1.2rem !important;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🌈 Classroom Inventory Tools</h1>
-            <p class="subtitle">Choose a tool to explore your resources and IEP goals</p>
+            <h1>🌈 Whittier Sped Teaching Resources</h1>
+            <p class="subtitle">Choose your inventory system</p>
         </div>
 
-        <div class="cards">
-            <a href="classroom_inventory_viewer_hybrid_fixed.html" class="card viewer">
-                <div class="card-icon">📚</div>
-                <h2 class="card-title">Resource Viewer</h2>
-                <p class="card-description">
-                    Browse your complete classroom inventory with powerful filtering and search.
-                </p>
-                <ul class="card-features">
-                    <li>View all 118 digital + 22 physical resources</li>
-                    <li>Filter by domain and subdomain</li>
-                    <li>See which resources support each goal</li>
-                    <li>Color-coded by subject area</li>
-                    <li>Load latest data from Google Sheets</li>
-                </ul>
-                <div class="card-button">Open Viewer →</div>
-            </a>
+        <div style="margin-bottom: 3rem;">
+            <h2 style="color: white; text-align: center; font-family: 'Fredoka', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem;">My IEP Resources</h2>
+            <div class="cards">
+                <a href="classroom_inventory_viewer_hybrid_fixed.html" class="card viewer">
+                    <div class="card-icon">📚</div>
+                    <h2 class="card-title">Whittier Sped IEP Inventory</h2>
+                    <p class="card-description">
+                        Browse my complete special education resource inventory.
+                    </p>
+                    <ul class="card-features">
+                        <li>118 digital + 22 physical resources</li>
+                        <li>Mapped to IEP goals</li>
+                        <li>Filter by domain and subdomain</li>
+                        <li>TPT links ready to click</li>
+                    </ul>
+                    <div class="card-button">Open IEP Inventory →</div>
+                </a>
 
-            <a href="resource_goal_mapper_hybrid_fixed.html" class="card mapper">
-                <div class="card-icon">🔗</div>
-                <h2 class="card-title">Resource Mapper</h2>
-                <p class="card-description">
-                    Map resources to goals, add new items, and manage your complete inventory.
-                </p>
-                <ul class="card-features">
-                    <li>Connect resources to IEP goals</li>
-                    <li>Add new resources and goals</li>
-                    <li>Edit and manage mappings</li>
-                    <li>Load from Google Sheets & export to Excel</li>
-                </ul>
-                <div class="card-button">Open Mapper →</div>
-            </a>
+                <a href="resource_goal_mapper_hybrid_fixed.html" class="card mapper">
+                    <div class="card-icon">🔗</div>
+                    <h2 class="card-title">Whittier IEP Mapper</h2>
+                    <p class="card-description">
+                        Map resources to IEP goals and manage my inventory.
+                    </p>
+                    <ul class="card-features">
+                        <li>Connect resources to IEP goals</li>
+                        <li>Add/edit resources and goals</li>
+                        <li>Track resource usage</li>
+                        <li>Export to Excel</li>
+                    </ul>
+                    <div class="card-button">Open IEP Mapper →</div>
+                </a>
+            </div>
+        </div>
+
+        <div>
+            <h2 style="color: white; text-align: center; font-family: 'Fredoka', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem;">Standards-Aligned Resources (K-2)</h2>
+            <div class="cards">
+                <a href="standards_inventory_viewer.html" class="card viewer">
+                    <div class="card-icon">📖</div>
+                    <h2 class="card-title">Standards Inventory</h2>
+                    <p class="card-description">
+                        Browse resources aligned to Common Core and IL SEL Standards.
+                    </p>
+                    <ul class="card-features">
+                        <li>Common Core Math (K-2)</li>
+                        <li>Common Core ELA (K-2)</li>
+                        <li>Illinois SEL Standards</li>
+                        <li>Filter by grade level & domain</li>
+                    </ul>
+                    <div class="card-button">Open Standards Inventory →</div>
+                </a>
+
+                <a href="standards_resource_mapper.html" class="card mapper">
+                    <div class="card-icon">⚡</div>
+                    <h2 class="card-title">Standards Mapper</h2>
+                    <p class="card-description">
+                        Map resources to standards and build your inventory.
+                    </p>
+                    <ul class="card-features">
+                        <li>Connect resources to standards</li>
+                        <li>Add/edit teaching materials</li>
+                        <li>Share with gen ed teachers</li>
+                        <li>Export to Excel</li>
+                    </ul>
+                    <div class="card-button">Open Standards Mapper →</div>
+                </a>
+            </div>
         </div>
 
         <div class="footer">
