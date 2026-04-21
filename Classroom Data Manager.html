@@ -7,28 +7,24 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f3;padding:1rem}
-.app{max-width:780px;margin:0 auto}
-h1{font-size:18px;font-weight:500;margin-bottom:1rem}
+.app{max-width:820px;margin:0 auto}
 .card{background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
-.card-title{font-size:13px;font-weight:500;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:500;margin-bottom:10px}
 input,select{font-size:13px;padding:6px 10px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;background:#fff;color:#1a1a1a;width:100%}
 textarea{font-size:12px;padding:8px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;background:#fff;color:#1a1a1a;width:100%;resize:vertical;font-family:monospace}
 button{cursor:pointer;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid rgba(0,0,0,0.2);background:transparent;color:#1a1a1a}
 button:hover{background:#f0f0ee}
 button:disabled{opacity:0.45;cursor:not-allowed}
 .bp{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.bp:hover{background:#333}
-.bsm{font-size:11px;padding:3px 9px}
+.bp:hover{background:#333 !important}
+.bsm{font-size:11px;padding:3px 10px}
 .bw{border-color:#d97706;color:#92400e}
-.bw:hover{background:#fffbeb}
 .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
 .bok{background:#ecfdf5;color:#065f46}
 .bwarn{background:#fffbeb;color:#92400e}
 .berr{background:#fef2f2;color:#991b1b}
-.binfo{background:#eff6ff;color:#1e40af}
-.bgray{background:#f5f5f0;color:#4b4b46}
-.tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.1);margin-bottom:1.25rem;gap:0}
-.tab{padding:7px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent}
+.tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.1);margin-bottom:1.25rem}
+.tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;white-space:nowrap}
 .tab.on{color:#1a1a1a;border-bottom:2px solid #1a1a1a;font-weight:500}
 .sec{display:none}.sec.on{display:block}
 .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
@@ -55,29 +51,37 @@ button:disabled{opacity:0.45;cursor:not-allowed}
 pre{background:#f5f5f3;border-radius:8px;padding:10px;font-size:10px;font-family:monospace;overflow-x:auto;line-height:1.6;color:#1a1a1a;white-space:pre-wrap;word-break:break-all;max-height:240px;overflow-y:auto}
 code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;border-radius:3px}
 .row{display:flex;gap:10px;align-items:center}
+.goal-card{border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.step-row{display:flex;gap:8px;margin-bottom:4px;font-size:13px;line-height:1.6}
+.step-num{background:#1a1a1a;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="app">
+
+<!-- TOP BAR -->
 <div class="rbar">
   <div style="flex:1;min-width:120px">
     <div style="font-size:14px;font-weight:500">Classroom Data Manager</div>
-    <div id="src-lbl" style="font-size:11px;color:#888">Built-in data (no Sheet connected)</div>
+    <div id="src-lbl" style="font-size:11px;color:#888">No Sheet connected — using built-in data</div>
   </div>
   <div class="pt" id="pttrack" style="display:none"><div class="pf" id="pfill" style="width:0%"></div></div>
   <span id="sync-t" style="font-size:11px;color:#888"></span>
   <button class="bp" id="rlbtn" onclick="reloadAll()">Reload data</button>
-  <button class="bsm" onclick="show('settings')">Settings</button>
+  <button class="bsm" onclick="showTab('settings')">⚙ Settings</button>
 </div>
 
+<!-- TABS -->
 <div class="tabs">
-  <button class="tab on" onclick="show('overview')">Overview</button>
-  <button class="tab" onclick="show('students')">Students</button>
-  <button class="tab" onclick="show('integrity')">Integrity</button>
-  <button class="tab" onclick="show('export')">Backup</button>
-  <button class="tab" onclick="show('settings')">Settings</button>
+  <button class="tab on" onclick="showTab('overview')">Overview</button>
+  <button class="tab" onclick="showTab('students')">Students</button>
+  <button class="tab" onclick="showTab('importer')">IEP Importer</button>
+  <button class="tab" onclick="showTab('integrity')">Integrity</button>
+  <button class="tab" onclick="showTab('export')">Backup</button>
+  <button class="tab" onclick="showTab('settings')">Settings</button>
 </div>
 
+<!-- OVERVIEW -->
 <div id="overview" class="sec on">
   <div class="sgrid">
     <div class="sc"><div class="sn" id="cnt-s">—</div><div class="sl">students</div></div>
@@ -89,90 +93,639 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
   <div id="ov-students"></div>
 </div>
 
+<!-- STUDENTS -->
 <div id="students" class="sec">
-  <div class="card" style="border-left: 4px solid #1a1a1a;">
-    <div class="card-title">Embrace Goal Importer</div>
-    <p style="font-size:11px; color:#666; margin-bottom:8px;">Paste text from Embrace (Goal Statement & Objectives) to parse them into your library.</p>
-    <textarea id="embrace-input" rows="4" placeholder="Goal #1 - Math Goal Statement: ..."></textarea>
-    <div class="row" style="margin-top:8px">
-       <button class="bp" onclick="parseEmbraceText()">Process Text</button>
-       <button class="bsm" onclick="document.getElementById('embrace-input').value=''">Clear</button>
-    </div>
-    
-    <div id="import-preview" style="margin-top:15px; display:none; border-top:1px solid #eee; padding-top:10px;">
-      <div id="preview-rows"></div>
-      <button class="bp" style="background:#059669; border-color:#059669; width:100%; margin-top:10px;" onclick="saveImportedGoals()">Confirm & Save to Sheet</button>
-    </div>
-  </div>
-  
   <div id="stu-list"></div>
 </div>
 
-<div id="integrity" class="sec">
-  <div class="card">
-    <div class="card-title">Data integrity checks</div>
-    <div id="int-res"><div style="font-size:12px;color:#888">Load data to run checks</div></div>
+<!-- IEP IMPORTER -->
+<div id="importer" class="sec">
+  <div class="card" style="border-left:4px solid #1a1a1a">
+    <div class="card-title">Embrace Goal Importer</div>
+    <p style="font-size:12px;color:#666;margin-bottom:10px">Paste one student's goals from Embrace. Handles the full <em>Goal #N - Domain Goal Statement: ... Benchmark(s)... A) B)</em> format.</p>
+    <div class="row" style="margin-bottom:8px;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;color:#666;display:block;margin-bottom:3px">Student name</label><input id="imp-name" placeholder="e.g. Luna"></div>
+      <div style="flex:1"><label style="font-size:12px;color:#666;display:block;margin-bottom:3px">IEP date</label><input type="date" id="imp-date"></div>
+    </div>
+    <textarea id="embrace-input" rows="6" placeholder="Goal #1 - Math Goal Statement: When given 5 two-digit addition or subtraction problems... Benchmark(s) or Short-Term Objective(s) A)Given math facts within 20... B)When given 3 two-digit numbers..."></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="bp" onclick="parseEmbraceText()">Parse goals</button>
+      <button class="bsm" onclick="document.getElementById('embrace-input').value='';document.getElementById('imp-preview').style.display='none'">Clear</button>
+    </div>
+  </div>
+
+  <div id="imp-preview" style="display:none">
+    <div id="imp-preview-rows"></div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button onclick="showTab('importer')" class="bsm">← Back</button>
+      <button class="bp" style="background:#059669;border-color:#059669;flex:1" onclick="saveImportedGoals()">Save student to Sheet</button>
+    </div>
   </div>
 </div>
 
+<!-- INTEGRITY -->
+<div id="integrity" class="sec">
+  <div class="card">
+    <div class="card-title">Data integrity checks</div>
+    <div id="int-res"><div style="font-size:12px;color:#888">Load data first — click Reload data in the top bar.</div></div>
+  </div>
+</div>
+
+<!-- BACKUP -->
 <div id="export" class="sec">
   <div class="card">
     <div class="card-title">Backup student data</div>
-    <p style="font-size:12px;color:#555;margin-bottom:12px">Downloads a timestamped JSON file with all student data.</p>
+    <p style="font-size:12px;color:#555;margin-bottom:12px">Downloads a timestamped file. Safe to clear browser cache after backing up.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="bp" onclick="doExportJSON()">Download JSON backup</button>
       <button onclick="doExportCSV('students')">Download CSV — students</button>
       <button onclick="doExportCSV('goals')">Download CSV — goal links</button>
     </div>
   </div>
-</div>
-
-<div id="settings" class="sec">
   <div class="card">
-    <div class="card-title">Google Sheets Web App URL</div>
-    <div class="row" style="margin-bottom:6px">
-      <input id="wurl" placeholder="https://script.google.com/macros/s/.../exec" oninput="valUrl()">
-      <button id="sbtn" class="bp" disabled onclick="testSave()">Test & save</button>
-    </div>
-    <div id="ufb" style="font-size:12px;color:#888"></div>
+    <div class="card-title">Restore from backup</div>
+    <p style="font-size:12px;color:#555;margin-bottom:8px">Upload a previously downloaded JSON backup.</p>
+    <input type="file" id="rfile" accept=".json" onchange="doRestore(this)" style="font-size:12px">
+    <div id="rstat" style="margin-top:8px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Backup preview</div>
+    <pre id="bprev">Load data first</pre>
   </div>
 </div>
 
+<!-- SETTINGS -->
+<div id="settings" class="sec">
+  <div class="card">
+    <div class="card-title">Connect Google Sheet</div>
+    <p style="font-size:12px;color:#555;margin-bottom:10px">Paste your Apps Script Web App URL (ends in <code>/exec</code>). Go to <strong>Extensions → Apps Script → Deploy → Manage deployments</strong> to find it.</p>
+    <div class="row" style="margin-bottom:8px">
+      <input id="wurl" placeholder="https://script.google.com/macros/s/…/exec" oninput="valUrl()" style="font-family:monospace;font-size:11px">
+      <button id="sbtn" class="bp" disabled onclick="testSave()" style="white-space:nowrap;flex-shrink:0">Test &amp; save</button>
+    </div>
+    <div id="ufb" style="font-size:12px;color:#888"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">How goal ID matching works</div>
+    <p style="font-size:12px;color:#555;line-height:1.7">Students store goal references as IDs (G001, G032…) — never the goal text. Updating a goal description in your Sheet never breaks a student link. A warning only appears if you <em>delete a goal row entirely</em>. The integrity checker tells you exactly which student and which ID is affected.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">Quick setup checklist</div>
+    <div class="step-row"><div class="step-num">1</div><div>Open your Google Sheet → <strong>Extensions → Apps Script</strong></div></div>
+    <div class="step-row"><div class="step-num">2</div><div>Paste the Apps Script, save, run <code>setupNewTabs()</code></div></div>
+    <div class="step-row"><div class="step-num">3</div><div><strong>Deploy → New deployment → Web App</strong> — Execute as: Me, Who has access: Anyone</div></div>
+    <div class="step-row"><div class="step-num">4</div><div>Copy the <code>/exec</code> URL and paste it above → Test &amp; save</div></div>
+    <div class="step-row"><div class="step-num">5</div><div>Click <strong>Reload data</strong> in the top bar — all your goals and resources will load live</div></div>
+  </div>
 </div>
 
+</div><!-- .app -->
+
 <script>
-// --- DATA & STATE ---
-const AC=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],['#ede9fe','#5b21b6'],['#fce7f3','#9d174d'],['#fee2e2','#991b1b']];
-const BGOALS={
+// ── AVATAR COLOURS ────────────────────────────────────────────────────────
+var AC=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],
+        ['#ede9fe','#5b21b6'],['#fce7f3','#9d174d'],['#fee2e2','#991b1b']];
+
+// ── BUILT-IN GOALS (full set from inventory) ─────────────────────────────
+var BGOALS={
   G001:{id:'G001',domain:'Math',sub:'Fact Fluency',desc:'Solve 10-16 math facts (addition/subtraction within 20) in one minute'},
-  G032:{id:'G032',domain:'Literacy',sub:'Decoding',desc:'Decode and read 8 out of 10 CVC words independently'}
+  G002:{id:'G002',domain:'Math',sub:'Fact Fluency',desc:'Given addition or subtraction problems within 5, solve using objects, drawings, or verbal responses'},
+  G003:{id:'G003',domain:'Math',sub:'Fact Fluency',desc:'Given addition problems within 20, solve using math drawings or manipulatives'},
+  G004:{id:'G004',domain:'Math',sub:'Fact Fluency',desc:'Given subtraction problems within 20, solve using math drawings or manipulatives'},
+  G005:{id:'G005',domain:'Math',sub:'Place Value and Comparison',desc:'Given two numbers from 0-100, use place value strategies to identify the larger number'},
+  G006:{id:'G006',domain:'Math',sub:'Counting/Cardinality',desc:'Given a set of up to 10 objects, count each object using one-to-one correspondence'},
+  G007:{id:'G007',domain:'Math',sub:'Counting/Cardinality',desc:'Given numeral cards and sets of objects within 10, match the correct numeral to quantity'},
+  G008:{id:'G008',domain:'Math',sub:'Counting/Cardinality',desc:'Given two groups of objects within 10, identify which group has more, fewer, or same'},
+  G009:{id:'G009',domain:'Math',sub:'Place Value',desc:'Given 2-digit numbers, identify tens and ones by matching/drawing base ten blocks'},
+  G010:{id:'G010',domain:'Math',sub:'Number Sense',desc:'Given a list of numbers 0-99, read the numbers aloud'},
+  G011:{id:'G011',domain:'Math',sub:'Number Sense',desc:'Given pairs of numbers 0-99 and timer, identify the larger number'},
+  G012:{id:'G012',domain:'Math',sub:'Fact Fluency',desc:'Given 5 addition/subtraction problems within 20, solve using manipulatives or drawings'},
+  G013:{id:'G013',domain:'Math',sub:'Fact Fluency',desc:'Given addition/subtraction facts within 20 and timer, solve using counting strategies'},
+  G014:{id:'G014',domain:'Math',sub:'Word Problems',desc:'Using concrete/pictorial models, represent word problems with addition/subtraction within 20'},
+  G015:{id:'G015',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, use manipulatives to represent and solve'},
+  G016:{id:'G016',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, create math drawing to represent and solve'},
+  G017:{id:'G017',domain:'Math',sub:'Word Problems',desc:'Given word problem or math drawing, write matching number sentence with +, -, ='},
+  G018:{id:'G018',domain:'Math',sub:'Word Problems',desc:'Given mix of addition/subtraction word problems, identify correct operation'},
+  G019:{id:'G019',domain:'Math',sub:'Word Problems',desc:'Solve addition/subtraction word problems within 20 using objects or drawings'},
+  G020:{id:'G020',domain:'Math',sub:'Word Problems',desc:'Solve for unknown in addition/subtraction equation (e.g., 5 + ? = 12)'},
+  G021:{id:'G021',domain:'Math',sub:'Measurement',desc:'Order 3 objects by length, shortest to longest'},
+  G022:{id:'G022',domain:'Math',sub:'Measurement',desc:'Order 3 objects by height, shortest to tallest'},
+  G023:{id:'G023',domain:'Math',sub:'Number Sense',desc:'Instantly recognize quantity of group by structured arrangements (subitizing)'},
+  G024:{id:'G024',domain:'Math',sub:'Measurement',desc:'Sort size bears (large, medium, small) into correct sections'},
+  G025:{id:'G025',domain:'Math',sub:'Measurement',desc:'Use language to describe how groups are similar and different'},
+  G026:{id:'G026',domain:'Math',sub:'Shapes',desc:'Sort shapes (circle, triangle, square, diamond) into correct sections'},
+  G027:{id:'G027',domain:'Math',sub:'Measurement',desc:'Differentiate between long/tall and short objects'},
+  G028:{id:'G028',domain:'Math',sub:'Measurement',desc:'Compare the size of 2 objects'},
+  G029:{id:'G029',domain:'Math',sub:'Measurement',desc:'Identify objects that are short/long or tall/short when asked'},
+  G030:{id:'G030',domain:'Math',sub:'Measurement',desc:'Sequence objects by size from largest to smallest'},
+  G031:{id:'G031',domain:'Math',sub:'Number Sense',desc:'Identify and represent numbers up to 20 using manipulatives'},
+  G032:{id:'G032',domain:'Literacy',sub:'Decoding',desc:'Decode and read 8 out of 10 CVC words independently'},
+  G033:{id:'G033',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Write the correct letter for 8 out of 10 random letter sounds'},
+  G034:{id:'G034',domain:'Literacy',sub:'Fluency',desc:'Read 1st/2nd grade passage with 30-40 WCPM at 95% accuracy'},
+  G035:{id:'G035',domain:'Literacy',sub:'Fluency',desc:'Read 1st-grade passage (UFLI patterns) for one minute at 30 WCPM'},
+  G036:{id:'G036',domain:'Literacy',sub:'Fluency',desc:'Read 1st-grade passage aloud for one minute at 35 WCPM with 95% accuracy'},
+  G037:{id:'G037',domain:'Literacy',sub:'Decoding',desc:'Read at least 9 out of 10 short vowel words (CVC, CVCC, or CCVC)'},
+  G038:{id:'G038',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Identify own name among 2-3 other names when prompted'},
+  G039:{id:'G039',domain:'Literacy',sub:'Alphabet Knowledge',desc:'State the correct sound for 26 lowercase letters out of order'},
+  G040:{id:'G040',domain:'Literacy',sub:'Alphabet Knowledge',desc:'State the correct sound for 8 out of 10 random lowercase letters'},
+  G041:{id:'G041',domain:'Literacy',sub:'Encoding',desc:'Correctly write 4 out of 5 short vowel words (CVC, CCVC, or CVCC)'},
+  G042:{id:'G042',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Match 5 uppercase letters to their lowercase partners'},
+  G043:{id:'G043',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Identify name and sound for 10 random letters with support'},
+  G044:{id:'G044',domain:'Literacy',sub:'Decoding',desc:'Identify (point to or read) 3 of 4 CVC words in short supported sentence'},
+  G045:{id:'G045',domain:'Literacy',sub:'Decoding',desc:'Match CVC word to picture when given 5 pictures and choice of 3 words'},
+  G046:{id:'G046',domain:'Literacy',sub:'Decoding',desc:'Decode and blend 10 CVC words aloud with at least 90% accuracy'},
+  G047:{id:'G047',domain:'Literacy',sub:'Encoding',desc:'Write the letter that makes a specific sound when given 10 letter sounds'},
+  G048:{id:'G048',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Sound out lowercase letters shown out of order with 100% accuracy'},
+  G049:{id:'G049',domain:'Literacy',sub:'Comprehension',desc:'Follow along with text in book with finger when read aloud'},
+  G050:{id:'G050',domain:'Literacy',sub:'Comprehension',desc:'Follow along with book and read story through interpreting pictures'},
+  G051:{id:'G051',domain:'Literacy',sub:'Comprehension',desc:'Read book through interpreting pictures to tell story to others'},
+  G052:{id:'G052',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Point to correct uppercase/lowercase letter when asked'},
+  G053:{id:'G053',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Point to correct uppercase letter when asked'},
+  G054:{id:'G054',domain:'Literacy',sub:'Decoding',desc:'Produce beginning consonants corresponding to word card'},
+  G055:{id:'G055',domain:'Literacy',sub:'Phonemic Awareness',desc:'Tell if sounds are the same or different'},
+  G056:{id:'G056',domain:'Literacy',sub:'Writing',desc:'Write own name (first, last, or nickname)'},
+  G057:{id:'G057',domain:'Literacy',sub:'Decoding',desc:'Arrange word cards with visuals in correct order'},
+  G058:{id:'G058',domain:'Literacy',sub:'Comprehension',desc:'Use context clues to determine meaning of unfamiliar word (5 sentences)'},
+  G059:{id:'G059',domain:'Literacy',sub:'Comprehension',desc:'Organize story information into graphic organizer with 3 details/events'},
+  G060:{id:'G060',domain:'Literacy',sub:'Comprehension',desc:'MAZE passage completion'},
+  G061:{id:'G061',domain:'SEL',sub:'Emotional Regulation',desc:'Utilize functional communication (break card/phrase) to request break or delay'},
+  G062:{id:'G062',domain:'SEL',sub:'Emotional Regulation',desc:'Request break using practiced phrase or visual card instead of verbal outbursts'},
+  G063:{id:'G063',domain:'SEL',sub:'Emotional Regulation',desc:'Identify and demonstrate one calming strategy when calm'},
+  G064:{id:'G064',domain:'SEL',sub:'Emotional Regulation',desc:'Maintain safe body during transitions'},
+  G065:{id:'G065',domain:'SEL',sub:'Task Independence',desc:'Walk to and utilize designated calming area for minimum 3 minutes'},
+  G066:{id:'G066',domain:'SEL',sub:'Emotional Regulation',desc:'Move to next activity without behavioral overreactions'},
+  G067:{id:'G067',domain:'SEL',sub:'Emotional Regulation',desc:'Identify basic emotions (happy, sad, etc.) in pictures of characters'},
+  G068:{id:'G068',domain:'SEL',sub:'Self-Advocacy',desc:'Ask for help at least twice per day when stuck or confused'},
+  G069:{id:'G069',domain:'SEL',sub:'Task Independence',desc:'Name one confident step or past success before starting new academic task'},
+  G070:{id:'G070',domain:'SEL',sub:'Task Independence',desc:'Select alternate pre-approved task while waiting for adult assistance'},
+  G071:{id:'G071',domain:'SEL',sub:'Social Awareness',desc:'Order 4-picture story sequence and describe one feeling/action for character'},
+  G072:{id:'G072',domain:'SEL',sub:'Social Awareness',desc:'Order 2-3 picture sequence to tell simple story with visual/verbal cues'},
+  G073:{id:'G073',domain:'SEL',sub:'Social Awareness',desc:'Suggest one appropriate action and one feeling in simple social situation'},
+  G074:{id:'G074',domain:'SEL',sub:'Emotional Regulation',desc:'Identify character\'s feeling and cause of that feeling in story'},
+  G075:{id:'G075',domain:'SEL',sub:'Social Awareness',desc:'Match own feelings to character\'s emotions'},
+  G076:{id:'G076',domain:'SEL',sub:'Task Independence',desc:'Begin and complete academic task with no more than one verbal prompt'},
+  G077:{id:'G077',domain:'SEL',sub:'Task Independence',desc:'Follow two-step directions with no more than one verbal/visual cue'},
+  G078:{id:'G078',domain:'SEL',sub:'Social Awareness',desc:'Work out small conflicts with peers'},
+  G079:{id:'G079',domain:'SEL',sub:'Social Awareness',desc:'Distinguish between appropriate and inappropriate behaviors'},
+  G080:{id:'G080',domain:'SEL',sub:'Emotional Regulation',desc:'Demonstrate understanding of emotions by identifying and explaining them'},
+  G081:{id:'G081',domain:'SEL',sub:'Emotional Regulation',desc:'Demonstrate learned techniques to manage emotions'},
+  G082:{id:'G082',domain:'SEL',sub:'Communication',desc:'Share with others when appropriate'},
+  G083:{id:'G083',domain:'SEL',sub:'Social Awareness',desc:'Participate in cooperative play with others'},
+  G084:{id:'G084',domain:'SEL',sub:'Communication',desc:'Communicate whether two pictures are same or different'},
+  G085:{id:'G085',domain:'SEL',sub:'Communication',desc:'Communicate whether pictures are different and describe differences'},
+  G086:{id:'G086',domain:'Math',sub:'Data/Graphing',desc:'Count separate items and represent them on a graph'},
+  G087:{id:'G087',domain:'Math',sub:'Operations',desc:'Solve three-digit addition and subtraction problems within 1,000 with 80% accuracy'},
+  G088:{id:'G088',domain:'Math',sub:'Word Problems',desc:'Given mixed one-step word problems, identify operation, solve, and check reasonableness with 75% accuracy'},
+  G089:{id:'G089',domain:'Literacy',sub:'Writing',desc:'Writing stamina'},
+  G090:{id:'G090',domain:'SEL',sub:'Task Independence',desc:'Begin and complete task with no more than two verbal prompts, in 4 out of 5 opportunities'},
+  G091:{id:'G091',domain:'SEL',sub:'Task Independence',desc:'Transition between activities without behavioral overreactions, minimal adult support, 4 of 5 trials'}
 };
 
-let DB={goals:{...BGOALS},students:[],schedule:[],resources:[],mapping:[],url:null,source:'builtin',lastSync:null};
+var DB={
+  goals: JSON.parse(JSON.stringify(BGOALS)),
+  students:[], schedule:[], resources:[], mapping:[],
+  url: localStorage.getItem('sheetUrl') || null,
+  source:'builtin'
+};
 
-// --- CORE FUNCTIONS ---
-function ini(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
-function avs(n,i){const c=AC[i%AC.length];return'background:'+c[0]+';color:'+c[1];}
-function parseIds(s){if(!s)return[];return String(s).split(/[,;\s]+/).map(v=>v.trim()).filter(v=>v.length > 0);}
-function resolveG(id){
-  if(DB.goals[id])return{ok:true,g:DB.goals[id]};
-  return{ok:false,id};
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+function showTab(id) {
+  document.querySelectorAll('.sec').forEach(function(s){ s.className='sec'; });
+  document.querySelectorAll('.tab').forEach(function(t){ t.className='tab'; });
+  var sec = document.getElementById(id);
+  if(sec) sec.className='sec on';
+  document.querySelectorAll('.tab').forEach(function(t){
+    if(t.getAttribute('onclick') === "showTab('"+id+"')") t.className='tab on';
+  });
+  if(id==='integrity') renderIntegrity();
+  if(id==='export') renderExportPreview();
+  if(id==='settings' && DB.url) document.getElementById('wurl').value=DB.url;
 }
 
-// --- IMPORTER LOGIC ---
-function parseEmbraceText() {
-    const raw = document.getElementById('embrace-input').value;
-    const previewArea = document.getElementById('preview-rows');
-    const previewContainer = document.getElementById('import-preview');
-    
-    const goalMatch = raw.match(/Goal Statement:\s*(.*?)(?=Benchmark|$)/i);
-    const objectiveMatch = raw.split(/Benchmark\(s\) or Short-Term Objective\(s\)\s*/i)[1];
-    
-    let html = '';
-    if (goalMatch && goalMatch[1]) html += createPreviewRow('Annual Goal', goalMatch[1].trim());
-    if (objectiveMatch) {
-        const objectives = objectiveMatch.split(/[A-Z]\)/).filter(t => t.trim().length > 0);
-        objectives.forEach((obj, idx) => {
-            html += createPreviewRow(`Objective ${String.fromCharCode(65 + idx)}`, obj.trim());
-        });
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function ini(n){ return (n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2); }
+function avs(n,i){ var c=AC[i%AC.length]; return 'background:'+c[0]+';color:'+c[1]; }
+function parseIds(s){
+  if(!s) return [];
+  return String(s).split(/[,;\s]+/).map(function(v){return v.trim();}).filter(function(v){return /^G\d+/i.test(v);});
+}
+function resolveG(id){
+  if(DB.goals[id]) return {ok:true, g:DB.goals[id]};
+  var k=Object.keys(DB.goals).find(function(k){return k.toLowerCase()===id.toLowerCase().trim();});
+  if(k) return {ok:true, g:DB.goals[k]};
+  return {ok:false, id:id};
+}
+
+// ── INTEGRITY CHECKS ─────────────────────────────────────────────────────
+function runChecks(){
+  var gk=Object.keys(DB.goals);
+  var missing=[];
+  DB.students.forEach(function(s){
+    parseIds(s.GoalIDs||s.goalIDs||'').forEach(function(id){
+      if(!DB.goals[id]) missing.push({stu:s.Name||s.name||'?', id:id});
+    });
+  });
+  var mapIds=(DB.mapping||[]).map(function(m){return m['Goal ID']||m.GoalID||'';}).filter(Boolean);
+  var orphan=mapIds.filter(function(id){return !DB.goals[id];});
+  return {
+    checks:[
+      {lbl:'IEP Goals loaded',          pass:gk.length>0,            note:gk.length>0?gk.length+' goals available':'No goals — check Sheet connection'},
+      {lbl:'Goals have descriptions',    pass:gk.every(function(k){return DB.goals[k].desc;}), note:gk.filter(function(k){return !DB.goals[k].desc;}).length+' missing description'},
+      {lbl:'All student goal IDs resolve',pass:missing.length===0,   note:missing.length===0?'All links valid':missing.slice(0,3).map(function(m){return m.stu+': '+m.id;}).join(', ')+(missing.length>3?' +'+(missing.length-3)+' more':'')},
+      {lbl:'Resource-Goal Mapping valid', pass:orphan.length===0,     note:orphan.length===0?'All mapping rows valid':orphan.slice(0,4).join(', ')+' not in Goals tab'},
+      {lbl:'Students linked to Schedule', pass:DB.students.length===0||DB.schedule.length>0, note:DB.students.length===0?'No students yet':DB.schedule.length+' schedule rows for '+DB.students.length+' students'}
+    ],
+    missing:missing
+  };
+}
+
+// ── RENDER OVERVIEW ───────────────────────────────────────────────────────
+function renderOverview(){
+  var r=runChecks();
+  var issues=r.checks.filter(function(c){return !c.pass;}).length + r.missing.length;
+  document.getElementById('cnt-s').textContent = DB.students.length || '—';
+  document.getElementById('cnt-g').textContent = Object.keys(DB.goals).length;
+  document.getElementById('cnt-r').textContent = DB.resources.length || (DB.source==='builtin'?140:0);
+  var el=document.getElementById('cnt-i');
+  el.textContent=issues;
+  el.style.color=issues>0?'#d97706':'#059669';
+
+  var ih='';
+  if(issues===0){
+    ih='<div class="okbox">All checks passed — no broken goal links.</div>';
+  } else {
+    ih='<div class="wbox"><div class="wtitle">'+issues+' issue'+(issues>1?'s':'')+' found</div>'+
+      r.checks.filter(function(c){return !c.pass;}).map(function(c){
+        return '<div class="witem"><span>&#9651;</span><span>'+c.lbl+': '+c.note+'</span></div>';
+      }).join('')+
+      (r.missing.length?'<div class="witem"><span>&#9651;</span><span>'+r.missing.length+' student goal link'+(r.missing.length>1?'s':'')+' reference deleted goals — <button class="bsm bw" onclick="showTab(\'integrity\')">View details</button></span></div>':'')+
+      '</div>';
+  }
+  document.getElementById('ov-issues').innerHTML=ih;
+
+  if(DB.students.length){
+    var rows=DB.students.slice(0,6).map(function(s,i){
+      var nm=s.Name||s.name||'?';
+      var ids=parseIds(s.GoalIDs||s.goalIDs||'');
+      var bad=ids.filter(function(id){return !DB.goals[id];});
+      return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">'+
+        '<div class="av" style="width:28px;height:28px;font-size:11px;'+avs(nm,i)+'">'+ini(nm)+'</div>'+
+        '<span style="flex:1;font-size:13px">'+nm+'</span>'+
+        '<span style="font-size:11px;color:#aaa">'+ids.length+' goal'+(ids.length!==1?'s':'')+'</span>'+
+        (bad.length?'<span class="badge bwarn">'+bad.length+' missing</span>':'<span class="badge bok">ok</span>')+
+        '</div>';
+    }).join('');
+    document.getElementById('ov-students').innerHTML='<div class="card"><div class="card-title">Students</div>'+rows+
+      (DB.students.length>6?'<div style="padding-top:8px;font-size:11px;color:#aaa">+'+(DB.students.length-6)+' more — <button class="bsm" onclick="showTab(\'students\')">view all</button></div>':'')+
+      '</div>';
+  } else {
+    document.getElementById('ov-students').innerHTML=
+      '<div class="card" style="text-align:center;padding:2rem;color:#aaa;font-size:13px">No students yet. Use the IEP Importer tab to add your first student, or connect your Sheet above.</div>';
+  }
+}
+
+// ── RENDER STUDENTS ───────────────────────────────────────────────────────
+function renderStudents(){
+  var wrap=document.getElementById('stu-list');
+  if(!DB.students.length){
+    wrap.innerHTML='<div class="card" style="text-align:center;padding:2rem;font-size:13px;color:#aaa">No students loaded. Connect your Sheet and click Reload data, or use the IEP Importer tab.</div>';
+    return;
+  }
+  wrap.innerHTML='<div class="card">'+DB.students.map(function(s,i){
+    var nm=s.Name||s.name||'?';
+    var ids=parseIds(s.GoalIDs||s.goalIDs||'');
+    var pills=ids.map(function(id){
+      var r=resolveG(id);
+      if(r.ok) return '<span class="gpok" title="'+r.g.desc+'">'+id+' <span style="color:#aaa;margin-left:2px">'+r.g.domain+'</span></span>';
+      return '<span class="gpbad" title="Goal '+id+' was deleted from IEP Goals tab">'+id+' missing</span>';
+    }).join('');
+    var sched=DB.schedule.find(function(sc){return (sc.StudentID||sc.studentID)===(s.StudentID||s.studentID);});
+    var days=sched?['Monday','Tuesday','Wednesday','Thursday','Friday'].filter(function(d){return sched[d]==='TRUE'||sched[d]===true||sched[d]==='true';}).map(function(d){return d.slice(0,2);}).join(' '):'';
+    var idate=s.IEPDate?new Date(s.IEPDate).toLocaleDateString('en-US',{month:'short',year:'numeric'}):'';
+    return '<div class="srow">'+
+      '<div class="av" style="'+avs(nm,i)+'">'+ini(nm)+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">'+
+          '<span style="font-weight:500;font-size:13px">'+nm+'</span>'+
+          (idate?'<span style="font-size:11px;color:#aaa">IEP '+idate+'</span>':'')+
+          (days?'<span style="font-size:11px;color:#888">'+days+'</span>':'')+
+        '</div>'+
+        '<div>'+(pills||'<span style="font-size:11px;color:#aaa">No goals linked</span>')+'</div>'+
+        (s.Notes?'<div style="font-size:11px;color:#aaa;margin-top:3px">'+s.Notes+'</div>':'')+
+      '</div>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+
+// ── RENDER INTEGRITY ──────────────────────────────────────────────────────
+function renderIntegrity(){
+  var r=runChecks();
+  var html=r.checks.map(function(c){
+    return '<div class="irow"><span>'+c.lbl+'</span>'+
+      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">'+
+        '<span style="font-size:11px;color:#aaa;text-align:right;max-width:260px">'+c.note+'</span>'+
+        '<span class="badge '+(c.pass?'bok':'berr')+'">'+(c.pass?'pass':'fail')+'</span>'+
+      '</div></div>';
+  }).join('');
+  if(r.missing.length){
+    html+='<div class="wbox" style="margin-top:12px"><div class="wtitle">Missing goal references</div>'+
+      r.missing.slice(0,6).map(function(m){
+        return '<div class="witem"><span style="flex-shrink:0">&#9651;</span>'+
+          '<span><strong>'+m.stu+'</strong> references <code>'+m.id+'</code> which is no longer in the IEP Goals tab. '+
+          'Fix: (1) restore that goal row in your Sheet, (2) remove <code>'+m.id+'</code> from this student\'s GoalIDs, or (3) replace with the updated ID.</span></div>';
+      }).join('')+
+      (r.missing.length>6?'<div style="font-size:11px;color:#92400e;padding-top:4px">+'+(r.missing.length-6)+' more</div>':'')+
+      '</div>';
+  }
+  if(r.checks.every(function(c){return c.pass;})){
+    html='<div class="okbox" style="margin-bottom:12px">All '+r.checks.length+' checks passed.</div>'+html;
+  }
+  document.getElementById('int-res').innerHTML=html;
+}
+
+// ── EMBRACE IMPORTER ──────────────────────────────────────────────────────
+var parsedGoals=[];
+
+function parseEmbraceText(){
+  var raw=document.getElementById('embrace-input').value.trim();
+  if(!raw){alert('Please paste IEP text first.');return;}
+
+  var blocks=raw.split(/(?=Goal\s*#\s*\d+\s*[-])/i).filter(function(b){return b.trim();});
+  parsedGoals=[];
+
+  blocks.forEach(function(block,i){
+    var headerMatch=block.match(/Goal\s*#\s*(\d+)\s*[-]\s*([\w\/\s]+?)\s*Goal\s*Statement\s*:/i);
+    var stmtMatch=block.match(/Goal\s*Statement\s*:([\s\S]*?)(?:Benchmark|$)/i);
+    var benchSection=block.match(/Benchmark[\s\S]*?(?:Objective[s]?\)?[:\)])([\s\S]*)/i);
+
+    var goalNum=headerMatch?headerMatch[1]:String(i+1);
+    var domainHint=headerMatch?headerMatch[2].trim():'';
+    var statement=stmtMatch?stmtMatch[1].trim():block;
+    if(benchSection) statement=statement.replace(/Benchmark[\s\S]*/i,'').trim();
+
+    var domain='Other';
+    var dl=domainHint.toLowerCase()+' '+statement.toLowerCase();
+    if(/math|number|addition|subtraction|count|place value|equation|measurement|shape|digit|solve/.test(dl)) domain='Math';
+    else if(/read|literacy|phonics|decode|fluency|comprehension|letter|sound|writing|spell|word|passage|cvc|vowel/.test(dl)) domain='Literacy';
+    else if(/calm|emotion|feeling|regulation|behavior|social|break|frustrat|transition|self.control|communicat/.test(dl)) domain='SEL';
+
+    var benchmarks=[];
+    if(benchSection){
+      var btext=benchSection[1];
+      var bm=[...btext.matchAll(/([A-Z])\s*\)\s*([\s\S]*?)(?=[A-Z]\s*\)|$)/gi)];
+      bm.forEach(function(m){
+        var t=m[2].trim();
+        if(t.length>5) benchmarks.push({letter:m[1].toUpperCase(),text:t});
+      });
     }
+
+    parsedGoals.push({goalNum:goalNum, domain:domain, domainHint:domainHint, statement:statement, benchmarks:benchmarks});
+  });
+
+  if(!parsedGoals.length){alert('No goals found. Make sure text includes "Goal #1 -"');return;}
+  renderImportPreview();
+}
+
+function domBadge(d){
+  var map={Math:'background:#dbeafe;color:#1e40af',Literacy:'background:#dcfce7;color:#166534',SEL:'background:#fef9c3;color:#854d0e'};
+  return '<span class="badge" style="'+(map[d]||'background:#f0f0ee;color:#555')+'">'+d+'</span>';
+}
+
+function renderImportPreview(){
+  var name=document.getElementById('imp-name').value||'Student';
+  var html=parsedGoals.map(function(g,i){
+    return '<div class="goal-card">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+        '<span style="font-size:11px;color:#aaa;min-width:54px">Goal #'+g.goalNum+'</span>'+
+        domBadge(g.domain)+
+      '</div>'+
+      '<div style="font-size:12px;color:#555;margin-bottom:'+(g.benchmarks.length?'8px':'0')+';line-height:1.5">'+g.statement+'</div>'+
+      (g.benchmarks.length?'<div style="font-size:11px;color:#888">'+
+        g.benchmarks.map(function(b){return '<div style="padding:2px 0"><strong>'+b.letter+')</strong> '+b.text+'</div>';}).join('')+
+      '</div>':'')+
+    '</div>';
+  }).join('');
+
+  document.getElementById('imp-preview-rows').innerHTML=
+    '<div class="card" style="background:#f9fafb;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+
+        '<div class="av" style="'+avs(name,0)+'">'+ini(name)+'</div>'+
+        '<div><div style="font-weight:500">'+name+'</div>'+
+          '<div style="font-size:11px;color:#888">'+parsedGoals.length+' goals · '+parsedGoals.reduce(function(s,g){return s+g.benchmarks.length;},0)+' benchmarks</div>'+
+        '</div>'+
+      '</div>'+html+
+    '</div>';
+
+  document.getElementById('imp-preview').style.display='block';
+  document.getElementById('imp-preview').scrollIntoView({behavior:'smooth'});
+}
+
+function saveImportedGoals(){
+  if(!parsedGoals.length){alert('Nothing to save.');return;}
+  var name=document.getElementById('imp-name').value.trim()||'Unknown';
+  var iepDate=document.getElementById('imp-date').value||'';
+
+  var goalIDs=parsedGoals.map(function(g,i){return 'IMPORT-'+g.goalNum;}).join(',');
+
+  var student={
+    StudentID:'',Name:name,ColorTag:'blue',IEPDate:iepDate,
+    GoalIDs:goalIDs,Notes:'Imported via Embrace importer',Active:'TRUE'
+  };
+
+  if(DB.url){
+    var btn=document.querySelector('#importer .bp[onclick="saveImportedGoals()"]');
+    if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>Saving...';}
+    fetch(DB.url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'upsert_student',Name:name,ColorTag:'blue',IEPDate:iepDate,GoalIDs:goalIDs,Notes:'Imported via Embrace importer',Active:'TRUE'})
+    })
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.ok){
+        alert('Saved! Student ID: '+d.StudentID+'\n\nClick Reload data to see them in the Students tab.');
+        document.getElementById('embrace-input').value='';
+        document.getElementById('imp-preview').style.display='none';
+        parsedGoals=[];
+      } else {
+        alert('Save error: '+(d.error||'unknown'));
+      }
+      if(btn){btn.disabled=false;btn.textContent='Save student to Sheet';}
+    })
+    .catch(function(e){
+      alert('Could not reach Sheet: '+e.message);
+      if(btn){btn.disabled=false;btn.textContent='Save student to Sheet';}
+    });
+  } else {
+    // No sheet — save to in-memory DB
+    student.StudentID='S'+(DB.students.length+1).toString().padStart(3,'0');
+    DB.students.push(student);
+    renderAll();
+    alert('Saved locally (no Sheet connected). Connect your Sheet in Settings to persist data.');
+    document.getElementById('embrace-input').value='';
+    document.getElementById('imp-preview').style.display='none';
+    parsedGoals=[];
+    showTab('students');
+  }
+}
+
+// ── RELOAD ────────────────────────────────────────────────────────────────
+async function reloadAll(){
+  var btn=document.getElementById('rlbtn');
+  var pt=document.getElementById('pttrack');
+  var pf=document.getElementById('pfill');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span>Reloading...';
+  pt.style.display='block';
+  var steps=[20,40,60,80,100];
+  for(var i=0;i<steps.length;i++){
+    pf.style.width=steps[i]+'%';
+    await new Promise(function(r){setTimeout(r,100);});
+  }
+  if(DB.url){
+    try{
+      var res=await fetch(DB.url+'?action=all');
+      var data=await res.json();
+      if(data.ok){
+        if(data.data.goals&&data.data.goals.length){
+          DB.goals={};
+          data.data.goals.forEach(function(g){
+            var id=g['Goal ID']||g.GoalID||g.id;
+            if(id) DB.goals[id]={id:id,domain:g.Domain||g.domain||'Other',sub:g.Subcategories||g.sub||'',desc:g['Goal/Objective Description']||g.desc||''};
+          });
+        }
+        if(data.data.students) DB.students=data.data.students;
+        if(data.data.schedule) DB.schedule=data.data.schedule;
+        if(data.data.resources) DB.resources=data.data.resources;
+        if(data.data.mapping) DB.mapping=data.data.mapping;
+        DB.source='sheets';
+        document.getElementById('sync-t').textContent='Synced '+new Date().toLocaleTimeString();
+        document.getElementById('src-lbl').textContent='Google Sheets — live';
+      }
+    } catch(e){
+      document.getElementById('sync-t').textContent='Fetch failed — check URL in Settings';
+    }
+  } else {
+    DB.goals=JSON.parse(JSON.stringify(BGOALS));
+    document.getElementById('sync-t').textContent='Refreshed '+new Date().toLocaleTimeString();
+  }
+  pt.style.display='none';
+  pf.style.width='0%';
+  btn.disabled=false;
+  btn.textContent='Reload data';
+  renderAll();
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function valUrl(){
+  var v=document.getElementById('wurl').value.trim();
+  var ok=v.includes('script.google.com/macros/s/')&&v.endsWith('/exec');
+  document.getElementById('sbtn').disabled=!ok;
+  document.getElementById('ufb').textContent=ok?'URL looks valid — click Test & save':'URL must end in /exec';
+  document.getElementById('ufb').style.color=ok?'#059669':'#d97706';
+}
+
+async function testSave(){
+  var url=document.getElementById('wurl').value.trim();
+  var btn=document.getElementById('sbtn');
+  var fb=document.getElementById('ufb');
+  btn.disabled=true;btn.textContent='Testing...';
+  try{
+    var res=await fetch(url+'?action=goals');
+    var data=await res.json();
+    if(data.ok){
+      DB.url=url;
+      localStorage.setItem('sheetUrl',url);
+      document.getElementById('src-lbl').textContent='Google Sheets connected';
+      fb.textContent='Connected! Click Reload data to load everything from your Sheet.';
+      fb.style.color='#059669';
+      btn.textContent='Connected';
+    } else {
+      fb.textContent='Error: '+(data.error||'unknown');
+      fb.style.color='#dc2626';
+      btn.disabled=false;btn.textContent='Test & save';
+    }
+  } catch(e){
+    fb.innerHTML='Could not reach URL. Make sure "Who has access" = <strong>Anyone</strong> in Apps Script deployment settings.';
+    fb.style.color='#dc2626';
+    btn.disabled=false;btn.textContent='Test & save';
+  }
+}
+
+// ── EXPORT / BACKUP ───────────────────────────────────────────────────────
+function buildPayload(){
+  return {exportedAt:new Date().toISOString(),source:DB.source,version:'1.0',
+    summary:{students:DB.students.length,goals:Object.keys(DB.goals).length},
+    students:DB.students,schedule:DB.schedule,goals:Object.values(DB.goals),
+    goalIntegrity:DB.students.map(function(s){
+      var ids=parseIds(s.GoalIDs||s.goalIDs||'');
+      return {id:s.StudentID,name:s.Name||s.name,goalIDs:ids,missing:ids.filter(function(id){return !DB.goals[id];})};
+    })
+  };
+}
+
+function renderExportPreview(){
+  var p=buildPayload();
+  var txt=JSON.stringify(p,null,2);
+  document.getElementById('bprev').textContent=txt.slice(0,2000)+(txt.length>2000?'\n\n... (truncated in preview — full file downloads correctly)':'');
+}
+
+function doExportJSON(){
+  var b=new Blob([JSON.stringify(buildPayload(),null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='classroom_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
+}
+
+function doExportCSV(type){
+  var csv='',fn='';
+  if(type==='students'){
+    var rows=DB.students.map(function(s){return [s.StudentID||'',s.Name||s.name||'',s.IEPDate||'',s.GoalIDs||s.goalIDs||'',s.Notes||'',s.Active!==undefined?s.Active:'TRUE'];});
+    csv=['StudentID,Name,IEPDate,GoalIDs,Notes,Active'].concat(rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
+    fn='students_'+new Date().toISOString().slice(0,10)+'.csv';
+  } else {
+    var rows2=DB.students.flatMap?DB.students.flatMap(function(s){
+      return parseIds(s.GoalIDs||s.goalIDs||'').map(function(id){
+        var g=DB.goals[id];
+        return [s.StudentID||'',s.Name||s.name||'',id,g?g.domain:'MISSING',g?g.desc:'GOAL NOT FOUND'];
+      });
+    }):[];
+    csv=['StudentID,StudentName,GoalID,Domain,GoalDescription'].concat(rows2.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
+    fn='student_goals_'+new Date().toISOString().slice(0,10)+'.csv';
+  }
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn;a.click();
+}
+
+function doRestore(inp){
+  var f=inp.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var d=JSON.parse(e.target.result);
+      if(!d.version||!d.students) throw new Error('Invalid backup format');
+      DB.students=d.students;DB.schedule=d.schedule||[];
+      if(d.goals){DB.goals={};d.goals.forEach(function(g){if(g.id)DB.goals[g.id]=g;});}
+      DB.source='restored';
+      document.getElementById('rstat').innerHTML='<div class="okbox">Restored '+d.students.length+' students from backup ('+new Date(d.exportedAt).toLocaleDateString()+').</div>';
+      renderAll();
+    } catch(err){
+      document.getElementById('rstat').innerHTML='<div class="errbox">Could not restore: '+err.message+'</div>';
+    }
+  };
+  reader.readAsText(f);
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────
+function renderAll(){
+  renderOverview();
+  renderStudents();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+if(DB.url){
+  document.getElementById('src-lbl').textContent='Sheet URL saved — click Reload data to connect';
+}
+document.getElementById('imp-date').value=new Date().toISOString().split('T')[0];
+renderAll();
+</script>
+</body>
+</html>
