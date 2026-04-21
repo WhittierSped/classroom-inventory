@@ -525,13 +525,21 @@ function saveImportedGoals(){
   }
 
   if(DB.url){
-    fetch(DB.url,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'upsert_student',Name:name,ColorTag:'blue',IEPDate:iepDate,
-        GoalIDs:uniqueIDs,Notes:'Imported '+parsedItems.length+' items',Active:'TRUE'})
-    }).then(function(r){return r.json();}).then(function(d){
+    // Use GET to avoid CORS — POST is blocked cross-origin from github.io to script.google.com
+    var params=new URLSearchParams({
+      action:'upsert_student',
+      Name:name,
+      ColorTag:'blue',
+      IEPDate:iepDate,
+      GoalIDs:uniqueIDs,
+      Notes:'Imported '+parsedItems.length+' items',
+      Active:'TRUE'
+    });
+    fetch(DB.url+'?'+params.toString())
+    .then(function(r){return r.json();}).then(function(d){
       if(d.ok)onSaved(d.StudentID);
       else{alert('Error: '+(d.error||'unknown'));btn.disabled=false;btn.textContent='Save student to Sheet';}
-    }).catch(function(e){alert('Failed to fetch. Check Settings tab for troubleshooting.');btn.disabled=false;btn.textContent='Save student to Sheet';});
+    }).catch(function(e){alert('Failed to fetch: '+e.message+'. Check Settings tab.');btn.disabled=false;btn.textContent='Save student to Sheet';});
   } else {
     var sid='S'+String(DB.students.length+1).padStart(3,'0');
     DB.students.push({StudentID:sid,Name:name,ColorTag:'blue',IEPDate:iepDate,GoalIDs:uniqueIDs,Notes:'Local only',Active:'TRUE'});
