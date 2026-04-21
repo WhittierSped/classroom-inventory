@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -806,6 +807,14 @@
                 <label class="form-label">Source</label>
                 <input type="text" class="form-input" id="modalResourceSource" placeholder="e.g., Teachers Pay Teachers, Lakeshore Learning, Amazon">
             </div>
+            <div class="form-group">
+                <label class="form-label">TPT Link</label>
+                <input type="text" class="form-input" id="modalResourceTPTLink" placeholder="https://www.teacherspayteachers.com/Product/...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Photo/Image URL</label>
+                <input type="text" class="form-input" id="modalResourcePhotoURL" placeholder="URL to image (Google Drive, Imgur, etc.)">
+            </div>
             <div class="modal-actions">
                 <button class="btn btn-ghost" onclick="closeResourceModal()">Cancel</button>
                 <button class="btn btn-success" onclick="saveResource()">Save Resource</button>
@@ -824,7 +833,7 @@
         // Leave as 'YOUR_SHEET_ID_HERE' to work offline with embedded data
         // OR paste your Sheet ID to load latest data from Google Sheets
         
-        const GOOGLE_SHEET_ID = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8uk';  // ← OPTIONAL: Paste Sheet ID to sync
+        const GOOGLE_SHEET_ID = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8uk';  // ← Your Classroom Inventory Sheet
         
         const SHEET_NAMES = {
             resources: 'Resources Inventory',
@@ -3007,7 +3016,7 @@
             
             if (searchTerm) {
                 filtered = filtered.filter(g => 
-                    g['Goal/Objective Description'].toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    (g['Goal Description'] || g['Goal/Objective Description'] || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                     g['Goal ID'].toLowerCase().includes(searchTerm.toLowerCase())
                 );
             }
@@ -3039,7 +3048,7 @@
                             <span class="domain-badge domain-${goal.Domain}">${goal.Domain}</span>
                             ${subcategoryBadges}
                         </div>
-                        <div class="goal-name">${goal['Goal/Objective Description']}</div>
+                        <div class="goal-name">${goal['Goal Description'] || goal['Goal/Objective Description']}</div>
                         <div class="action-buttons">
                             <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); openEditGoalModal('${goal['Goal ID']}')">Edit</button>
                             <button class="btn btn-danger btn-small" onclick="event.stopPropagation(); deleteGoal('${goal['Goal ID']}')">Delete</button>
@@ -3105,7 +3114,7 @@
                     <div class="form-group">
                         <label class="form-label">Description</label>
                         <div style="padding: 0.75rem; background: var(--bg); border-radius: 8px; line-height: 1.6;">
-                            ${goal['Goal/Objective Description']}
+                            ${goal['Goal Description'] || goal['Goal/Objective Description']}
                         </div>
                     </div>
                     <div style="display: flex; gap: 1rem;">
@@ -3176,7 +3185,7 @@
                 if (checkbox) checkbox.checked = true;
             }
             
-            document.getElementById('modalDescription').value = goal['Goal/Objective Description'];
+            document.getElementById('modalDescription').value = goal['Goal Description'] || goal['Goal/Objective Description'] || '';
             document.getElementById('goalModal').classList.add('show');
         }
 
@@ -3274,6 +3283,28 @@
             document.getElementById('modalResourceLocation').value = '';
             document.getElementById('modalResourceDescription').value = '';
             document.getElementById('modalResourceSource').value = '';
+            document.getElementById('modalResourceTPTLink').value = '';
+            document.getElementById('modalResourcePhotoURL').value = '';
+            document.getElementById('resourceModal').classList.add('show');
+        }
+
+        function editResource(resourceId) {
+            const resource = resources.find(r => r['Resource ID'] === resourceId);
+            if (!resource) return;
+            
+            editingResourceId = resourceId;
+            document.getElementById('resourceModalTitle').textContent = 'Edit Resource';
+            document.getElementById('modalResourceId').value = resource['Resource ID'];
+            document.getElementById('modalResourceId').disabled = true; // Can't change ID when editing
+            document.getElementById('modalResourceName').value = resource['Resource Name'] || '';
+            document.getElementById('modalResourceFormat').value = resource.Format || '';
+            document.getElementById('modalResourceCategory').value = resource.Category || '';
+            document.getElementById('modalResourceQuantity').value = resource.Quantity || '1';
+            document.getElementById('modalResourceLocation').value = resource['Location/File Path'] || '';
+            document.getElementById('modalResourceDescription').value = resource['Description/Notes'] || '';
+            document.getElementById('modalResourceSource').value = resource.Source || '';
+            document.getElementById('modalResourceTPTLink').value = resource['TPT Link'] || '';
+            document.getElementById('modalResourcePhotoURL').value = resource['Photo/Image URL'] || '';
             document.getElementById('resourceModal').classList.add('show');
         }
 
@@ -3290,6 +3321,8 @@
             const location = document.getElementById('modalResourceLocation').value.trim();
             const description = document.getElementById('modalResourceDescription').value.trim();
             const source = document.getElementById('modalResourceSource').value.trim();
+            const tptLink = document.getElementById('modalResourceTPTLink').value.trim();
+            const photoURL = document.getElementById('modalResourcePhotoURL').value.trim();
 
             if (!resourceId || !name || !format) {
                 alert('Please fill in all required fields (Resource ID, Name, and Format)');
@@ -3304,11 +3337,13 @@
                 'Quantity': quantity || '1',
                 'Location/File Path': location || '',
                 'Description/Notes': description || '',
-                'Source': source || ''
+                'Source': source || '',
+                'TPT Link': tptLink || '',
+                'Photo/Image URL': photoURL || ''
             };
 
             if (editingResourceId) {
-                // Edit existing (not implemented for simplicity, but structure is here)
+                // Edit existing
                 const resourceIndex = resources.findIndex(r => r['Resource ID'] === editingResourceId);
                 if (resourceIndex !== -1) {
                     resources[resourceIndex] = resourceData;
@@ -3325,6 +3360,11 @@
 
             localStorage.setItem('resources', JSON.stringify(resources));
             closeResourceModal();
+            renderResourceList();
+            if (currentResource === resourceId || editingResourceId) {
+                renderEditor(); // Refresh the editor view
+            }
+        }
             renderResourceList(document.getElementById('resourceSearch').value);
             updateStats();
             
@@ -3358,7 +3398,7 @@
             let resourceDetailHtml = `
                 <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.25rem; border-radius: 12px; margin-bottom: 1.5rem; border-left: 4px solid var(--warning);">
                     <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                        <div>
+                        <div style="flex: 1;">
                             <div style="font-weight: 700; font-size: 1.1rem; color: #78350f; margin-bottom: 0.25rem;">
                                 ${resource['Resource ID']} - ${resource['Resource Name']}
                             </div>
@@ -3367,13 +3407,28 @@
                                 <strong>Category:</strong> ${resource.Category}
                             </div>
                         </div>
-                        <button class="btn btn-primary btn-small" onclick="showBundleInfo('${resource['Resource ID']}')">
-                            📖 View Bundle Details
-                        </button>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary btn-small" onclick="editResource('${resource['Resource ID']}')">
+                                ✏️ Edit
+                            </button>
+                            <button class="btn btn-primary btn-small" onclick="showBundleInfo('${resource['Resource ID']}')">
+                                📖 Details
+                            </button>
+                        </div>
                     </div>
                     <div style="font-size: 0.9rem; color: #78350f; line-height: 1.5;">
-                        ${resource['Description/Notes']}
+                        ${resource['Description/Notes'] || '<em style="color: #92400e;">No description added yet</em>'}
                     </div>
+                    ${resource['TPT Link'] && resource['TPT Link'].trim() && !resource['TPT Link'].includes('Add TPT product') ? `
+                        <div style="margin-top: 0.75rem;">
+                            <a href="${resource['TPT Link']}" target="_blank" rel="noopener noreferrer" 
+                               style="display: inline-flex; align-items: center; gap: 0.5rem; color: #059669; text-decoration: none; font-weight: 600; font-size: 0.9rem; padding: 0.5rem 1rem; background: #d1fae5; border-radius: 6px; transition: all 0.2s;"
+                               onmouseover="this.style.background='#a7f3d0'" 
+                               onmouseout="this.style.background='#d1fae5'">
+                                🔗 View on Teachers Pay Teachers
+                            </a>
+                        </div>
+                    ` : ''}
                     <div id="bundleDetails-${resource['Resource ID']}" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #fbbf24;">
                         <div style="font-weight: 600; color: #78350f; margin-bottom: 0.5rem;">Loading bundle information...</div>
                     </div>
@@ -3484,7 +3539,7 @@
                                 <span class="domain-badge domain-${goal.Domain}">${goal.Domain}</span>
                                 ${subcategoryBadges}
                             </div>
-                            <div class="goal-desc">${goal['Goal/Objective Description']}</div>
+                            <div class="goal-desc">${goal['Goal Description'] || goal['Goal/Objective Description']}</div>
                             <textarea class="support-input" 
                                       id="support-${goal['Goal ID']}"
                                       placeholder="How does this resource support this goal?"
@@ -3811,7 +3866,7 @@
                         "Format": resource.Format,
                         "Goal ID": goalId,
                         "Goal Domain": goal.Domain,
-                        "Goal Description": goal['Goal/Objective Description'],
+                        "Goal Description": goal['Goal Description'] || goal['Goal/Objective Description'],
                         "How Resource Supports Goal": support.description || ''
                     });
                 }
