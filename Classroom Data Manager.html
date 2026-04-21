@@ -7,30 +7,34 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f3;padding:1rem}
-.app{max-width:820px;margin:0 auto}
+.app{max-width:860px;margin:0 auto}
 .card{background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
 .card-title{font-size:13px;font-weight:500;margin-bottom:10px}
 input,select{font-size:13px;padding:6px 10px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;background:#fff;color:#1a1a1a;width:100%}
-textarea{font-size:12px;padding:8px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;background:#fff;color:#1a1a1a;width:100%;resize:vertical;font-family:monospace}
+textarea{font-size:12px;padding:8px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;background:#fff;color:#1a1a1a;width:100%;resize:vertical;font-family:monospace;line-height:1.5}
 button{cursor:pointer;font-size:13px;padding:7px 14px;border-radius:8px;border:1px solid rgba(0,0,0,0.2);background:transparent;color:#1a1a1a}
 button:hover{background:#f0f0ee}
-button:disabled{opacity:0.45;cursor:not-allowed}
+button:disabled{opacity:0.4;cursor:not-allowed}
 .bp{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.bp:hover{background:#333 !important}
+.bp:hover{background:#333}
+.bg{background:#059669;color:#fff;border-color:#059669}
+.bg:hover{background:#047857}
 .bsm{font-size:11px;padding:3px 10px}
-.bw{border-color:#d97706;color:#92400e}
 .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
 .bok{background:#ecfdf5;color:#065f46}
 .bwarn{background:#fffbeb;color:#92400e}
 .berr{background:#fef2f2;color:#991b1b}
-.tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.1);margin-bottom:1.25rem}
-.tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;white-space:nowrap}
+.bmath{background:#dbeafe;color:#1e40af}
+.blit{background:#dcfce7;color:#166534}
+.bsel{background:#fef9c3;color:#854d0e}
+.bother{background:#f0f0ee;color:#555}
+.tabs{display:flex;border-bottom:1px solid rgba(0,0,0,0.1);margin-bottom:1.25rem;overflow-x:auto}
+.tab{padding:8px 15px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;white-space:nowrap;flex-shrink:0}
 .tab.on{color:#1a1a1a;border-bottom:2px solid #1a1a1a;font-weight:500}
 .sec{display:none}.sec.on{display:block}
 .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
 .sc{background:#f5f5f3;border-radius:8px;padding:10px;text-align:center}
-.sn{font-size:22px;font-weight:500}
-.sl{font-size:11px;color:#888;margin-top:2px}
+.sn{font-size:22px;font-weight:500}.sl{font-size:11px;color:#888;margin-top:2px}
 .wbox{border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:10px 14px;margin-bottom:10px}
 .wtitle{font-size:12px;font-weight:500;color:#92400e;margin-bottom:6px}
 .witem{font-size:12px;color:#92400e;padding:3px 0;display:flex;align-items:flex-start;gap:6px;line-height:1.5}
@@ -47,19 +51,32 @@ button:disabled{opacity:0.45;cursor:not-allowed}
 .irow:last-child{border-bottom:none}
 .rbar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f5f5f3;border-radius:8px;margin-bottom:1rem;flex-wrap:wrap}
 .pt{flex:1;min-width:80px;height:4px;background:rgba(0,0,0,0.1);border-radius:2px;overflow:hidden}
-.pf{height:100%;background:#1a1a1a;border-radius:2px;transition:width 0.25s}
-pre{background:#f5f5f3;border-radius:8px;padding:10px;font-size:10px;font-family:monospace;overflow-x:auto;line-height:1.6;color:#1a1a1a;white-space:pre-wrap;word-break:break-all;max-height:240px;overflow-y:auto}
+.pf{height:100%;background:#1a1a1a;border-radius:2px;transition:width 0.3s}
+pre{background:#f5f5f3;border-radius:8px;padding:10px;font-size:10px;font-family:monospace;overflow-x:auto;line-height:1.6;white-space:pre-wrap;word-break:break-all;max-height:240px;overflow-y:auto}
 code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;border-radius:3px}
 .row{display:flex;gap:10px;align-items:center}
 .goal-card{border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:10px 12px;margin-bottom:8px;background:#fff}
-.step-row{display:flex;gap:8px;margin-bottom:4px;font-size:13px;line-height:1.6}
-.step-num{background:#1a1a1a;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;margin-top:2px}
+.match-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px 10px;margin-top:6px;font-size:12px}
+.match-box.low{background:#fefce8;border-color:#fef08a}
+.match-box.none{background:#fef2f2;border-color:#fecaca}
+.match-accept{background:#059669;color:#fff;border-color:#059669;font-size:11px;padding:2px 8px;border-radius:4px;margin-right:4px}
+.match-reject{background:transparent;color:#991b1b;border-color:#fca5a5;font-size:11px;padding:2px 8px;border-radius:4px}
+/* Lesson planner */
+.group-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:12px;margin-bottom:10px;background:#fff}
+.group-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.stu-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:12px;margin:2px;cursor:pointer;border:1px solid rgba(0,0,0,0.15)}
+.stu-chip.sel{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.goal-item{display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px}
+.goal-item:last-child{border-bottom:none}
+.goal-cb{flex-shrink:0;margin-top:2px}
+.ai-out{background:#f9fafb;border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:12px;font-size:13px;line-height:1.7;white-space:pre-wrap;min-height:60px}
+.step-row{display:flex;gap:8px;margin-bottom:6px;font-size:13px;line-height:1.6;align-items:flex-start}
+.step-num{background:#1a1a1a;color:#fff;border-radius:50%;width:20px;height:20px;min-width:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;margin-top:2px}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- TOP BAR -->
 <div class="rbar">
   <div style="flex:1;min-width:120px">
     <div style="font-size:14px;font-weight:500">Classroom Data Manager</div>
@@ -71,11 +88,11 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
   <button class="bsm" onclick="showTab('settings')">⚙ Settings</button>
 </div>
 
-<!-- TABS -->
 <div class="tabs">
   <button class="tab on" onclick="showTab('overview')">Overview</button>
   <button class="tab" onclick="showTab('students')">Students</button>
   <button class="tab" onclick="showTab('importer')">IEP Importer</button>
+  <button class="tab" onclick="showTab('planner')">Lesson Planner</button>
   <button class="tab" onclick="showTab('integrity')">Integrity</button>
   <button class="tab" onclick="showTab('export')">Backup</button>
   <button class="tab" onclick="showTab('settings')">Settings</button>
@@ -94,31 +111,67 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 </div>
 
 <!-- STUDENTS -->
-<div id="students" class="sec">
-  <div id="stu-list"></div>
-</div>
+<div id="students" class="sec"><div id="stu-list"></div></div>
 
 <!-- IEP IMPORTER -->
 <div id="importer" class="sec">
   <div class="card" style="border-left:4px solid #1a1a1a">
     <div class="card-title">Embrace Goal Importer</div>
-    <p style="font-size:12px;color:#666;margin-bottom:10px">Paste one student's goals from Embrace. Handles the full <em>Goal #N - Domain Goal Statement: ... Benchmark(s)... A) B)</em> format.</p>
-    <div class="row" style="margin-bottom:8px;gap:8px">
-      <div style="flex:1"><label style="font-size:12px;color:#666;display:block;margin-bottom:3px">Student name</label><input id="imp-name" placeholder="e.g. Luna"></div>
-      <div style="flex:1"><label style="font-size:12px;color:#666;display:block;margin-bottom:3px">IEP date</label><input type="date" id="imp-date"></div>
+    <p style="font-size:12px;color:#666;margin-bottom:10px">Paste all goals for one student at once. Each annual goal and objective becomes a separate trackable item, matched to your existing goal bank.</p>
+    <div class="row" style="margin-bottom:8px;gap:8px;flex-wrap:wrap">
+      <div style="flex:1;min-width:140px"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Student name</label><input id="imp-name" placeholder="e.g. Ya'Ver"></div>
+      <div style="flex:1;min-width:140px"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">IEP date</label><input type="date" id="imp-date"></div>
     </div>
-    <textarea id="embrace-input" rows="6" placeholder="Goal #1 - Math Goal Statement: When given 5 two-digit addition or subtraction problems... Benchmark(s) or Short-Term Objective(s) A)Given math facts within 20... B)When given 3 two-digit numbers..."></textarea>
+    <textarea id="embrace-input" rows="7" placeholder="Goal #1 - Math Goal Statement: ...&#10;Benchmark(s) or Short-Term Objective(s)&#10;A) ...&#10;B) ...&#10;&#10;Goal #2 - Literacy Goal Statement: ..."></textarea>
     <div class="row" style="margin-top:8px">
       <button class="bp" onclick="parseEmbraceText()">Parse goals</button>
-      <button class="bsm" onclick="document.getElementById('embrace-input').value='';document.getElementById('imp-preview').style.display='none'">Clear</button>
+      <button class="bsm" onclick="clearImporter()">Clear</button>
     </div>
   </div>
-
   <div id="imp-preview" style="display:none">
     <div id="imp-preview-rows"></div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button onclick="showTab('importer')" class="bsm">← Back</button>
-      <button class="bp" style="background:#059669;border-color:#059669;flex:1" onclick="saveImportedGoals()">Save student to Sheet</button>
+    <div style="display:flex;gap:8px;margin-top:4px;align-items:center">
+      <span id="imp-match-summary" style="font-size:12px;color:#666;flex:1"></span>
+      <button class="bsm" onclick="clearImporter()">← Start over</button>
+      <button class="bg" id="imp-save-btn" onclick="saveImportedGoals()">Save student to Sheet</button>
+    </div>
+  </div>
+</div>
+
+<!-- LESSON PLANNER -->
+<div id="planner" class="sec">
+  <div class="card">
+    <div class="card-title">Step 1 — Build your group</div>
+    <p style="font-size:12px;color:#666;margin-bottom:10px">Select students for this session. Their combined goals will load below.</p>
+    <div id="planner-chips" style="margin-bottom:8px"></div>
+  </div>
+  <div id="planner-goals-card" style="display:none">
+    <div class="card">
+      <div class="card-title">Step 2 — Goals for this group <span id="planner-goal-count" style="font-size:11px;font-weight:400;color:#888"></span></div>
+      <p style="font-size:12px;color:#666;margin-bottom:10px">Check the goals you want to focus on this session.</p>
+      <div id="planner-goal-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Step 3 — Generate lesson plan</div>
+      <div class="row" style="margin-bottom:8px;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Session theme / unit (optional)</label><input id="plan-theme" placeholder="e.g. winter, community helpers"></div>
+        <div style="flex:1;min-width:140px"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Session length</label>
+          <select id="plan-length"><option>30 minutes</option><option selected>45 minutes</option><option>60 minutes</option><option>90 minutes</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom:8px"><label style="font-size:11px;color:#666;display:block;margin-bottom:3px">Additional notes (optional)</label>
+        <textarea id="plan-notes" rows="2" placeholder="e.g. avoid cutting activities, phonics focus this week, field trip Thursday"></textarea>
+      </div>
+      <button class="bp" id="plan-btn" onclick="generatePlan()">Generate lesson plan with AI</button>
+    </div>
+    <div id="plan-output" style="display:none">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="card-title" style="margin-bottom:0">AI lesson plan</div>
+          <button class="bsm" onclick="copyPlan()">Copy</button>
+        </div>
+        <div class="ai-out" id="plan-text"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -127,7 +180,7 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 <div id="integrity" class="sec">
   <div class="card">
     <div class="card-title">Data integrity checks</div>
-    <div id="int-res"><div style="font-size:12px;color:#888">Load data first — click Reload data in the top bar.</div></div>
+    <div id="int-res"><div style="font-size:12px;color:#888">Click Reload data in the top bar first.</div></div>
   </div>
 </div>
 
@@ -135,7 +188,7 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 <div id="export" class="sec">
   <div class="card">
     <div class="card-title">Backup student data</div>
-    <p style="font-size:12px;color:#555;margin-bottom:12px">Downloads a timestamped file. Safe to clear browser cache after backing up.</p>
+    <p style="font-size:12px;color:#555;margin-bottom:12px">Timestamped backup file. Safe to clear browser cache after downloading.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="bp" onclick="doExportJSON()">Download JSON backup</button>
       <button onclick="doExportCSV('students')">Download CSV — students</button>
@@ -144,21 +197,17 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
   </div>
   <div class="card">
     <div class="card-title">Restore from backup</div>
-    <p style="font-size:12px;color:#555;margin-bottom:8px">Upload a previously downloaded JSON backup.</p>
     <input type="file" id="rfile" accept=".json" onchange="doRestore(this)" style="font-size:12px">
     <div id="rstat" style="margin-top:8px"></div>
   </div>
-  <div class="card">
-    <div class="card-title">Backup preview</div>
-    <pre id="bprev">Load data first</pre>
-  </div>
+  <div class="card"><div class="card-title">Backup preview</div><pre id="bprev">Load data first</pre></div>
 </div>
 
 <!-- SETTINGS -->
 <div id="settings" class="sec">
   <div class="card">
     <div class="card-title">Connect Google Sheet</div>
-    <p style="font-size:12px;color:#555;margin-bottom:10px">Paste your Apps Script Web App URL (ends in <code>/exec</code>). Go to <strong>Extensions → Apps Script → Deploy → Manage deployments</strong> to find it.</p>
+    <p style="font-size:12px;color:#555;margin-bottom:10px">Paste your Apps Script Web App URL (ends in <code>/exec</code>). Must be deployed with <strong>Execute as: Me</strong> and <strong>Who has access: Anyone</strong>.</p>
     <div class="row" style="margin-bottom:8px">
       <input id="wurl" placeholder="https://script.google.com/macros/s/…/exec" oninput="valUrl()" style="font-family:monospace;font-size:11px">
       <button id="sbtn" class="bp" disabled onclick="testSave()" style="white-space:nowrap;flex-shrink:0">Test &amp; save</button>
@@ -166,36 +215,35 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
     <div id="ufb" style="font-size:12px;color:#888"></div>
   </div>
   <div class="card">
-    <div class="card-title">How goal ID matching works</div>
-    <p style="font-size:12px;color:#555;line-height:1.7">Students store goal references as IDs (G001, G032…) — never the goal text. Updating a goal description in your Sheet never breaks a student link. A warning only appears if you <em>delete a goal row entirely</em>. The integrity checker tells you exactly which student and which ID is affected.</p>
+    <div class="card-title">Troubleshooting "Failed to fetch"</div>
+    <div class="step-row"><div class="step-num">1</div><div>In Apps Script: <strong>Deploy → Manage deployments</strong></div></div>
+    <div class="step-row"><div class="step-num">2</div><div>Click the pencil/edit icon on your deployment</div></div>
+    <div class="step-row"><div class="step-num">3</div><div>Under "Who has access" confirm it says <strong>Anyone</strong> — NOT "Anyone with a Google account"</div></div>
+    <div class="step-row"><div class="step-num">4</div><div>If you changed anything, click <strong>Deploy</strong> — this creates a new URL. Update it here in Settings.</div></div>
+    <div class="step-row"><div class="step-num">5</div><div>If still failing: try opening the /exec URL directly in a browser tab. It should return JSON, not an error page.</div></div>
   </div>
   <div class="card">
-    <div class="card-title">Quick setup checklist</div>
-    <div class="step-row"><div class="step-num">1</div><div>Open your Google Sheet → <strong>Extensions → Apps Script</strong></div></div>
-    <div class="step-row"><div class="step-num">2</div><div>Paste the Apps Script, save, run <code>setupNewTabs()</code></div></div>
-    <div class="step-row"><div class="step-num">3</div><div><strong>Deploy → New deployment → Web App</strong> — Execute as: Me, Who has access: Anyone</div></div>
-    <div class="step-row"><div class="step-num">4</div><div>Copy the <code>/exec</code> URL and paste it above → Test &amp; save</div></div>
-    <div class="step-row"><div class="step-num">5</div><div>Click <strong>Reload data</strong> in the top bar — all your goals and resources will load live</div></div>
+    <div class="card-title">Goal ID matching</div>
+    <p style="font-size:12px;color:#555;line-height:1.7">When you import from Embrace, each goal/objective is matched against your existing 91-goal bank using keyword overlap. You review and approve or override each match before saving. Students are stored with canonical G-IDs (G001, G039…) so they stay linked to your resources automatically.</p>
   </div>
 </div>
 
-</div><!-- .app -->
-
+</div>
 <script>
-// ── AVATAR COLOURS ────────────────────────────────────────────────────────
+// ── COLOURS ───────────────────────────────────────────────────────────────
 var AC=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],
         ['#ede9fe','#5b21b6'],['#fce7f3','#9d174d'],['#fee2e2','#991b1b']];
 
-// ── BUILT-IN GOALS (full set from inventory) ─────────────────────────────
+// ── FULL GOAL BANK ────────────────────────────────────────────────────────
 var BGOALS={
   G001:{id:'G001',domain:'Math',sub:'Fact Fluency',desc:'Solve 10-16 math facts (addition/subtraction within 20) in one minute'},
   G002:{id:'G002',domain:'Math',sub:'Fact Fluency',desc:'Given addition or subtraction problems within 5, solve using objects, drawings, or verbal responses'},
   G003:{id:'G003',domain:'Math',sub:'Fact Fluency',desc:'Given addition problems within 20, solve using math drawings or manipulatives'},
   G004:{id:'G004',domain:'Math',sub:'Fact Fluency',desc:'Given subtraction problems within 20, solve using math drawings or manipulatives'},
-  G005:{id:'G005',domain:'Math',sub:'Place Value and Comparison',desc:'Given two numbers from 0-100, use place value strategies to identify the larger number'},
-  G006:{id:'G006',domain:'Math',sub:'Counting/Cardinality',desc:'Given a set of up to 10 objects, count each object using one-to-one correspondence'},
-  G007:{id:'G007',domain:'Math',sub:'Counting/Cardinality',desc:'Given numeral cards and sets of objects within 10, match the correct numeral to quantity'},
-  G008:{id:'G008',domain:'Math',sub:'Counting/Cardinality',desc:'Given two groups of objects within 10, identify which group has more, fewer, or same'},
+  G005:{id:'G005',domain:'Math',sub:'Place Value',desc:'Given two numbers from 0-100, use place value strategies to identify the larger number'},
+  G006:{id:'G006',domain:'Math',sub:'Counting',desc:'Given a set of up to 10 objects, count each object using one-to-one correspondence'},
+  G007:{id:'G007',domain:'Math',sub:'Counting',desc:'Given numeral cards and sets of objects within 10, match the correct numeral to quantity'},
+  G008:{id:'G008',domain:'Math',sub:'Counting',desc:'Given two groups of objects within 10, identify which group has more, fewer, or same'},
   G009:{id:'G009',domain:'Math',sub:'Place Value',desc:'Given 2-digit numbers, identify tens and ones by matching/drawing base ten blocks'},
   G010:{id:'G010',domain:'Math',sub:'Number Sense',desc:'Given a list of numbers 0-99, read the numbers aloud'},
   G011:{id:'G011',domain:'Math',sub:'Number Sense',desc:'Given pairs of numbers 0-99 and timer, identify the larger number'},
@@ -204,7 +252,7 @@ var BGOALS={
   G014:{id:'G014',domain:'Math',sub:'Word Problems',desc:'Using concrete/pictorial models, represent word problems with addition/subtraction within 20'},
   G015:{id:'G015',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, use manipulatives to represent and solve'},
   G016:{id:'G016',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, create math drawing to represent and solve'},
-  G017:{id:'G017',domain:'Math',sub:'Word Problems',desc:'Given word problem or math drawing, write matching number sentence with +, -, ='},
+  G017:{id:'G017',domain:'Math',sub:'Word Problems',desc:'Given word problem or math drawing, write matching number sentence'},
   G018:{id:'G018',domain:'Math',sub:'Word Problems',desc:'Given mix of addition/subtraction word problems, identify correct operation'},
   G019:{id:'G019',domain:'Math',sub:'Word Problems',desc:'Solve addition/subtraction word problems within 20 using objects or drawings'},
   G020:{id:'G020',domain:'Math',sub:'Word Problems',desc:'Solve for unknown in addition/subtraction equation (e.g., 5 + ? = 12)'},
@@ -245,8 +293,8 @@ var BGOALS={
   G055:{id:'G055',domain:'Literacy',sub:'Phonemic Awareness',desc:'Tell if sounds are the same or different'},
   G056:{id:'G056',domain:'Literacy',sub:'Writing',desc:'Write own name (first, last, or nickname)'},
   G057:{id:'G057',domain:'Literacy',sub:'Decoding',desc:'Arrange word cards with visuals in correct order'},
-  G058:{id:'G058',domain:'Literacy',sub:'Comprehension',desc:'Use context clues to determine meaning of unfamiliar word (5 sentences)'},
-  G059:{id:'G059',domain:'Literacy',sub:'Comprehension',desc:'Organize story information into graphic organizer with 3 details/events'},
+  G058:{id:'G058',domain:'Literacy',sub:'Comprehension',desc:'Use context clues to determine meaning of unfamiliar word'},
+  G059:{id:'G059',domain:'Literacy',sub:'Comprehension',desc:'Organize story information into graphic organizer with 3 details'},
   G060:{id:'G060',domain:'Literacy',sub:'Comprehension',desc:'MAZE passage completion'},
   G061:{id:'G061',domain:'SEL',sub:'Emotional Regulation',desc:'Utilize functional communication (break card/phrase) to request break or delay'},
   G062:{id:'G062',domain:'SEL',sub:'Emotional Regulation',desc:'Request break using practiced phrase or visual card instead of verbal outbursts'},
@@ -261,8 +309,8 @@ var BGOALS={
   G071:{id:'G071',domain:'SEL',sub:'Social Awareness',desc:'Order 4-picture story sequence and describe one feeling/action for character'},
   G072:{id:'G072',domain:'SEL',sub:'Social Awareness',desc:'Order 2-3 picture sequence to tell simple story with visual/verbal cues'},
   G073:{id:'G073',domain:'SEL',sub:'Social Awareness',desc:'Suggest one appropriate action and one feeling in simple social situation'},
-  G074:{id:'G074',domain:'SEL',sub:'Emotional Regulation',desc:'Identify character\'s feeling and cause of that feeling in story'},
-  G075:{id:'G075',domain:'SEL',sub:'Social Awareness',desc:'Match own feelings to character\'s emotions'},
+  G074:{id:'G074',domain:'SEL',sub:'Emotional Regulation',desc:"Identify character's feeling and cause of that feeling in story"},
+  G075:{id:'G075',domain:'SEL',sub:'Social Awareness',desc:"Match own feelings to character's emotions"},
   G076:{id:'G076',domain:'SEL',sub:'Task Independence',desc:'Begin and complete academic task with no more than one verbal prompt'},
   G077:{id:'G077',domain:'SEL',sub:'Task Independence',desc:'Follow two-step directions with no more than one verbal/visual cue'},
   G078:{id:'G078',domain:'SEL',sub:'Social Awareness',desc:'Work out small conflicts with peers'},
@@ -275,92 +323,393 @@ var BGOALS={
   G085:{id:'G085',domain:'SEL',sub:'Communication',desc:'Communicate whether pictures are different and describe differences'},
   G086:{id:'G086',domain:'Math',sub:'Data/Graphing',desc:'Count separate items and represent them on a graph'},
   G087:{id:'G087',domain:'Math',sub:'Operations',desc:'Solve three-digit addition and subtraction problems within 1,000 with 80% accuracy'},
-  G088:{id:'G088',domain:'Math',sub:'Word Problems',desc:'Given mixed one-step word problems, identify operation, solve, and check reasonableness with 75% accuracy'},
+  G088:{id:'G088',domain:'Math',sub:'Word Problems',desc:'Given mixed one-step word problems, identify operation, solve, and check reasonableness'},
   G089:{id:'G089',domain:'Literacy',sub:'Writing',desc:'Writing stamina'},
-  G090:{id:'G090',domain:'SEL',sub:'Task Independence',desc:'Begin and complete task with no more than two verbal prompts, in 4 out of 5 opportunities'},
-  G091:{id:'G091',domain:'SEL',sub:'Task Independence',desc:'Transition between activities without behavioral overreactions, minimal adult support, 4 of 5 trials'}
+  G090:{id:'G090',domain:'SEL',sub:'Task Independence',desc:'Begin and complete task with no more than two verbal prompts, 4 of 5 opportunities'},
+  G091:{id:'G091',domain:'SEL',sub:'Task Independence',desc:'Transition between activities without behavioral overreactions, minimal adult support'}
 };
 
+// ── STATE ─────────────────────────────────────────────────────────────────
 var DB={
-  goals: JSON.parse(JSON.stringify(BGOALS)),
-  students:[], schedule:[], resources:[], mapping:[],
-  url: localStorage.getItem('sheetUrl') || null,
+  goals:JSON.parse(JSON.stringify(BGOALS)),
+  students:[],schedule:[],resources:[],mapping:[],
+  url:localStorage.getItem('sheetUrl')||null,
   source:'builtin'
 };
-
-// ── TAB SWITCHING ─────────────────────────────────────────────────────────
-function showTab(id) {
-  document.querySelectorAll('.sec').forEach(function(s){ s.className='sec'; });
-  document.querySelectorAll('.tab').forEach(function(t){ t.className='tab'; });
-  var sec = document.getElementById(id);
-  if(sec) sec.className='sec on';
-  document.querySelectorAll('.tab').forEach(function(t){
-    if(t.getAttribute('onclick') === "showTab('"+id+"')") t.className='tab on';
-  });
-  if(id==='integrity') renderIntegrity();
-  if(id==='export') renderExportPreview();
-  if(id==='settings' && DB.url) document.getElementById('wurl').value=DB.url;
-}
+var parsedItems=[];   // importer
+var itemDecisions={}; // goalID decisions: itemIdx -> {accepted, finalID}
+var selectedStudents=[];
+var checkedGoals={};
 
 // ── HELPERS ───────────────────────────────────────────────────────────────
-function ini(n){ return (n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2); }
-function avs(n,i){ var c=AC[i%AC.length]; return 'background:'+c[0]+';color:'+c[1]; }
-function parseIds(s){
-  if(!s) return [];
-  return String(s).split(/[,;\s]+/).map(function(v){return v.trim();}).filter(function(v){return /^G\d+/i.test(v);});
-}
-function resolveG(id){
-  if(DB.goals[id]) return {ok:true, g:DB.goals[id]};
-  var k=Object.keys(DB.goals).find(function(k){return k.toLowerCase()===id.toLowerCase().trim();});
-  if(k) return {ok:true, g:DB.goals[k]};
-  return {ok:false, id:id};
+function ini(n){return(n||'?').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);}
+function avs(n,i){var c=AC[i%AC.length];return 'background:'+c[0]+';color:'+c[1];}
+function parseIds(s){if(!s)return[];return String(s).split(/[,;\s]+/).map(function(v){return v.trim();}).filter(function(v){return v.length>0;});}
+function resolveG(id){if(DB.goals[id])return{ok:true,g:DB.goals[id]};return{ok:false,id:id};}
+function domClass(d){return d==='Math'?'bmath':d==='Literacy'?'blit':d==='SEL'?'bsel':'bother';}
+function domBadge(d){return '<span class="badge '+domClass(d)+'">'+d+'</span>';}
+
+// ── GOAL MATCHER ──────────────────────────────────────────────────────────
+function scoreMatch(importedText, goalDesc){
+  var a=importedText.toLowerCase();
+  var b=goalDesc.toLowerCase();
+  var stopWords=new Set(['the','a','an','and','or','of','to','in','with','given','will','at','for','when','is','are','by','on','as','not','no','out','from','that','this','be','per','each','least','most','more','than','if','up','into','about','has','have','they','their','it','its','use','using','make']);
+  var wordsA=a.split(/\W+/).filter(function(w){return w.length>2&&!stopWords.has(w);});
+  var wordsB=new Set(b.split(/\W+/).filter(function(w){return w.length>2&&!stopWords.has(w);}));
+  if(!wordsA.length||!wordsB.size)return 0;
+  var matches=wordsA.filter(function(w){return wordsB.has(w);}).length;
+  return Math.round((matches/Math.max(wordsA.length,wordsB.size))*100);
 }
 
-// ── INTEGRITY CHECKS ─────────────────────────────────────────────────────
-function runChecks(){
+function findBestMatch(statement, domain){
+  var best=null; var bestScore=0;
+  Object.values(DB.goals).forEach(function(g){
+    if(g.domain!==domain&&domain!=='Other')return;
+    var score=scoreMatch(statement,g.desc);
+    if(score>bestScore){bestScore=score;best=g;}
+  });
+  return {goal:best,score:bestScore};
+}
+
+// ── IMPORTER ──────────────────────────────────────────────────────────────
+function parseEmbraceText(){
+  var raw=document.getElementById('embrace-input').value.trim();
+  if(!raw){alert('Please paste IEP text first.');return;}
+  var blocks=raw.split(/(?=Goal\s*#\s*\d+\s*[-\u2013])/i).filter(function(b){return b.trim();});
+  parsedItems=[];itemDecisions={};
+
+  blocks.forEach(function(block,i){
+    var headerMatch=block.match(/Goal\s*#\s*(\d+)\s*[-\u2013]\s*([\w\/\s]+?)\s*Goal\s*Statement\s*:/i);
+    var stmtMatch=block.match(/Goal\s*Statement\s*:([\s\S]*?)(?:Benchmark|$)/i);
+    var goalNum=headerMatch?headerMatch[1]:String(i+1);
+    var domainHint=headerMatch?headerMatch[2].trim():'';
+    var statement=stmtMatch?stmtMatch[1].trim().replace(/Benchmark[\s\S]*/i,'').trim():block.trim();
+    var domain='Other';
+    var dl=(domainHint+' '+statement).toLowerCase();
+    if(/math|number|addition|subtraction|count|place value|numeral|digit|solve|measurement|graph/.test(dl))domain='Math';
+    else if(/read|literacy|phonics|decode|fluency|letter|sound|writing|spell|cvc|vowel|passage/.test(dl))domain='Literacy';
+    else if(/calm|emotion|regulation|behavior|social|break|frustrat|transition|safe body|referral/.test(dl))domain='SEL';
+
+    parsedItems.push({type:'goal',id:'IMP-G'+goalNum,goalNum:goalNum,objLetter:null,domain:domain,statement:statement});
+
+    var benchSplit=block.split(/Benchmark\(s\)[\s\S]*?Objective\(s\)\s*/i);
+    if(benchSplit.length>1){
+      var re=/([A-Z])\)\s*([\s\S]*?)(?=[A-Z]\)|$)/g; var m;
+      while((m=re.exec(benchSplit[1]))!==null){
+        var txt=m[2].trim();
+        if(txt.length>5)parsedItems.push({type:'objective',id:'IMP-G'+goalNum+m[1],goalNum:goalNum,objLetter:m[1],domain:domain,statement:txt});
+      }
+    }
+  });
+
+  if(!parsedItems.length){alert('No goals found. Make sure each goal starts with "Goal #1 -" or "Goal #1 \u2013"');return;}
+
+  // Auto-match each item
+  parsedItems.forEach(function(item,idx){
+    var m=findBestMatch(item.statement,item.domain);
+    itemDecisions[idx]={accepted:m.score>=30,finalID:m.score>=30&&m.goal?m.goal.id:item.id,matchGoal:m.goal,matchScore:m.score};
+  });
+
+  renderImportPreview();
+}
+
+function renderImportPreview(){
+  var name=document.getElementById('imp-name').value||'Student';
+  var nGoals=parsedItems.filter(function(it){return it.type==='goal';}).length;
+  var nObjs=parsedItems.filter(function(it){return it.type==='objective';}).length;
+  var nMatched=Object.values(itemDecisions).filter(function(d){return d.accepted&&d.finalID&&!d.finalID.startsWith('IMP');}).length;
+
+  var goalNums=[];
+  parsedItems.forEach(function(it){if(goalNums.indexOf(it.goalNum)===-1)goalNums.push(it.goalNum);});
+
+  var html=goalNums.map(function(gn){
+    var goal=parsedItems.find(function(it){return it.goalNum===gn&&it.type==='goal';});
+    var objs=parsedItems.filter(function(it){return it.goalNum===gn&&it.type==='objective';});
+    var goalIdx=parsedItems.indexOf(goal);
+    return '<div class="goal-card">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
+        '<span style="font-size:11px;font-weight:500;color:#aaa;min-width:60px">Goal #'+gn+'</span>'+
+        domBadge(goal.domain)+
+      '</div>'+
+      '<div style="font-size:12px;color:#333;line-height:1.5;margin-bottom:8px">'+goal.statement+'</div>'+
+      renderMatchBox(goalIdx)+
+      (objs.length?'<div style="border-left:3px solid #e5e7eb;padding-left:10px;margin-top:10px">'+
+        objs.map(function(obj){
+          var objIdx=parsedItems.indexOf(obj);
+          return '<div style="margin-bottom:10px">'+
+            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'+
+              '<span style="font-size:10px;font-weight:600;background:#f0f0ee;padding:1px 6px;border-radius:4px;color:#555">Obj '+obj.goalNum+obj.objLetter+'</span>'+domBadge(obj.domain)+
+            '</div>'+
+            '<div style="font-size:12px;color:#555;line-height:1.5;margin-bottom:4px">'+obj.statement+'</div>'+
+            renderMatchBox(objIdx)+
+          '</div>';
+        }).join('')+
+      '</div>':'')+
+    '</div>';
+  }).join('');
+
+  document.getElementById('imp-preview-rows').innerHTML=
+    '<div class="card" style="background:#f9fafb;margin-bottom:8px">'+
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+
+        '<div class="av" style="'+avs(name,0)+'">'+ini(name)+'</div>'+
+        '<div><div style="font-weight:500;font-size:14px">'+name+'</div>'+
+          '<div style="font-size:11px;color:#888">'+nGoals+' goals + '+nObjs+' objectives = '+(nGoals+nObjs)+' items</div></div>'+
+      '</div>'+html+'</div>';
+
+  updateMatchSummary();
+  document.getElementById('imp-preview').style.display='block';
+  document.getElementById('imp-preview').scrollIntoView({behavior:'smooth'});
+}
+
+function renderMatchBox(idx){
+  var d=itemDecisions[idx];
+  if(!d)return'';
+  var score=d.matchScore; var g=d.matchGoal;
+  var cls=score>=60?'':'score>=30?\'low\':\'none\'';
+  cls=score>=60?'':'';
+  if(score>=60)cls='';
+  else if(score>=30)cls='low';
+  else cls='none';
+
+  if(d.accepted&&g){
+    return '<div class="match-box '+cls+'">'+
+      '<span style="font-size:10px;font-weight:600;color:#065f46">MATCHED \u2192 '+g.id+'</span>'+
+      '<span style="font-size:11px;color:#555;margin-left:6px">'+g.desc.slice(0,70)+(g.desc.length>70?'\u2026':'')+'</span>'+
+      '<span style="float:right;font-size:10px;color:#888">'+score+'% match</span>'+
+      '<br><button class="match-reject" style="margin-top:4px" onclick="rejectMatch('+idx+')">Use as new goal instead</button>'+
+    '</div>';
+  } else {
+    var suggestion=g?'Best match: '+g.id+' ('+score+'%) — '+g.desc.slice(0,55)+'…':'No close match found in goal bank';
+    return '<div class="match-box none">'+
+      '<span style="font-size:10px;font-weight:600;color:#991b1b">NO MATCH — will add as new goal</span>'+
+      '<br><span style="font-size:11px;color:#555">'+suggestion+'</span>'+
+      (g?'<br><button class="match-accept" style="margin-top:4px" onclick="acceptMatch('+idx+',\''+g.id+'\')">Accept '+g.id+' match</button>':'')+'</div>';
+  }
+}
+
+function updateMatchSummary(){
+  var matched=Object.values(itemDecisions).filter(function(d){return d.accepted&&d.finalID&&!d.finalID.startsWith('IMP');}).length;
+  var total=parsedItems.length;
+  var newGoals=Object.values(itemDecisions).filter(function(d){return d.finalID&&d.finalID.startsWith('IMP');}).length;
+  document.getElementById('imp-match-summary').textContent=matched+' of '+total+' matched to existing goals'+(newGoals?' · '+newGoals+' will be added as new':'');
+}
+
+function acceptMatch(idx,gid){itemDecisions[idx].accepted=true;itemDecisions[idx].finalID=gid;renderImportPreview();}
+function rejectMatch(idx){itemDecisions[idx].accepted=false;itemDecisions[idx].finalID=parsedItems[idx].id;renderImportPreview();}
+
+function clearImporter(){
+  document.getElementById('embrace-input').value='';
+  document.getElementById('imp-name').value='';
+  document.getElementById('imp-preview').style.display='none';
+  parsedItems=[];itemDecisions={};
+}
+
+function saveImportedGoals(){
+  if(!parsedItems.length){alert('Nothing to save.');return;}
+  var name=document.getElementById('imp-name').value.trim()||'Unknown';
+  var iepDate=document.getElementById('imp-date').value||'';
+
+  var finalIDs=parsedItems.map(function(item,idx){
+    return itemDecisions[idx]?itemDecisions[idx].finalID:item.id;
+  });
+  var uniqueIDs=[...new Set(finalIDs)].join(',');
+
+  var btn=document.getElementById('imp-save-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Saving...';
+
+  function onSaved(sid){
+    btn.disabled=false;btn.textContent='Save student to Sheet';
+    clearImporter();
+    reloadAll();
+    setTimeout(function(){showTab('students');},800);
+  }
+
+  if(DB.url){
+    fetch(DB.url,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'upsert_student',Name:name,ColorTag:'blue',IEPDate:iepDate,
+        GoalIDs:uniqueIDs,Notes:'Imported '+parsedItems.length+' items',Active:'TRUE'})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.ok)onSaved(d.StudentID);
+      else{alert('Error: '+(d.error||'unknown'));btn.disabled=false;btn.textContent='Save student to Sheet';}
+    }).catch(function(e){alert('Failed to fetch. Check Settings tab for troubleshooting.');btn.disabled=false;btn.textContent='Save student to Sheet';});
+  } else {
+    var sid='S'+String(DB.students.length+1).padStart(3,'0');
+    DB.students.push({StudentID:sid,Name:name,ColorTag:'blue',IEPDate:iepDate,GoalIDs:uniqueIDs,Notes:'Local only',Active:'TRUE'});
+    renderAll();onSaved(sid);
+  }
+}
+
+// ── LESSON PLANNER ────────────────────────────────────────────────────────
+function renderPlannerChips(){
+  var wrap=document.getElementById('planner-chips');
+  if(!DB.students.length){
+    wrap.innerHTML='<div style="font-size:12px;color:#aaa">No students loaded yet — import students first or reload data.</div>';
+    document.getElementById('planner-goals-card').style.display='none';
+    return;
+  }
+  wrap.innerHTML=DB.students.map(function(s,i){
+    var nm=s.Name||s.name||'?';
+    var sel=selectedStudents.indexOf(s.StudentID||nm)!==-1;
+    return '<span class="stu-chip'+(sel?' sel':'')+'" style="'+(sel?'':'background:'+AC[i%AC.length][0]+';color:'+AC[i%AC.length][1])+'" onclick="toggleStudent(\''+((s.StudentID||nm).replace(/'/g,"\\'"))+'\','+i+',this)">'+
+      '<span>'+ini(nm)+'</span><span>'+nm+'</span>'+
+    '</span>';
+  }).join('');
+  renderPlannerGoals();
+}
+
+function toggleStudent(sid,idx,el){
+  var i=selectedStudents.indexOf(sid);
+  if(i===-1){selectedStudents.push(sid);el.className='stu-chip sel';}
+  else{selectedStudents.splice(i,1);el.className='stu-chip';el.style.cssText='background:'+AC[idx%AC.length][0]+';color:'+AC[idx%AC.length][1];}
+  renderPlannerGoals();
+}
+
+function renderPlannerGoals(){
+  var gc=document.getElementById('planner-goals-card');
+  if(!selectedStudents.length){gc.style.display='none';return;}
+  gc.style.display='block';
+
+  // Collect all goal IDs for selected students
+  var goalMap={};
+  DB.students.forEach(function(s){
+    var sid=s.StudentID||s.Name||s.name;
+    if(selectedStudents.indexOf(sid)===-1)return;
+    var nm=s.Name||s.name||'?';
+    parseIds(s.GoalIDs||s.goalIDs||'').forEach(function(id){
+      if(!goalMap[id])goalMap[id]={id:id,students:[]};
+      goalMap[id].students.push(nm);
+    });
+  });
+
+  var allGoals=Object.values(goalMap);
+  document.getElementById('planner-goal-count').textContent='('+allGoals.length+' goals across '+selectedStudents.length+' student'+(selectedStudents.length>1?'s':'')+')';
+
+  // Group by domain
+  var byDomain={Math:[],Literacy:[],SEL:[],Other:[]};
+  allGoals.forEach(function(entry){
+    var g=resolveG(entry.id);
+    var domain=g.ok?g.g.domain:'Other';
+    var desc=g.ok?g.g.desc:entry.id+' (unmatched)';
+    var sub=g.ok?g.g.sub:'';
+    (byDomain[domain]||byDomain.Other).push({id:entry.id,desc:desc,sub:sub,domain:domain,students:entry.students});
+  });
+
+  var html='';
+  ['Math','Literacy','SEL','Other'].forEach(function(domain){
+    if(!byDomain[domain].length)return;
+    html+='<div style="margin-bottom:12px"><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">'+domain+'</div>';
+    byDomain[domain].forEach(function(g){
+      var chk=checkedGoals[g.id]!==false;
+      html+='<div class="goal-item">'+
+        '<input type="checkbox" class="goal-cb" id="gc-'+g.id+'" '+(chk?'checked':'')+' onchange="checkedGoals[\''+g.id+'\']=this.checked">'+
+        '<label for="gc-'+g.id+'" style="flex:1;cursor:pointer">'+
+          '<span style="font-size:12px;color:#333">'+g.desc+'</span>'+
+          '<span style="display:block;font-size:10px;color:#aaa;margin-top:1px">'+g.students.join(', ')+(g.sub?' · '+g.sub:'')+'</span>'+
+        '</label>'+
+      '</div>';
+    });
+    html+='</div>';
+  });
+
+  document.getElementById('planner-goal-list').innerHTML=html;
+}
+
+async function generatePlan(){
+  var checkedList=[];
+  DB.students.forEach(function(s){
+    var sid=s.StudentID||s.Name||s.name;
+    if(selectedStudents.indexOf(sid)===-1)return;
+    parseIds(s.GoalIDs||s.goalIDs||'').forEach(function(id){
+      if(checkedGoals[id]===false)return;
+      var g=resolveG(id);
+      if(g.ok)checkedList.push({student:s.Name||s.name,id:id,desc:g.g.desc,domain:g.g.domain});
+    });
+  });
+
+  if(!checkedList.length){alert('No goals selected. Check at least one goal above.');return;}
+
+  var theme=document.getElementById('plan-theme').value.trim();
+  var length=document.getElementById('plan-length').value;
+  var notes=document.getElementById('plan-notes').value.trim();
+  var studentNames=[...new Set(selectedStudents.map(function(sid){
+    var s=DB.students.find(function(st){return (st.StudentID||st.Name||st.name)===sid;});
+    return s?s.Name||s.name:sid;
+  }))];
+
+  var goalsByStudent={};
+  checkedList.forEach(function(g){
+    if(!goalsByStudent[g.student])goalsByStudent[g.student]=[];
+    goalsByStudent[g.student].push(g.domain+': '+g.desc);
+  });
+
+  var goalSummary=Object.entries(goalsByStudent).map(function(e){
+    return e[0]+':\n'+e[1].map(function(g){return '  - '+g;}).join('\n');
+  }).join('\n');
+
+  var prompt='You are a special education teacher planning a small group lesson. '+
+    'Students: '+studentNames.join(', ')+'. '+
+    'Session length: '+length+'. '+
+    (theme?'Theme/unit: '+theme+'. ':'')+
+    (notes?'Teacher notes: '+notes+'. ':'')+
+    '\n\nStudent goals:\n'+goalSummary+
+    '\n\nPlease create a structured lesson plan that:\n'+
+    '1. Has a warm-up, main activity, and closing\n'+
+    '2. Addresses multiple goals simultaneously where possible\n'+
+    '3. Includes specific activity names and instructions\n'+
+    '4. Notes which student each activity targets\n'+
+    '5. Suggests any materials or resources needed\n'+
+    'Keep it practical and immediately usable.';
+
+  var btn=document.getElementById('plan-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Generating...';
+  document.getElementById('plan-output').style.display='none';
+
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    var data=await res.json();
+    var text=data.content&&data.content[0]?data.content[0].text:'No response received.';
+    document.getElementById('plan-text').textContent=text;
+    document.getElementById('plan-output').style.display='block';
+    document.getElementById('plan-output').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    document.getElementById('plan-text').textContent='Error generating plan: '+e.message;
+    document.getElementById('plan-output').style.display='block';
+  }
+  btn.disabled=false;btn.textContent='Generate lesson plan with AI';
+}
+
+function copyPlan(){
+  var text=document.getElementById('plan-text').textContent;
+  navigator.clipboard.writeText(text).then(function(){
+    var b=event.target;b.textContent='Copied!';setTimeout(function(){b.textContent='Copy';},2000);
+  });
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────────────────
+function renderOverview(){
   var gk=Object.keys(DB.goals);
   var missing=[];
   DB.students.forEach(function(s){
     parseIds(s.GoalIDs||s.goalIDs||'').forEach(function(id){
-      if(!DB.goals[id]) missing.push({stu:s.Name||s.name||'?', id:id});
+      if(!DB.goals[id])missing.push({stu:s.Name||s.name||'?',id:id});
     });
   });
-  var mapIds=(DB.mapping||[]).map(function(m){return m['Goal ID']||m.GoalID||'';}).filter(Boolean);
-  var orphan=mapIds.filter(function(id){return !DB.goals[id];});
-  return {
-    checks:[
-      {lbl:'IEP Goals loaded',          pass:gk.length>0,            note:gk.length>0?gk.length+' goals available':'No goals — check Sheet connection'},
-      {lbl:'Goals have descriptions',    pass:gk.every(function(k){return DB.goals[k].desc;}), note:gk.filter(function(k){return !DB.goals[k].desc;}).length+' missing description'},
-      {lbl:'All student goal IDs resolve',pass:missing.length===0,   note:missing.length===0?'All links valid':missing.slice(0,3).map(function(m){return m.stu+': '+m.id;}).join(', ')+(missing.length>3?' +'+(missing.length-3)+' more':'')},
-      {lbl:'Resource-Goal Mapping valid', pass:orphan.length===0,     note:orphan.length===0?'All mapping rows valid':orphan.slice(0,4).join(', ')+' not in Goals tab'},
-      {lbl:'Students linked to Schedule', pass:DB.students.length===0||DB.schedule.length>0, note:DB.students.length===0?'No students yet':DB.schedule.length+' schedule rows for '+DB.students.length+' students'}
-    ],
-    missing:missing
-  };
-}
+  var issues=missing.length+(gk.length===0?1:0);
 
-// ── RENDER OVERVIEW ───────────────────────────────────────────────────────
-function renderOverview(){
-  var r=runChecks();
-  var issues=r.checks.filter(function(c){return !c.pass;}).length + r.missing.length;
-  document.getElementById('cnt-s').textContent = DB.students.length || '—';
-  document.getElementById('cnt-g').textContent = Object.keys(DB.goals).length;
-  document.getElementById('cnt-r').textContent = DB.resources.length || (DB.source==='builtin'?140:0);
-  var el=document.getElementById('cnt-i');
-  el.textContent=issues;
+  document.getElementById('cnt-s').textContent=DB.students.length||'—';
+  document.getElementById('cnt-g').textContent=gk.length;
+  document.getElementById('cnt-r').textContent=DB.resources.length||(DB.source==='builtin'?140:0);
+  var el=document.getElementById('cnt-i');el.textContent=issues;
   el.style.color=issues>0?'#d97706':'#059669';
 
-  var ih='';
-  if(issues===0){
-    ih='<div class="okbox">All checks passed — no broken goal links.</div>';
-  } else {
-    ih='<div class="wbox"><div class="wtitle">'+issues+' issue'+(issues>1?'s':'')+' found</div>'+
-      r.checks.filter(function(c){return !c.pass;}).map(function(c){
-        return '<div class="witem"><span>&#9651;</span><span>'+c.lbl+': '+c.note+'</span></div>';
-      }).join('')+
-      (r.missing.length?'<div class="witem"><span>&#9651;</span><span>'+r.missing.length+' student goal link'+(r.missing.length>1?'s':'')+' reference deleted goals — <button class="bsm bw" onclick="showTab(\'integrity\')">View details</button></span></div>':'')+
-      '</div>';
-  }
+  var ih=issues===0?'<div class="okbox">All checks passed.</div>':
+    '<div class="wbox"><div class="wtitle">'+issues+' issue'+(issues>1?'s':'')+' found</div>'+
+    (missing.length?'<div class="witem"><span>&#9651;</span><span>'+missing.length+' student goal link'+(missing.length>1?'s':'')+' reference deleted goals</span></div>':'')+
+    '</div>';
   document.getElementById('ov-issues').innerHTML=ih;
 
   if(DB.students.length){
@@ -371,7 +720,7 @@ function renderOverview(){
       return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)">'+
         '<div class="av" style="width:28px;height:28px;font-size:11px;'+avs(nm,i)+'">'+ini(nm)+'</div>'+
         '<span style="flex:1;font-size:13px">'+nm+'</span>'+
-        '<span style="font-size:11px;color:#aaa">'+ids.length+' goal'+(ids.length!==1?'s':'')+'</span>'+
+        '<span style="font-size:11px;color:#aaa">'+ids.length+' goals</span>'+
         (bad.length?'<span class="badge bwarn">'+bad.length+' missing</span>':'<span class="badge bok">ok</span>')+
         '</div>';
     }).join('');
@@ -379,209 +728,71 @@ function renderOverview(){
       (DB.students.length>6?'<div style="padding-top:8px;font-size:11px;color:#aaa">+'+(DB.students.length-6)+' more — <button class="bsm" onclick="showTab(\'students\')">view all</button></div>':'')+
       '</div>';
   } else {
-    document.getElementById('ov-students').innerHTML=
-      '<div class="card" style="text-align:center;padding:2rem;color:#aaa;font-size:13px">No students yet. Use the IEP Importer tab to add your first student, or connect your Sheet above.</div>';
+    document.getElementById('ov-students').innerHTML='<div class="card" style="text-align:center;padding:2rem;color:#aaa;font-size:13px">No students yet. Use the IEP Importer tab to add students.</div>';
   }
 }
 
-// ── RENDER STUDENTS ───────────────────────────────────────────────────────
 function renderStudents(){
   var wrap=document.getElementById('stu-list');
   if(!DB.students.length){
-    wrap.innerHTML='<div class="card" style="text-align:center;padding:2rem;font-size:13px;color:#aaa">No students loaded. Connect your Sheet and click Reload data, or use the IEP Importer tab.</div>';
+    wrap.innerHTML='<div class="card" style="text-align:center;padding:2rem;font-size:13px;color:#aaa">No students loaded. Use the IEP Importer tab or connect your Sheet and click Reload data.</div>';
     return;
   }
   wrap.innerHTML='<div class="card">'+DB.students.map(function(s,i){
     var nm=s.Name||s.name||'?';
     var ids=parseIds(s.GoalIDs||s.goalIDs||'');
-    var pills=ids.map(function(id){
+    var pills=ids.slice(0,12).map(function(id){
       var r=resolveG(id);
-      if(r.ok) return '<span class="gpok" title="'+r.g.desc+'">'+id+' <span style="color:#aaa;margin-left:2px">'+r.g.domain+'</span></span>';
-      return '<span class="gpbad" title="Goal '+id+' was deleted from IEP Goals tab">'+id+' missing</span>';
-    }).join('');
-    var sched=DB.schedule.find(function(sc){return (sc.StudentID||sc.studentID)===(s.StudentID||s.studentID);});
-    var days=sched?['Monday','Tuesday','Wednesday','Thursday','Friday'].filter(function(d){return sched[d]==='TRUE'||sched[d]===true||sched[d]==='true';}).map(function(d){return d.slice(0,2);}).join(' '):'';
+      if(r.ok)return'<span class="gpok" title="'+r.g.desc+'">'+id+'</span>';
+      return'<span class="gpbad">'+id+'</span>';
+    }).join('')+(ids.length>12?'<span style="font-size:11px;color:#aaa"> +'+( ids.length-12)+' more</span>':'');
     var idate=s.IEPDate?new Date(s.IEPDate).toLocaleDateString('en-US',{month:'short',year:'numeric'}):'';
-    return '<div class="srow">'+
-      '<div class="av" style="'+avs(nm,i)+'">'+ini(nm)+'</div>'+
-      '<div style="flex:1;min-width:0">'+
-        '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">'+
-          '<span style="font-weight:500;font-size:13px">'+nm+'</span>'+
-          (idate?'<span style="font-size:11px;color:#aaa">IEP '+idate+'</span>':'')+
-          (days?'<span style="font-size:11px;color:#888">'+days+'</span>':'')+
-        '</div>'+
-        '<div>'+(pills||'<span style="font-size:11px;color:#aaa">No goals linked</span>')+'</div>'+
-        (s.Notes?'<div style="font-size:11px;color:#aaa;margin-top:3px">'+s.Notes+'</div>':'')+
-      '</div>'+
-    '</div>';
+    return'<div class="srow"><div class="av" style="'+avs(nm,i)+'">'+ini(nm)+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">'+
+        '<span style="font-weight:500">'+nm+'</span>'+(idate?'<span style="font-size:11px;color:#aaa">IEP '+idate+'</span>':'')+
+        '<span style="font-size:11px;color:#888">'+ids.length+' goals</span></div>'+
+      '<div>'+(pills||'<span style="font-size:11px;color:#aaa">No goals linked</span>')+'</div>'+
+      (s.Notes?'<div style="font-size:11px;color:#aaa;margin-top:2px">'+s.Notes+'</div>':'')+
+      '</div></div>';
   }).join('')+'</div>';
 }
 
-// ── RENDER INTEGRITY ──────────────────────────────────────────────────────
 function renderIntegrity(){
-  var r=runChecks();
-  var html=r.checks.map(function(c){
-    return '<div class="irow"><span>'+c.lbl+'</span>'+
-      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px">'+
-        '<span style="font-size:11px;color:#aaa;text-align:right;max-width:260px">'+c.note+'</span>'+
+  var gk=Object.keys(DB.goals);
+  var missing=[];
+  DB.students.forEach(function(s){
+    parseIds(s.GoalIDs||s.goalIDs||'').forEach(function(id){
+      if(!DB.goals[id])missing.push({stu:s.Name||s.name||'?',id:id});
+    });
+  });
+  var checks=[
+    {lbl:'IEP Goals loaded',pass:gk.length>0,note:gk.length+' goals'},
+    {lbl:'All student goal IDs resolve',pass:missing.length===0,note:missing.length===0?'All valid':missing.slice(0,3).map(function(m){return m.stu+': '+m.id;}).join(', ')},
+    {lbl:'Students loaded',pass:DB.students.length>0,note:DB.students.length+' students'}
+  ];
+  var html=checks.map(function(c){
+    return'<div class="irow"><span>'+c.lbl+'</span>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<span style="font-size:11px;color:#aaa">'+c.note+'</span>'+
         '<span class="badge '+(c.pass?'bok':'berr')+'">'+(c.pass?'pass':'fail')+'</span>'+
       '</div></div>';
   }).join('');
-  if(r.missing.length){
-    html+='<div class="wbox" style="margin-top:12px"><div class="wtitle">Missing goal references</div>'+
-      r.missing.slice(0,6).map(function(m){
-        return '<div class="witem"><span style="flex-shrink:0">&#9651;</span>'+
-          '<span><strong>'+m.stu+'</strong> references <code>'+m.id+'</code> which is no longer in the IEP Goals tab. '+
-          'Fix: (1) restore that goal row in your Sheet, (2) remove <code>'+m.id+'</code> from this student\'s GoalIDs, or (3) replace with the updated ID.</span></div>';
-      }).join('')+
-      (r.missing.length>6?'<div style="font-size:11px;color:#92400e;padding-top:4px">+'+(r.missing.length-6)+' more</div>':'')+
+  if(missing.length){
+    html+='<div class="wbox" style="margin-top:10px"><div class="wtitle">Missing references</div>'+
+      missing.slice(0,6).map(function(m){return'<div class="witem"><span>&#9651;</span><span><strong>'+m.stu+'</strong>: goal <code>'+m.id+'</code> not found in IEP Goals tab. Restore the goal row or remove this ID from the student.</span></div>';}).join('')+
       '</div>';
   }
-  if(r.checks.every(function(c){return c.pass;})){
-    html='<div class="okbox" style="margin-bottom:12px">All '+r.checks.length+' checks passed.</div>'+html;
-  }
+  if(checks.every(function(c){return c.pass;}))html='<div class="okbox" style="margin-bottom:10px">All checks passed.</div>'+html;
   document.getElementById('int-res').innerHTML=html;
-}
-
-// ── EMBRACE IMPORTER ──────────────────────────────────────────────────────
-var parsedGoals=[];
-
-function parseEmbraceText(){
-  var raw=document.getElementById('embrace-input').value.trim();
-  if(!raw){alert('Please paste IEP text first.');return;}
-
-  var blocks=raw.split(/(?=Goal\s*#\s*\d+\s*[-–])/i).filter(function(b){return b.trim();});
-  parsedGoals=[];
-
-  blocks.forEach(function(block,i){
-    var headerMatch=block.match(/Goal\s*#\s*(\d+)\s*[-–]\s*([\w\/\s]+?)\s*Goal\s*Statement\s*:/i);
-    var stmtMatch=block.match(/Goal\s*Statement\s*:([\s\S]*?)(?:Benchmark|$)/i);
-    var benchSection=block.match(/Benchmark[\s\S]*?(?:Objective[s]?\)?[:\)])([\s\S]*)/i);
-
-    var goalNum=headerMatch?headerMatch[1]:String(i+1);
-    var domainHint=headerMatch?headerMatch[2].trim():'';
-    var statement=stmtMatch?stmtMatch[1].trim():block;
-    if(benchSection) statement=statement.replace(/Benchmark[\s\S]*/i,'').trim();
-
-    var domain='Other';
-    var dl=domainHint.toLowerCase()+' '+statement.toLowerCase();
-    if(/math|number|addition|subtraction|count|place value|equation|measurement|shape|digit|solve/.test(dl)) domain='Math';
-    else if(/read|literacy|phonics|decode|fluency|comprehension|letter|sound|writing|spell|word|passage|cvc|vowel/.test(dl)) domain='Literacy';
-    else if(/calm|emotion|feeling|regulation|behavior|social|break|frustrat|transition|self.control|communicat|safe body/.test(dl)) domain='SEL';
-
-    var benchmarks=[];
-    if(benchSection){
-      var btext=benchSection[1];
-      var bm=[...btext.matchAll(/([A-Z])\s*\)\s*([\s\S]*?)(?=[A-Z]\s*\)|$)/gi)];
-      bm.forEach(function(m){
-        var t=m[2].trim();
-        if(t.length>5) benchmarks.push({letter:m[1].toUpperCase(),text:t});
-      });
-    }
-
-    parsedGoals.push({goalNum:goalNum, domain:domain, domainHint:domainHint, statement:statement, benchmarks:benchmarks});
-  });
-
-  if(!parsedGoals.length){alert('No goals found. Make sure text includes "Goal #1 -"');return;}
-  renderImportPreview();
-}
-
-function domBadge(d){
-  var map={Math:'background:#dbeafe;color:#1e40af',Literacy:'background:#dcfce7;color:#166534',SEL:'background:#fef9c3;color:#854d0e'};
-  return '<span class="badge" style="'+(map[d]||'background:#f0f0ee;color:#555')+'">'+d+'</span>';
-}
-
-function renderImportPreview(){
-  var name=document.getElementById('imp-name').value||'Student';
-  var html=parsedGoals.map(function(g,i){
-    return '<div class="goal-card">'+
-      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+
-        '<span style="font-size:11px;color:#aaa;min-width:54px">Goal #'+g.goalNum+'</span>'+
-        domBadge(g.domain)+
-      '</div>'+
-      '<div style="font-size:12px;color:#555;margin-bottom:'+(g.benchmarks.length?'8px':'0')+';line-height:1.5">'+g.statement+'</div>'+
-      (g.benchmarks.length?'<div style="font-size:11px;color:#888">'+
-        g.benchmarks.map(function(b){return '<div style="padding:2px 0"><strong>'+b.letter+')</strong> '+b.text+'</div>';}).join('')+
-      '</div>':'')+
-    '</div>';
-  }).join('');
-
-  document.getElementById('imp-preview-rows').innerHTML=
-    '<div class="card" style="background:#f9fafb;margin-bottom:8px">'+
-      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+
-        '<div class="av" style="'+avs(name,0)+'">'+ini(name)+'</div>'+
-        '<div><div style="font-weight:500">'+name+'</div>'+
-          '<div style="font-size:11px;color:#888">'+parsedGoals.length+' goals · '+parsedGoals.reduce(function(s,g){return s+g.benchmarks.length;},0)+' benchmarks</div>'+
-        '</div>'+
-      '</div>'+html+
-    '</div>';
-
-  document.getElementById('imp-preview').style.display='block';
-  document.getElementById('imp-preview').scrollIntoView({behavior:'smooth'});
-}
-
-function saveImportedGoals(){
-  if(!parsedGoals.length){alert('Nothing to save.');return;}
-  var name=document.getElementById('imp-name').value.trim()||'Unknown';
-  var iepDate=document.getElementById('imp-date').value||'';
-
-  var goalIDs=parsedGoals.map(function(g,i){return 'IMPORT-'+g.goalNum;}).join(',');
-
-  var student={
-    StudentID:'',Name:name,ColorTag:'blue',IEPDate:iepDate,
-    GoalIDs:goalIDs,Notes:'Imported via Embrace importer',Active:'TRUE'
-  };
-
-  if(DB.url){
-    var btn=document.querySelector('#importer .bp[onclick="saveImportedGoals()"]');
-    if(btn){btn.disabled=true;btn.innerHTML='<span class="spin"></span>Saving...';}
-    fetch(DB.url,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'upsert_student',Name:name,ColorTag:'blue',IEPDate:iepDate,GoalIDs:goalIDs,Notes:'Imported via Embrace importer',Active:'TRUE'})
-    })
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.ok){
-        alert('Saved! Student ID: '+d.StudentID+'\n\nClick Reload data to see them in the Students tab.');
-        document.getElementById('embrace-input').value='';
-        document.getElementById('imp-preview').style.display='none';
-        parsedGoals=[];
-      } else {
-        alert('Save error: '+(d.error||'unknown'));
-      }
-      if(btn){btn.disabled=false;btn.textContent='Save student to Sheet';}
-    })
-    .catch(function(e){
-      alert('Could not reach Sheet: '+e.message);
-      if(btn){btn.disabled=false;btn.textContent='Save student to Sheet';}
-    });
-  } else {
-    // No sheet — save to in-memory DB
-    student.StudentID='S'+(DB.students.length+1).toString().padStart(3,'0');
-    DB.students.push(student);
-    renderAll();
-    alert('Saved locally (no Sheet connected). Connect your Sheet in Settings to persist data.');
-    document.getElementById('embrace-input').value='';
-    document.getElementById('imp-preview').style.display='none';
-    parsedGoals=[];
-    showTab('students');
-  }
 }
 
 // ── RELOAD ────────────────────────────────────────────────────────────────
 async function reloadAll(){
   var btn=document.getElementById('rlbtn');
-  var pt=document.getElementById('pttrack');
-  var pf=document.getElementById('pfill');
-  btn.disabled=true;
-  btn.innerHTML='<span class="spin"></span>Reloading...';
+  var pt=document.getElementById('pttrack');var pf=document.getElementById('pfill');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Reloading...';
   pt.style.display='block';
-  var steps=[20,40,60,80,100];
-  for(var i=0;i<steps.length;i++){
-    pf.style.width=steps[i]+'%';
-    await new Promise(function(r){setTimeout(r,100);});
-  }
+  for(var p of[20,40,60,80,100]){pf.style.width=p+'%';await new Promise(function(r){setTimeout(r,80);});}
   if(DB.url){
     try{
       var res=await fetch(DB.url+'?action=all');
@@ -591,140 +802,112 @@ async function reloadAll(){
           DB.goals={};
           data.data.goals.forEach(function(g){
             var id=g['Goal ID']||g.GoalID||g.id;
-            if(id) DB.goals[id]={id:id,domain:g.Domain||g.domain||'Other',sub:g.Subcategories||g.sub||'',desc:g['Goal/Objective Description']||g.desc||''};
+            if(id)DB.goals[id]={id:id,domain:g.Domain||g.domain||'Other',sub:g.Subcategories||g.sub||'',desc:g['Goal/Objective Description']||g.desc||''};
           });
         }
-        if(data.data.students) DB.students=data.data.students;
-        if(data.data.schedule) DB.schedule=data.data.schedule;
-        if(data.data.resources) DB.resources=data.data.resources;
-        if(data.data.mapping) DB.mapping=data.data.mapping;
+        if(data.data.students)DB.students=data.data.students;
+        if(data.data.schedule)DB.schedule=data.data.schedule;
+        if(data.data.resources)DB.resources=data.data.resources;
+        if(data.data.mapping)DB.mapping=data.data.mapping;
         DB.source='sheets';
         document.getElementById('sync-t').textContent='Synced '+new Date().toLocaleTimeString();
         document.getElementById('src-lbl').textContent='Google Sheets — live';
       }
-    } catch(e){
-      document.getElementById('sync-t').textContent='Fetch failed — check URL in Settings';
-    }
-  } else {
+    }catch(e){document.getElementById('sync-t').textContent='Fetch failed — check Settings';}
+  }else{
     DB.goals=JSON.parse(JSON.stringify(BGOALS));
     document.getElementById('sync-t').textContent='Refreshed '+new Date().toLocaleTimeString();
   }
-  pt.style.display='none';
-  pf.style.width='0%';
-  btn.disabled=false;
-  btn.textContent='Reload data';
+  pt.style.display='none';pf.style.width='0%';
+  btn.disabled=false;btn.textContent='Reload data';
   renderAll();
 }
 
-// ── SETTINGS ──────────────────────────────────────────────────────────────
+// ── SETTINGS ─────────────────────────────────────────────────────────────
 function valUrl(){
   var v=document.getElementById('wurl').value.trim();
   var ok=v.includes('script.google.com/macros/s/')&&v.endsWith('/exec');
   document.getElementById('sbtn').disabled=!ok;
-  document.getElementById('ufb').textContent=ok?'URL looks valid — click Test & save':'URL must end in /exec';
+  document.getElementById('ufb').textContent=ok?'URL looks valid — click Test & save':'Must end in /exec';
   document.getElementById('ufb').style.color=ok?'#059669':'#d97706';
 }
-
 async function testSave(){
   var url=document.getElementById('wurl').value.trim();
-  var btn=document.getElementById('sbtn');
-  var fb=document.getElementById('ufb');
+  var btn=document.getElementById('sbtn');var fb=document.getElementById('ufb');
   btn.disabled=true;btn.textContent='Testing...';
   try{
     var res=await fetch(url+'?action=goals');
     var data=await res.json();
     if(data.ok){
-      DB.url=url;
-      localStorage.setItem('sheetUrl',url);
+      DB.url=url;localStorage.setItem('sheetUrl',url);
       document.getElementById('src-lbl').textContent='Google Sheets connected';
-      fb.textContent='Connected! Click Reload data to load everything from your Sheet.';
-      fb.style.color='#059669';
-      btn.textContent='Connected';
-    } else {
-      fb.textContent='Error: '+(data.error||'unknown');
-      fb.style.color='#dc2626';
-      btn.disabled=false;btn.textContent='Test & save';
-    }
-  } catch(e){
-    fb.innerHTML='Could not reach URL. Make sure "Who has access" = <strong>Anyone</strong> in Apps Script deployment settings.';
-    fb.style.color='#dc2626';
-    btn.disabled=false;btn.textContent='Test & save';
+      fb.textContent='Connected! Click Reload data.';fb.style.color='#059669';btn.textContent='Connected';
+    }else{fb.textContent='Error: '+(data.error||'unknown');fb.style.color='#dc2626';btn.disabled=false;btn.textContent='Test & save';}
+  }catch(e){
+    fb.innerHTML='Could not reach URL. See troubleshooting steps above.';
+    fb.style.color='#dc2626';btn.disabled=false;btn.textContent='Test & save';
   }
 }
 
-// ── EXPORT / BACKUP ───────────────────────────────────────────────────────
+// ── EXPORT ────────────────────────────────────────────────────────────────
 function buildPayload(){
-  return {exportedAt:new Date().toISOString(),source:DB.source,version:'1.0',
-    summary:{students:DB.students.length,goals:Object.keys(DB.goals).length},
-    students:DB.students,schedule:DB.schedule,goals:Object.values(DB.goals),
-    goalIntegrity:DB.students.map(function(s){
-      var ids=parseIds(s.GoalIDs||s.goalIDs||'');
-      return {id:s.StudentID,name:s.Name||s.name,goalIDs:ids,missing:ids.filter(function(id){return !DB.goals[id];})};
-    })
-  };
+  return{exportedAt:new Date().toISOString(),source:DB.source,version:'1.0',
+    students:DB.students,schedule:DB.schedule,goals:Object.values(DB.goals)};
 }
-
-function renderExportPreview(){
-  var p=buildPayload();
-  var txt=JSON.stringify(p,null,2);
-  document.getElementById('bprev').textContent=txt.slice(0,2000)+(txt.length>2000?'\n\n... (truncated in preview — full file downloads correctly)':'');
-}
-
 function doExportJSON(){
   var b=new Blob([JSON.stringify(buildPayload(),null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(b);
   a.download='classroom_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
 }
-
 function doExportCSV(type){
   var csv='',fn='';
   if(type==='students'){
-    var rows=DB.students.map(function(s){return [s.StudentID||'',s.Name||s.name||'',s.IEPDate||'',s.GoalIDs||s.goalIDs||'',s.Notes||'',s.Active!==undefined?s.Active:'TRUE'];});
-    csv=['StudentID,Name,IEPDate,GoalIDs,Notes,Active'].concat(rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
+    csv=['StudentID,Name,IEPDate,GoalIDs,Notes,Active'].concat(
+      DB.students.map(function(s){return [s.StudentID||'',s.Name||s.name||'',s.IEPDate||'',s.GoalIDs||s.goalIDs||'',s.Notes||'',s.Active||'TRUE'].map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
     fn='students_'+new Date().toISOString().slice(0,10)+'.csv';
-  } else {
-    var rows2=DB.students.flatMap?DB.students.flatMap(function(s){
-      return parseIds(s.GoalIDs||s.goalIDs||'').map(function(id){
-        var g=DB.goals[id];
-        return [s.StudentID||'',s.Name||s.name||'',id,g?g.domain:'MISSING',g?g.desc:'GOAL NOT FOUND'];
-      });
-    }):[];
-    csv=['StudentID,StudentName,GoalID,Domain,GoalDescription'].concat(rows2.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
+  }else{
+    var rows=DB.students.flatMap?DB.students.flatMap(function(s){return parseIds(s.GoalIDs||s.goalIDs||'').map(function(id){var g=DB.goals[id];return[s.StudentID||'',s.Name||s.name||'',id,g?g.domain:'MISSING',g?g.desc:'NOT FOUND'];});}):[];
+    csv=['StudentID,Name,GoalID,Domain,Description'].concat(rows.map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(',')})).join('\n');
     fn='student_goals_'+new Date().toISOString().slice(0,10)+'.csv';
   }
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn;a.click();
 }
-
 function doRestore(inp){
   var f=inp.files[0];if(!f)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
+  var r=new FileReader();
+  r.onload=function(e){
     try{
       var d=JSON.parse(e.target.result);
-      if(!d.version||!d.students) throw new Error('Invalid backup format');
+      if(!d.students)throw new Error('Invalid backup');
       DB.students=d.students;DB.schedule=d.schedule||[];
       if(d.goals){DB.goals={};d.goals.forEach(function(g){if(g.id)DB.goals[g.id]=g;});}
-      DB.source='restored';
-      document.getElementById('rstat').innerHTML='<div class="okbox">Restored '+d.students.length+' students from backup ('+new Date(d.exportedAt).toLocaleDateString()+').</div>';
+      document.getElementById('rstat').innerHTML='<div class="okbox">Restored '+d.students.length+' students from '+new Date(d.exportedAt).toLocaleDateString()+'.</div>';
       renderAll();
-    } catch(err){
-      document.getElementById('rstat').innerHTML='<div class="errbox">Could not restore: '+err.message+'</div>';
-    }
-  };
-  reader.readAsText(f);
+    }catch(err){document.getElementById('rstat').innerHTML='<div class="errbox">'+err.message+'</div>';}
+  };r.readAsText(f);
 }
 
-// ── RENDER ALL ────────────────────────────────────────────────────────────
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────
+function showTab(id){
+  document.querySelectorAll('.sec').forEach(function(s){s.className='sec';});
+  document.querySelectorAll('.tab').forEach(function(t){t.className='tab';});
+  var s=document.getElementById(id);if(s)s.className='sec on';
+  document.querySelectorAll('.tab').forEach(function(t){if(t.getAttribute('onclick')==="showTab('"+id+"')")t.className='tab on';});
+  if(id==='integrity')renderIntegrity();
+  if(id==='export'){var p=buildPayload();document.getElementById('bprev').textContent=JSON.stringify(p,null,2).slice(0,1800);}
+  if(id==='planner')renderPlannerChips();
+  if(id==='settings'&&DB.url)document.getElementById('wurl').value=DB.url;
+}
+
+// ── RENDER ALL + INIT ─────────────────────────────────────────────────────
 function renderAll(){
   renderOverview();
   renderStudents();
+  if(document.getElementById('planner').classList&&document.getElementById('planner').className.indexOf('on')!==-1)renderPlannerChips();
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────────
-if(DB.url){
-  document.getElementById('src-lbl').textContent='Sheet URL saved — click Reload data to connect';
-}
 document.getElementById('imp-date').value=new Date().toISOString().split('T')[0];
+if(DB.url)document.getElementById('src-lbl').textContent='Sheet URL saved — click Reload data';
 renderAll();
 </script>
 </body>
