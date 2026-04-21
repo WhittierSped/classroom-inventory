@@ -506,13 +506,17 @@ function clearImporter(){
 
 function saveImportedGoals(){
   if(!parsedItems.length){alert('Nothing to save.');return;}
-  var name=document.getElementById('imp-name').value.trim()||'Unknown';
+
+  // Capture all values FIRST before anything clears the form
+  var name=document.getElementById('imp-name').value.trim();
+  if(!name){alert('Please enter the student name before saving.');return;}
   var iepDate=document.getElementById('imp-date').value||'';
 
   var finalIDs=parsedItems.map(function(item,idx){
     return itemDecisions[idx]?itemDecisions[idx].finalID:item.id;
   });
   var uniqueIDs=[...new Set(finalIDs)].join(',');
+  var totalItems=parsedItems.length;
 
   var btn=document.getElementById('imp-save-btn');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span>Saving...';
@@ -526,16 +530,34 @@ function saveImportedGoals(){
 
   if(DB.url){
     // Use GET to avoid CORS — POST is blocked cross-origin from github.io to script.google.com
-    var params=new URLSearchParams({
-      action:'upsert_student',
-      Name:name,
-      ColorTag:'blue',
-      IEPDate:iepDate,
-      GoalIDs:uniqueIDs,
-      Notes:'Imported '+parsedItems.length+' items',
-      Active:'TRUE'
+    // First save any unmatched goals (IMP-* IDs) to the IEP Goals tab
+    var newGoalPromises=parsedItems.filter(function(item,idx){
+      var d=itemDecisions[idx];
+      return d&&d.finalID&&d.finalID.startsWith('IMP');
+    }).map(function(item,idx){
+      var p2=new URLSearchParams({
+        action:'add_goal',
+        'Goal ID': item.id,
+        Domain: item.domain,
+        Subcategories: item.type==='objective'?'Imported Objective':'Imported Goal',
+        'Goal/Objective Description': item.statement
+      });
+      return fetch(DB.url+'?'+p2.toString()).then(function(r){return r.json();}).catch(function(){return{ok:false};});
     });
-    fetch(DB.url+'?'+params.toString())
+
+    // Then save the student
+    Promise.all(newGoalPromises).then(function(){
+      var params=new URLSearchParams({
+        action:'upsert_student',
+        Name:name,
+        ColorTag:'blue',
+        IEPDate:iepDate,
+        GoalIDs:uniqueIDs,
+        Notes:'Imported '+totalItems+' items',
+        Active:'TRUE'
+      });
+      return fetch(DB.url+'?'+params.toString());
+    })
     .then(function(r){return r.json();}).then(function(d){
       if(d.ok)onSaved(d.StudentID);
       else{alert('Error: '+(d.error||'unknown'));btn.disabled=false;btn.textContent='Save student to Sheet';}
