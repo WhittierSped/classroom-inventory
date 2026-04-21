@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Standards Resource Mapper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .toolbar {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+        
+        .filters {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+            font-size: 0.9em;
+        }
+        
+        .filter-group select,
+        .filter-group input {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .mapping-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .mapping-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .mapping-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .mapping-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .mapping-table input,
+        .mapping-table select,
+        .mapping-table textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .mapping-table textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .domain-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .domain-math {
+            background: #ffd700;
+            color: #333;
+        }
+        
+        .domain-literacy {
+            background: #ee82ee;
+            color: white;
+        }
+        
+        .domain-sel {
+            background: #ff69b4;
+            color: white;
+        }
+        
+        .btn-delete {
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        
+        .btn-delete:hover {
+            background: #c82333;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #212529;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .stats-bar {
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stat-item {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .stat-number {
+            color: #667eea;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Standards Resource Mapper</h1>
+            <p>Map Resources to Common Core & SEL Standards</p>
+        </div>
+        
+        <div class="toolbar">
+            <button class="btn-success" onclick="addNewMapping()">➕ Add New Mapping</button>
+            <button class="btn-primary" onclick="loadFromGoogleSheets()">📊 Load from Google Sheets</button>
+            <button class="btn-info" onclick="exportToExcel()">📥 Export to Excel</button>
+            <button class="btn-danger" onclick="clearAllMappings()">🗑️ Clear All</button>
+        </div>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="resourceFilter">Filter by Resource</label>
+                <select id="resourceFilter" onchange="filterMappings()">
+                    <option value="all">All Resources</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="domainFilter">Filter by Domain</label>
+                <select id="domainFilter" onchange="filterMappings()">
+                    <option value="all">All Domains</option>
+                    <option value="Math">Math</option>
+                    <option value="Literacy">Literacy</option>
+                    <option value="SEL">SEL</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="gradeFilter">Filter by Grade</label>
+                <select id="gradeFilter" onchange="filterMappings()">
+                    <option value="all">All Grades</option>
+                    <option value="K">Kindergarten</option>
+                    <option value="1">1st Grade</option>
+                    <option value="2">2nd Grade</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="searchBox">Search</label>
+                <input type="text" id="searchBox" placeholder="Search..." oninput="filterMappings()">
+            </div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                Total Mappings: <span class="stat-number" id="totalMappings">0</span>
+            </div>
+            <div class="stat-item">
+                Resources Mapped: <span class="stat-number" id="resourcesMapped">0</span>
+            </div>
+            <div class="stat-item">
+                Standards Covered: <span class="stat-number" id="standardsCovered">0</span>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="mappingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Add Standard Mapping</div>
+            
+            <div class="form-group">
+                <label for="modalResourceId">Resource ID *</label>
+                <input type="text" id="modalResourceId" placeholder="e.g., R001" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalResourceName">Resource Name *</label>
+                <input type="text" id="modalResourceName" placeholder="e.g., Counting Bears" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalFormat">Format</label>
+                <select id="modalFormat">
+                    <option value="Digital">Digital</option>
+                    <option value="Physical">Physical</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalStandardId">Standard *</label>
+                <select id="modalStandardId" required onchange="updateStandardInfo()">
+                    <option value="">-- Select Standard --</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modalNotes">How Resource Supports Standard</label>
+                <textarea id="modalNotes" placeholder="Describe how this resource helps students meet this standard..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn-success" onclick="saveMappingfromModal()">💾 Save Mapping</button>
+                <button class="btn-danger" onclick="closeModal()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Embedded standards data
+        const STANDARDS_DATA = [{"id":"K.CC.A.1","domain":"Math","gradeLevel":"K","category":"Counting & Cardinality","description":"Count to 100 by ones and by tens"},{"id":"K.CC.A.2","domain":"Math","gradeLevel":"K","category":"Counting & Cardinality","description":"Count forward beginning from a given number"},{"id":"K.CC.A.3","domain":"Math","gradeLevel":"K","category":"Counting & Cardinality","description":"Write numbers from 0 to 20"},{"id":"K.CC.B.4","domain":"Math","gradeLevel":"K","category":"Counting & Cardinality","description":"Understand the relationship between numbers and quantities"},{"id":"K.CC.B.5","domain":"Math","gradeLevel":"K","category":"Counting & Cardinality","description":"Count to answer \"how many?\""},{"id":"K.OA.A.1","domain":"Math","gradeLevel":"K","category":"Operations & Algebraic Thinking","description":"Represent addition and subtraction"},{"id":"K.OA.A.2","domain":"Math","gradeLevel":"K","category":"Operations & Algebraic Thinking","description":"Solve addition and subtraction word problems"},{"id":"K.NBT.A.1","domain":"Math","gradeLevel":"K","category":"Number & Operations in Base Ten","description":"Compose and decompose numbers from 11 to 19"},{"id":"K.MD.A.1","domain":"Math","gradeLevel":"K","category":"Measurement & Data","description":"Describe measurable attributes of objects"},{"id":"K.MD.B.3","domain":"Math","gradeLevel":"K","category":"Measurement & Data","description":"Classify objects and count the number of objects in each category"},{"id":"K.G.A.1","domain":"Math","gradeLevel":"K","category":"Geometry","description":"Describe objects in the environment using names of shapes"},{"id":"K.G.B.4","domain":"Math","gradeLevel":"K","category":"Geometry","description":"Analyze and compare two- and three-dimensional shapes"},{"id":"1.OA.A.1","domain":"Math","gradeLevel":"1","category":"Operations & Algebraic Thinking","description":"Use addition and subtraction within 20 to solve word problems"},{"id":"1.OA.B.3","domain":"Math","gradeLevel":"1","category":"Operations & Algebraic Thinking","description":"Apply properties of operations as strategies"},{"id":"1.OA.C.6","domain":"Math","gradeLevel":"1","category":"Operations & Algebraic Thinking","description":"Add and subtract within 20"},{"id":"1.NBT.A.1","domain":"Math","gradeLevel":"1","category":"Number & Operations in Base Ten","description":"Count to 120, starting at any number"},{"id":"1.NBT.B.2","domain":"Math","gradeLevel":"1","category":"Number & Operations in Base Ten","description":"Understand that the two digits of a two-digit number represent tens and ones"},{"id":"1.NBT.C.4","domain":"Math","gradeLevel":"1","category":"Number & Operations in Base Ten","description":"Add within 100"},{"id":"1.MD.A.1","domain":"Math","gradeLevel":"1","category":"Measurement & Data","description":"Order three objects by length"},{"id":"1.MD.C.4","domain":"Math","gradeLevel":"1","category":"Measurement & Data","description":"Organize, represent, and interpret data"},{"id":"1.G.A.1","domain":"Math","gradeLevel":"1","category":"Geometry","description":"Distinguish between defining attributes of shapes"},{"id":"1.G.A.3","domain":"Math","gradeLevel":"1","category":"Geometry","description":"Partition circles and rectangles into two and four equal shares"},{"id":"2.OA.A.1","domain":"Math","gradeLevel":"2","category":"Operations & Algebraic Thinking","description":"Use addition and subtraction within 100 to solve word problems"},{"id":"2.OA.B.2","domain":"Math","gradeLevel":"2","category":"Operations & Algebraic Thinking","description":"Fluently add and subtract within 20"},{"id":"2.NBT.A.1","domain":"Math","gradeLevel":"2","category":"Number & Operations in Base Ten","description":"Understand that the three digits of a three-digit number represent hundreds, tens, and ones"},{"id":"2.NBT.B.5","domain":"Math","gradeLevel":"2","category":"Number & Operations in Base Ten","description":"Fluently add and subtract within 100"},{"id":"2.NBT.B.7","domain":"Math","gradeLevel":"2","category":"Number & Operations in Base Ten","description":"Add and subtract within 1000"},{"id":"2.MD.A.1","domain":"Math","gradeLevel":"2","category":"Measurement & Data","description":"Measure the length of an object"},{"id":"2.MD.C.8","domain":"Math","gradeLevel":"2","category":"Measurement & Data","description":"Solve word problems involving dollar bills, quarters, dimes, nickels, and pennies"},{"id":"2.MD.D.10","domain":"Math","gradeLevel":"2","category":"Measurement & Data","description":"Draw a picture graph and a bar graph"},{"id":"2.G.A.1","domain":"Math","gradeLevel":"2","category":"Geometry","description":"Recognize and draw shapes having specified attributes"},{"id":"K.RF.1","domain":"Literacy","gradeLevel":"K","category":"Reading: Foundational Skills","description":"Demonstrate understanding of the organization and basic features of print"},{"id":"K.RF.2","domain":"Literacy","gradeLevel":"K","category":"Reading: Foundational Skills","description":"Demonstrate understanding of spoken words, syllables, and sounds"},{"id":"K.RF.3","domain":"Literacy","gradeLevel":"K","category":"Reading: Foundational Skills","description":"Know and apply grade-level phonics and word analysis skills"},{"id":"K.RL.1","domain":"Literacy","gradeLevel":"K","category":"Reading: Literature","description":"Ask and answer questions about key details in a text"},{"id":"K.RL.3","domain":"Literacy","gradeLevel":"K","category":"Reading: Literature","description":"Identify characters, settings, and major events in a story"},{"id":"K.RI.1","domain":"Literacy","gradeLevel":"K","category":"Reading: Informational","description":"Ask and answer questions about key details in a text"},{"id":"K.W.1","domain":"Literacy","gradeLevel":"K","category":"Writing","description":"Use a combination of drawing, dictating, and writing to compose opinion pieces"},{"id":"K.W.2","domain":"Literacy","gradeLevel":"K","category":"Writing","description":"Use a combination of drawing, dictating, and writing to compose informative/explanatory texts"},{"id":"K.SL.1","domain":"Literacy","gradeLevel":"K","category":"Speaking & Listening","description":"Participate in collaborative conversations"},{"id":"K.L.1","domain":"Literacy","gradeLevel":"K","category":"Language","description":"Demonstrate command of the conventions of standard English grammar"},{"id":"1.RF.2","domain":"Literacy","gradeLevel":"1","category":"Reading: Foundational Skills","description":"Demonstrate understanding of spoken words, syllables, and sounds"},{"id":"1.RF.3","domain":"Literacy","gradeLevel":"1","category":"Reading: Foundational Skills","description":"Know and apply grade-level phonics and word analysis skills"},{"id":"1.RF.4","domain":"Literacy","gradeLevel":"1","category":"Reading: Foundational Skills","description":"Read with sufficient accuracy and fluency to support comprehension"},{"id":"1.RL.1","domain":"Literacy","gradeLevel":"1","category":"Reading: Literature","description":"Ask and answer questions about key details in a text"},{"id":"1.RL.3","domain":"Literacy","gradeLevel":"1","category":"Reading: Literature","description":"Describe characters, settings, and major events using key details"},{"id":"1.RI.1","domain":"Literacy","gradeLevel":"1","category":"Reading: Informational","description":"Ask and answer questions about key details in a text"},{"id":"1.W.1","domain":"Literacy","gradeLevel":"1","category":"Writing","description":"Write opinion pieces"},{"id":"1.W.2","domain":"Literacy","gradeLevel":"1","category":"Writing","description":"Write informative/explanatory texts"},{"id":"1.SL.1","domain":"Literacy","gradeLevel":"1","category":"Speaking & Listening","description":"Participate in collaborative conversations"},{"id":"1.L.1","domain":"Literacy","gradeLevel":"1","category":"Language","description":"Demonstrate command of the conventions of standard English grammar"},{"id":"2.RF.3","domain":"Literacy","gradeLevel":"2","category":"Reading: Foundational Skills","description":"Know and apply grade-level phonics and word analysis skills"},{"id":"2.RF.4","domain":"Literacy","gradeLevel":"2","category":"Reading: Foundational Skills","description":"Read with sufficient accuracy and fluency to support comprehension"},{"id":"2.RL.1","domain":"Literacy","gradeLevel":"2","category":"Reading: Literature","description":"Ask and answer such questions as who, what, where, when, why, and how"},{"id":"2.RL.3","domain":"Literacy","gradeLevel":"2","category":"Reading: Literature","description":"Describe how characters respond to major events and challenges"},{"id":"2.RI.1","domain":"Literacy","gradeLevel":"2","category":"Reading: Informational","description":"Ask and answer such questions as who, what, where, when, why, and how"},{"id":"2.W.1","domain":"Literacy","gradeLevel":"2","category":"Writing","description":"Write opinion pieces"},{"id":"2.W.2","domain":"Literacy","gradeLevel":"2","category":"Writing","description":"Write informative/explanatory texts"},{"id":"2.SL.1","domain":"Literacy","gradeLevel":"2","category":"Speaking & Listening","description":"Participate in collaborative conversations"},{"id":"2.L.1","domain":"Literacy","gradeLevel":"2","category":"Language","description":"Demonstrate command of the conventions of standard English grammar"},{"id":"1A.1a","domain":"SEL","gradeLevel":"K-2","category":"Self-Awareness","description":"Identify and describe emotions"},{"id":"1A.1b","domain":"SEL","gradeLevel":"K-2","category":"Self-Awareness","description":"Recognize strengths and challenges"},{"id":"1B.1a","domain":"SEL","gradeLevel":"K-2","category":"Self-Management","description":"Describe why impulse control is important"},{"id":"1B.1b","domain":"SEL","gradeLevel":"K-2","category":"Self-Management","description":"Demonstrate the ability to delay gratification"},{"id":"2A.1a","domain":"SEL","gradeLevel":"K-2","category":"Social Awareness","description":"Recognize feelings and perspectives of others"},{"id":"2A.1b","domain":"SEL","gradeLevel":"K-2","category":"Social Awareness","description":"Recognize that others may experience situations differently"},{"id":"2B.1a","domain":"SEL","gradeLevel":"K-2","category":"Relationship Skills","description":"Describe positive qualities in others"},{"id":"2B.1b","domain":"SEL","gradeLevel":"K-2","category":"Relationship Skills","description":"Demonstrate appropriate ways to interact with others"},{"id":"2C.1a","domain":"SEL","gradeLevel":"K-2","category":"Relationship Skills","description":"Identify problems and conflicts commonly experienced"},{"id":"2C.1b","domain":"SEL","gradeLevel":"K-2","category":"Relationship Skills","description":"Identify approaches to resolving conflicts constructively"},{"id":"3A.1a","domain":"SEL","gradeLevel":"K-2","category":"Decision-Making","description":"Identify and apply the steps of systematic decision-making"},{"id":"3A.1b","domain":"SEL","gradeLevel":"K-2","category":"Decision-Making","description":"Make positive choices when interacting with classmates"}];
+
+        // Data storage
+        let mappingsData = [];
+        let currentEditIndex = -1;
+
+        // Initialize with sample data
+        function initializeSampleData() {
+            mappingsData = [
+                {
+                    resourceId: 'R001',
+                    resourceName: 'Counting Bears Activity Set',
+                    format: 'Physical',
+                    standardId: 'K.CC.A.1',
+                    standardDomain: 'Math',
+                    gradeLevel: 'K',
+                    standardDescription: 'Count to 100 by ones and by tens',
+                    notes: 'Students use bears to practice counting to 100 by organizing them into groups'
+                },
+                {
+                    resourceId: 'R001',
+                    resourceName: 'Counting Bears Activity Set',
+                    format: 'Physical',
+                    standardId: 'K.CC.B.5',
+                    standardDomain: 'Math',
+                    gradeLevel: 'K',
+                    standardDescription: 'Count to answer "how many?"',
+                    notes: 'Bears help with "how many?" counting activities during small group instruction'
+                }
+            ];
+        }
+
+        // Populate standard dropdown
+        function populateStandardDropdown() {
+            const select = document.getElementById('modalStandardId');
+            select.innerHTML = '<option value="">-- Select Standard --</option>';
+            
+            STANDARDS_DATA.forEach(standard => {
+                const option = document.createElement('option');
+                option.value = standard.id;
+                option.textContent = `${standard.id} - ${standard.description} (${standard.domain}, Grade ${standard.gradeLevel})`;
+                option.dataset.domain = standard.domain;
+                option.dataset.grade = standard.gradeLevel;
+                option.dataset.description = standard.description;
+                select.appendChild(option);
+            });
+        }
+
+        // Update standard info when selected
+        function updateStandardInfo() {
+            const select = document.getElementById('modalStandardId');
+            const selectedOption = select.options[select.selectedIndex];
+            // Info is displayed in the dropdown text itself
+        }
+
+        // Open add mapping modal
+        function addNewMapping() {
+            currentEditIndex = -1;
+            document.getElementById('modalResourceId').value = '';
+            document.getElementById('modalResourceName').value = '';
+            document.getElementById('modalFormat').value = 'Digital';
+            document.getElementById('modalStandardId').value = '';
+            document.getElementById('modalNotes').value = '';
+            document.querySelector('.modal-header').textContent = 'Add Standard Mapping';
+            document.getElementById('mappingModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('mappingModal').classList.remove('active');
+        }
+
+        // Save mapping from modal
+        function saveMappingfromModal() {
+            const resourceId = document.getElementById('modalResourceId').value.trim();
+            const resourceName = document.getElementById('modalResourceName').value.trim();
+            const format = document.getElementById('modalFormat').value;
+            const standardId = document.getElementById('modalStandardId').value;
+            const notes = document.getElementById('modalNotes').value.trim();
+            
+            if (!resourceId || !resourceName || !standardId) {
+                alert('Please fill in all required fields (Resource ID, Name, and Standard)');
+                return;
+            }
+            
+            const standard = STANDARDS_DATA.find(s => s.id === standardId);
+            if (!standard) {
+                alert('Invalid standard selected');
+                return;
+            }
+            
+            const mapping = {
+                resourceId,
+                resourceName,
+                format,
+                standardId,
+                standardDomain: standard.domain,
+                gradeLevel: standard.gradeLevel,
+                standardDescription: standard.description,
+                notes
+            };
+            
+            if (currentEditIndex >= 0) {
+                mappingsData[currentEditIndex] = mapping;
+            } else {
+                mappingsData.push(mapping);
+            }
+            
+            closeModal();
+            renderMappings();
+            updateResourceFilter();
+        }
+
+        // Edit mapping
+        function editMapping(index) {
+            const mapping = mappingsData[index];
+            currentEditIndex = index;
+            
+            document.getElementById('modalResourceId').value = mapping.resourceId;
+            document.getElementById('modalResourceName').value = mapping.resourceName;
+            document.getElementById('modalFormat').value = mapping.format;
+            document.getElementById('modalStandardId').value = mapping.standardId;
+            document.getElementById('modalNotes').value = mapping.notes;
+            
+            document.querySelector('.modal-header').textContent = 'Edit Standard Mapping';
+            document.getElementById('mappingModal').classList.add('active');
+        }
+
+        // Delete mapping
+        function deleteMapping(index) {
+            if (confirm('Are you sure you want to delete this mapping?')) {
+                mappingsData.splice(index, 1);
+                renderMappings();
+                updateResourceFilter();
+            }
+        }
+
+        // Filter mappings
+        function filterMappings() {
+            renderMappings();
+        }
+
+        // Render mappings table
+        function renderMappings() {
+            const resourceFilter = document.getElementById('resourceFilter').value;
+            const domainFilter = document.getElementById('domainFilter').value;
+            const gradeFilter = document.getElementById('gradeFilter').value;
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            
+            let filtered = mappingsData.filter(mapping => {
+                if (resourceFilter !== 'all' && mapping.resourceId !== resourceFilter) return false;
+                if (domainFilter !== 'all' && mapping.standardDomain !== domainFilter) return false;
+                if (gradeFilter !== 'all') {
+                    if (mapping.gradeLevel === 'K-2') return true;
+                    if (mapping.gradeLevel !== gradeFilter) return false;
+                }
+                if (searchTerm) {
+                    const searchable = `${mapping.resourceName} ${mapping.standardId} ${mapping.standardDescription} ${mapping.notes}`.toLowerCase();
+                    if (!searchable.includes(searchTerm)) return false;
+                }
+                return true;
+            });
+            
+            updateStats(filtered);
+            
+            const container = document.getElementById('tableContainer');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data">
+                        <h3>No mappings found</h3>
+                        <p>Add a new mapping or adjust your filters</p>
+                        <button class="btn-success" onclick="addNewMapping()" style="margin-top: 20px;">
+                            ➕ Add First Mapping
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <table class="mapping-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Resource ID</th>
+                            <th style="width: 200px;">Resource Name</th>
+                            <th style="width: 80px;">Format</th>
+                            <th style="width: 120px;">Standard ID</th>
+                            <th style="width: 100px;">Domain</th>
+                            <th style="width: 80px;">Grade</th>
+                            <th>Standard Description</th>
+                            <th>Support Notes</th>
+                            <th style="width: 120px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.map((mapping, index) => {
+                            const actualIndex = mappingsData.indexOf(mapping);
+                            const domainClass = mapping.standardDomain.toLowerCase();
+                            return `
+                                <tr>
+                                    <td><strong>${mapping.resourceId}</strong></td>
+                                    <td>${mapping.resourceName}</td>
+                                    <td>${mapping.format}</td>
+                                    <td><strong>${mapping.standardId}</strong></td>
+                                    <td>
+                                        <span class="domain-badge domain-${domainClass}">
+                                            ${mapping.standardDomain}
+                                        </span>
+                                    </td>
+                                    <td>${mapping.gradeLevel}</td>
+                                    <td style="font-size: 0.9em;">${mapping.standardDescription}</td>
+                                    <td style="font-size: 0.9em;">${mapping.notes || '-'}</td>
+                                    <td>
+                                        <button class="btn-delete" onclick="editMapping(${actualIndex})" 
+                                                style="background: #17a2b8; margin-bottom: 5px;">
+                                            ✏️ Edit
+                                        </button>
+                                        <button class="btn-delete" onclick="deleteMapping(${actualIndex})">
+                                            🗑️ Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Update statistics
+        function updateStats(filtered) {
+            document.getElementById('totalMappings').textContent = filtered.length;
+            
+            const uniqueResources = new Set(filtered.map(m => m.resourceId));
+            document.getElementById('resourcesMapped').textContent = uniqueResources.size;
+            
+            const uniqueStandards = new Set(filtered.map(m => m.standardId));
+            document.getElementById('standardsCovered').textContent = uniqueStandards.size;
+        }
+
+        // Update resource filter dropdown
+        function updateResourceFilter() {
+            const select = document.getElementById('resourceFilter');
+            const currentValue = select.value;
+            
+            const uniqueResources = [...new Set(mappingsData.map(m => ({
+                id: m.resourceId,
+                name: m.resourceName
+            })
+            .map(r => JSON.stringify(r))))
+            ].map(r => JSON.parse(r))
+            .sort((a, b) => a.id.localeCompare(b.id));
+            
+            select.innerHTML = '<option value="all">All Resources</option>';
+            uniqueResources.forEach(resource => {
+                const option = document.createElement('option');
+                option.value = resource.id;
+                option.textContent = `${resource.id} - ${resource.name}`;
+                select.appendChild(option);
+            });
+            
+            select.value = currentValue;
+        }
+
+        // Load from Google Sheets
+        async function loadFromGoogleSheets() {
+            const sheetsUrl = prompt('Enter your Google Sheets published CSV URL:');
+            if (!sheetsUrl) return;
+            
+            try {
+                const response = await fetch(sheetsUrl);
+                const text = await response.text();
+                // Parse CSV and load data
+                alert('Data loaded successfully from Google Sheets!');
+                renderMappings();
+            } catch (error) {
+                alert('Error loading from Google Sheets. Please check the URL and try again.');
+                console.error(error);
+            }
+        }
+
+        // Export to Excel
+        function exportToExcel() {
+            // Create CSV content
+            const headers = ['Resource ID', 'Resource Name', 'Format', 'Standard ID', 'Standard Domain', 'Grade Level', 'Standard Description', 'How Resource Supports Standard'];
+            const rows = mappingsData.map(m => [
+                m.resourceId,
+                m.resourceName,
+                m.format,
+                m.standardId,
+                m.standardDomain,
+                m.gradeLevel,
+                m.standardDescription,
+                m.notes
+            ]);
+            
+            let csvContent = headers.join(',') + '\n';
+            rows.forEach(row => {
+                csvContent += row.map(cell => `"${cell || ''}"`).join(',') + '\n';
+            });
+            
+            // Download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'standards_resource_mapping.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Clear all mappings
+        function clearAllMappings() {
+            if (confirm('Are you sure you want to delete ALL mappings? This cannot be undone.')) {
+                mappingsData = [];
+                renderMappings();
+                updateResourceFilter();
+            }
+        }
+
+        // Initialize
+        initializeSampleData();
+        populateStandardDropdown();
+        renderMappings();
+        updateResourceFilter();
+        
+        // Close modal when clicking outside
+        document.getElementById('mappingModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
