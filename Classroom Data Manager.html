@@ -89,7 +89,22 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
   <div id="ov-students"></div>
 </div>
 
-<div id="students" class="sec"><div id="stu-list"></div></div>
+<div id="students" class="sec">
+  <div class="card" style="border-left: 4px solid #1a1a1a;">
+    <div class="card-title">Embrace Goal Importer</div>
+    <textarea id="embrace-input" rows="4" placeholder="Paste Embrace Goal Statement here..."></textarea>
+    <div class="row" style="margin-top:8px">
+       <button class="bp" onclick="parseEmbraceText()">Process Text</button>
+       <button class="bsm" onclick="document.getElementById('embrace-input').value=''">Clear</button>
+    </div>
+    <div id="import-preview" style="margin-top:15px; display:none; border-top:1px solid #eee; padding-top:10px;">
+      <div id="preview-rows"></div>
+      <button class="bp" style="background:#059669; border-color:#059669; width:100%" onclick="saveImportedGoals()">Confirm & Save to Sheet</button>
+    </div>
+  </div>
+  
+  <div id="stu-list"></div>
+</div>
 
 <div id="integrity" class="sec">
   <div class="card">
@@ -391,7 +406,43 @@ function show(id){
   document.getElementById(id).className='sec on';
   document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.className='tab on';});
 }
+function parseEmbraceText() {
+    const raw = document.getElementById('embrace-input').value;
+    const previewArea = document.getElementById('preview-rows');
+    const previewContainer = document.getElementById('import-preview');
+    
+    // Logic to split Goal Statement from Objectives
+    const goalMatch = raw.match(/Goal Statement:\s*(.*?)(?=Benchmark|$)/i);
+    const objectiveMatch = raw.split(/Benchmark\(s\) or Short-Term Objective\(s\)\s*/i)[1];
+    
+    let html = '';
+    
+    // 1. Handle the Annual Goal
+    if (goalMatch && goalMatch[1]) {
+        html += createPreviewRow('Annual Goal', goalMatch[1].trim());
+    }
+    
+    // 2. Handle the Objectives (A, B, C...)
+    if (objectiveMatch) {
+        const objectives = objectiveMatch.split(/[A-Z]\)/).filter(t => t.trim().length > 0);
+        objectives.forEach((obj, idx) => {
+            html += createPreviewRow(`Objective ${String.fromCharCode(65 + idx)}`, obj.trim());
+        });
+    }
 
+    previewArea.innerHTML = html;
+    previewContainer.style.display = 'block';
+}
+
+function createPreviewRow(label, text) {
+    return `
+        <div style="background:#f9f9f9; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #eee;">
+            <div style="font-size:10px; color:#888; font-weight:bold;">${label}</div>
+            <div style="font-size:12px; margin:4px 0;">${text}</div>
+            <input type="text" placeholder="Assign ID (e.g. G101)" style="width:100px; font-size:11px;">
+        </div>
+    `;
+}
 renderAll();
 </script>
 </body>
