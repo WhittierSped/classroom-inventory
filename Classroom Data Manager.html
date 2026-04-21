@@ -61,7 +61,7 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 <div class="app">
 <div class="rbar">
   <div style="flex:1;min-width:120px">
-    <div style="font-size:14px;font-weight:500">Classroom data manager</div>
+    <div style="font-size:14px;font-weight:500">Classroom Data Manager</div>
     <div id="src-lbl" style="font-size:11px;color:#888">Built-in data (no Sheet connected)</div>
   </div>
   <div class="pt" id="pttrack" style="display:none"><div class="pf" id="pfill" style="width:0%"></div></div>
@@ -92,14 +92,16 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 <div id="students" class="sec">
   <div class="card" style="border-left: 4px solid #1a1a1a;">
     <div class="card-title">Embrace Goal Importer</div>
-    <textarea id="embrace-input" rows="4" placeholder="Paste Embrace Goal Statement here..."></textarea>
+    <p style="font-size:11px; color:#666; margin-bottom:8px;">Paste text from Embrace (Goal Statement & Objectives) to parse them into your library.</p>
+    <textarea id="embrace-input" rows="4" placeholder="Goal #1 - Math Goal Statement: ..."></textarea>
     <div class="row" style="margin-top:8px">
        <button class="bp" onclick="parseEmbraceText()">Process Text</button>
        <button class="bsm" onclick="document.getElementById('embrace-input').value=''">Clear</button>
     </div>
+    
     <div id="import-preview" style="margin-top:15px; display:none; border-top:1px solid #eee; padding-top:10px;">
       <div id="preview-rows"></div>
-      <button class="bp" style="background:#059669; border-color:#059669; width:100%" onclick="saveImportedGoals()">Confirm & Save to Sheet</button>
+      <button class="bp" style="background:#059669; border-color:#059669; width:100%; margin-top:10px;" onclick="saveImportedGoals()">Confirm & Save to Sheet</button>
     </div>
   </div>
   
@@ -116,334 +118,61 @@ code{font-family:monospace;font-size:11px;background:#f0f0ee;padding:1px 4px;bor
 <div id="export" class="sec">
   <div class="card">
     <div class="card-title">Backup student data</div>
-    <p style="font-size:12px;color:#555;margin-bottom:12px">Downloads a timestamped JSON file with all students, schedules, goal links, and an integrity report. Safe to clear browser cache after backing up.</p>
+    <p style="font-size:12px;color:#555;margin-bottom:12px">Downloads a timestamped JSON file with all student data.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="bp" onclick="doExportJSON()">Download JSON backup</button>
       <button onclick="doExportCSV('students')">Download CSV — students</button>
       <button onclick="doExportCSV('goals')">Download CSV — goal links</button>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">Restore from backup</div>
-    <p style="font-size:12px;color:#555;margin-bottom:8px">Upload a previously downloaded JSON backup to restore student data.</p>
-    <input type="file" id="rfile" accept=".json" onchange="doRestore(this)" style="font-size:12px">
-    <div id="rstat" style="margin-top:8px"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">Backup preview</div>
-    <pre id="bprev">Load data first</pre>
-  </div>
 </div>
 
 <div id="settings" class="sec">
   <div class="card">
     <div class="card-title">Google Sheets Web App URL</div>
-    <p style="font-size:12px;color:#555;margin-bottom:8px">From Apps Script: Deploy → Manage deployments → copy the <code>/exec</code> URL.</p>
     <div class="row" style="margin-bottom:6px">
-      <input id="wurl" placeholder="https://script.google.com/macros/s/…/exec" oninput="valUrl()" style="font-family:monospace;font-size:11px">
-      <button id="sbtn" class="bp" disabled onclick="testSave()" style="white-space:nowrap;flex-shrink:0">Test &amp; save</button>
+      <input id="wurl" placeholder="https://script.google.com/macros/s/.../exec" oninput="valUrl()">
+      <button id="sbtn" class="bp" disabled onclick="testSave()">Test & save</button>
     </div>
     <div id="ufb" style="font-size:12px;color:#888"></div>
   </div>
-  <div class="card">
-    <div class="card-title">How goal ID matching works</div>
-    <p style="font-size:12px;color:#555;line-height:1.7">Students store goal references as IDs (G001, G032, G063…) — never the goal text. So when you update a goal description in your Sheet, all student links stay intact automatically.<br><br>A warning only appears if you <em>delete a goal row entirely</em> from the IEP Goals tab. The integrity checker flags which students are affected and which ID is missing, so you can decide: restore the goal row, clean up the student record, or replace it with a new ID.</p>
-  </div>
-  <div class="card">
-    <div class="card-title">Column name reference</div>
-    <p style="font-size:12px;color:#555;margin-bottom:8px">The tool reads these exact column names from your Sheet (case-insensitive):</p>
-    <table style="width:100%;font-size:12px;border-collapse:collapse">
-      <tr style="background:#f5f5f3"><th style="text-align:left;padding:5px 8px;font-weight:500">Tab</th><th style="text-align:left;padding:5px 8px;font-weight:500">Key columns</th></tr>
-      <tr><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)">IEP Goals</td><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)"><code>Goal ID</code>, <code>Domain</code>, <code>Subcategories</code>, <code>Goal/Objective Description</code></td></tr>
-      <tr><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)">Students</td><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)"><code>StudentID</code>, <code>Name</code>, <code>GoalIDs</code>, <code>IEPDate</code>, <code>Notes</code>, <code>Active</code></td></tr>
-      <tr><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)">Schedule</td><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)"><code>StudentID</code>, <code>Monday</code>–<code>Friday</code> (TRUE/FALSE), <code>StartTime</code>, <code>EndTime</code></td></tr>
-      <tr><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)">Resources Inventory</td><td style="padding:5px 8px;border-top:1px solid rgba(0,0,0,0.07)"><code>Resource ID</code>, <code>Resource Name</code>, <code>Format</code>, <code>Category</code></td></tr>
-    </table>
-  </div>
 </div>
+
 </div>
 
 <script>
+// --- DATA & STATE ---
 const AC=[['#dbeafe','#1e40af'],['#dcfce7','#166534'],['#fef9c3','#854d0e'],['#ede9fe','#5b21b6'],['#fce7f3','#9d174d'],['#fee2e2','#991b1b']];
 const BGOALS={
   G001:{id:'G001',domain:'Math',sub:'Fact Fluency',desc:'Solve 10-16 math facts (addition/subtraction within 20) in one minute'},
-  G002:{id:'G002',domain:'Math',sub:'Fact Fluency',desc:'Given addition or subtraction within 5, solve using objects or drawings'},
-  G003:{id:'G003',domain:'Math',sub:'Fact Fluency',desc:'Given addition problems within 20, solve using math drawings or manipulatives'},
-  G004:{id:'G004',domain:'Math',sub:'Fact Fluency',desc:'Given subtraction problems within 20, solve using math drawings or manipulatives'},
-  G005:{id:'G005',domain:'Math',sub:'Place Value',desc:'Given two numbers 0-100, use place value to identify the larger number'},
-  G006:{id:'G006',domain:'Math',sub:'Counting',desc:'Given up to 10 objects, count using one-to-one correspondence'},
-  G007:{id:'G007',domain:'Math',sub:'Counting',desc:'Match correct numeral to quantity for sets within 10'},
-  G008:{id:'G008',domain:'Math',sub:'Counting',desc:'Identify which group has more, fewer, or same within 10'},
-  G009:{id:'G009',domain:'Math',sub:'Place Value',desc:'Given 2-digit numbers, identify tens and ones by matching base ten blocks'},
-  G010:{id:'G010',domain:'Math',sub:'Number Sense',desc:'Given numbers 0-99, read them aloud'},
-  G011:{id:'G011',domain:'Math',sub:'Number Sense',desc:'Given pairs of numbers 0-99, identify the larger number'},
-  G012:{id:'G012',domain:'Math',sub:'Fact Fluency',desc:'Given 5 problems within 20, solve using manipulatives or drawings'},
-  G013:{id:'G013',domain:'Math',sub:'Fact Fluency',desc:'Given facts within 20 and timer, solve using counting strategies'},
-  G014:{id:'G014',domain:'Math',sub:'Word Problems',desc:'Using pictorial models, represent word problems within 20'},
-  G015:{id:'G015',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, use manipulatives to represent and solve'},
-  G016:{id:'G016',domain:'Math',sub:'Word Problems',desc:'Given one-step word problem, create math drawing to represent and solve'},
-  G031:{id:'G031',domain:'Math',sub:'Number Sense',desc:'Identify and represent numbers up to 20 using manipulatives'},
-  G032:{id:'G032',domain:'Literacy',sub:'Decoding',desc:'Decode and read 8 out of 10 CVC words independently'},
-  G033:{id:'G033',domain:'Literacy',sub:'Alphabet Knowledge',desc:'Write the correct letter for 8 out of 10 random letter sounds'},
-  G034:{id:'G034',domain:'Literacy',sub:'Fluency',desc:'Read 1st/2nd grade passage with 30-40 WCPM at 95% accuracy'},
-  G037:{id:'G037',domain:'Literacy',sub:'Decoding',desc:'Read at least 9 out of 10 short vowel words'},
-  G039:{id:'G039',domain:'Literacy',sub:'Alphabet Knowledge',desc:'State the correct sound for 26 lowercase letters out of order'},
-  G040:{id:'G040',domain:'Literacy',sub:'Alphabet Knowledge',desc:'State correct sound for 8 of 10 random lowercase letters'},
-  G041:{id:'G041',domain:'Literacy',sub:'Encoding',desc:'Correctly write 4 out of 5 short vowel words'},
-  G046:{id:'G046',domain:'Literacy',sub:'Decoding',desc:'Decode and blend 10 CVC words aloud with at least 90% accuracy'},
-  G056:{id:'G056',domain:'Literacy',sub:'Writing',desc:'Write own name (first, last, or nickname)'},
-  G058:{id:'G058',domain:'Literacy',sub:'Comprehension',desc:'Use context clues to determine meaning of unfamiliar word'},
-  G059:{id:'G059',domain:'Literacy',sub:'Comprehension',desc:'Organize story information into graphic organizer with 3 details'},
-  G061:{id:'G061',domain:'SEL',sub:'Emotional Regulation',desc:'Use functional communication (break card) to request break or delay'},
-  G062:{id:'G062',domain:'SEL',sub:'Emotional Regulation',desc:'Request break using practiced phrase instead of verbal outbursts'},
-  G063:{id:'G063',domain:'SEL',sub:'Emotional Regulation',desc:'Identify and demonstrate one calming strategy when calm'},
-  G064:{id:'G064',domain:'SEL',sub:'Emotional Regulation',desc:'Maintain safe body during transitions'},
-  G065:{id:'G065',domain:'SEL',sub:'Task Independence',desc:'Walk to and use designated calming area for minimum 3 minutes'},
-  G067:{id:'G067',domain:'SEL',sub:'Emotional Regulation',desc:'Identify basic emotions in pictures of characters'},
-  G068:{id:'G068',domain:'SEL',sub:'Self-Advocacy',desc:'Ask for help at least twice per day when stuck or confused'},
-  G076:{id:'G076',domain:'SEL',sub:'Task Independence',desc:'Begin and complete academic task with no more than one verbal prompt'},
-  G077:{id:'G077',domain:'SEL',sub:'Task Independence',desc:'Follow two-step directions with no more than one verbal/visual cue'},
-  G079:{id:'G079',domain:'SEL',sub:'Social Awareness',desc:'Distinguish between appropriate and inappropriate behaviors'},
-  G081:{id:'G081',domain:'SEL',sub:'Emotional Regulation',desc:'Demonstrate learned techniques to manage emotions'},
-  G087:{id:'G087',domain:'Math',sub:'Operations',desc:'Solve three-digit addition and subtraction within 1,000 with 80% accuracy'},
-  G088:{id:'G088',domain:'Math',sub:'Word Problems',desc:'Given mixed one-step word problems, identify operation, solve, and check for reasonableness'},
-  G089:{id:'G089',domain:'Literacy',sub:'Writing',desc:'Writing stamina'},
-  G090:{id:'G090',domain:'SEL',sub:'Task Independence',desc:'Begin and complete task with no more than two verbal prompts, 4 of 5 trials'},
-  G091:{id:'G091',domain:'SEL',sub:'Task Independence',desc:'Transition between activities without behavioral overreactions with minimal support'}
+  G032:{id:'G032',domain:'Literacy',sub:'Decoding',desc:'Decode and read 8 out of 10 CVC words independently'}
 };
 
 let DB={goals:{...BGOALS},students:[],schedule:[],resources:[],mapping:[],url:null,source:'builtin',lastSync:null};
 
+// --- CORE FUNCTIONS ---
 function ini(n){return(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
 function avs(n,i){const c=AC[i%AC.length];return'background:'+c[0]+';color:'+c[1];}
-function parseIds(s){if(!s)return[];return String(s).split(/[,;\s]+/).map(v=>v.trim()).filter(v=>/^G\d+/i.test(v));}
+function parseIds(s){if(!s)return[];return String(s).split(/[,;\s]+/).map(v=>v.trim()).filter(v=>v.length > 0);}
 function resolveG(id){
   if(DB.goals[id])return{ok:true,g:DB.goals[id]};
-  const k=Object.keys(DB.goals).find(k=>k.toLowerCase()===id.toLowerCase().trim());
-  if(k)return{ok:true,g:DB.goals[k]};
   return{ok:false,id};
 }
 
-function runChecks(){
-  const gk=Object.keys(DB.goals);
-  const missing=[];
-  DB.students.forEach(s=>{
-    parseIds(s.GoalIDs||s.goalIDs||'').forEach(id=>{
-      if(!DB.goals[id])missing.push({stu:s.Name||s.name||'?',id});
-    });
-  });
-  const mapIds=(DB.mapping||[]).map(m=>m['Goal ID']||m.GoalID||'').filter(Boolean);
-  const orphan=mapIds.filter(id=>!DB.goals[id]);
-  const cs=[
-    {lbl:'IEP Goals tab loaded',pass:gk.length>0,note:gk.length>0?gk.length+' goals available':'No goals found — check Sheet connection'},
-    {lbl:'Goals have descriptions',pass:gk.every(k=>DB.goals[k].desc),note:gk.filter(k=>!DB.goals[k].desc).length+' missing description'},
-    {lbl:'All student goal IDs resolve',pass:missing.length===0,note:missing.length===0?'All goal links valid':missing.slice(0,3).map(m=>m.stu+': '+m.id).join(', ')+(missing.length>3?' +'+(missing.length-3)+' more':'')},
-    {lbl:'Resource-Goal Mapping integrity',pass:orphan.length===0,note:orphan.length===0?'All mapping rows valid':orphan.slice(0,4).join(', ')+' not in Goals tab'},
-    {lbl:'No duplicate Goal IDs',pass:gk.length===new Set(gk).size,note:'All IDs unique'},
-    {lbl:'Students linked to Schedule',pass:DB.students.length===0||DB.schedule.length>0,note:DB.students.length===0?'No students yet':DB.schedule.length+' schedule rows for '+DB.students.length+' students'}
-  ];
-  return{cs,missing};
-}
-
-function renderAll(){
-  const {cs,missing}=runChecks();
-  const issues=cs.filter(c=>!c.pass).length+missing.length;
-  document.getElementById('cnt-s').textContent=DB.students.length||(DB.source==='builtin'?'—':0);
-  document.getElementById('cnt-g').textContent=Object.keys(DB.goals).length;
-  document.getElementById('cnt-r').textContent=DB.resources.length||(DB.source==='builtin'?140:0);
-  const el=document.getElementById('cnt-i');
-  el.textContent=issues;el.style.color=issues>0?'#d97706':'#059669';
-
-  let ih='';
-  if(issues===0){
-    ih='<div class="okbox">All integrity checks passed — no broken goal links or data issues found.</div>';
-  } else {
-    ih='<div class="wbox"><div class="wtitle">'+issues+' issue'+(issues>1?'s':'')+' found</div>'+
-      cs.filter(c=>!c.pass).map(c=>'<div class="witem"><span>&#9651;</span><span>'+c.lbl+': '+c.note+'</span></div>').join('')+
-      (missing.length?'<div class="witem"><span>&#9651;</span><span>'+missing.length+' student goal link'+(missing.length>1?'s':'')+' reference deleted goals — <button class="bsm bw" onclick="show(\'integrity\')">View details</button></span></div>':'')+
-      '</div>';
-  }
-  document.getElementById('ov-issues').innerHTML=ih;
-
-  if(DB.students.length){
-    const rows=DB.students.slice(0,5).map((s,i)=>{
-      const nm=s.Name||s.name||'?';
-      const ids=parseIds(s.GoalIDs||s.goalIDs||'');
-      const bad=ids.filter(id=>!DB.goals[id]);
-      return'<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.07)"><div class="av" style="width:28px;height:28px;font-size:11px;'+avs(nm,i)+'">'+ini(nm)+'</div><span style="flex:1;font-size:13px">'+nm+'</span><span style="font-size:11px;color:#888">'+ids.length+' goal'+(ids.length!==1?'s':'')+'</span>'+(bad.length?'<span class="badge bwarn">'+bad.length+' missing</span>':'<span class="badge bok">ok</span>')+'</div>';
-    }).join('');
-    document.getElementById('ov-students').innerHTML='<div class="card"><div class="card-title">Students</div>'+rows+(DB.students.length>5?'<div style="padding-top:8px;font-size:11px;color:#888">+'+(DB.students.length-5)+' more — <button class="bsm" onclick="show(\'students\')">view all</button></div>':'')+'</div>';
-  } else {
-    document.getElementById('ov-students').innerHTML='';
-  }
-
-  if(!DB.students.length){
-    document.getElementById('stu-list').innerHTML='<div class="card" style="text-align:center;padding:2rem;font-size:13px;color:#888">No students loaded. Connect your Sheet or import students using the IEP importer.</div>';
-  } else {
-    document.getElementById('stu-list').innerHTML='<div class="card">'+DB.students.map((s,i)=>{
-      const nm=s.Name||s.name||'?';
-      const ids=parseIds(s.GoalIDs||s.goalIDs||'');
-      const pills=ids.map(id=>{const r=resolveG(id);return r.ok?'<span class="gpok" title="'+r.g.desc+'">'+id+' <span style="color:#aaa;margin-left:2px">'+r.g.domain+'</span></span>':'<span class="gpbad" title="Goal '+id+' was deleted from the IEP Goals tab">'+id+' missing</span>';}).join('');
-      const sched=DB.schedule.find(sc=>(sc.StudentID||sc.studentID)===(s.StudentID||s.studentID));
-      const days=sched?['Monday','Tuesday','Wednesday','Thursday','Friday'].filter(d=>sched[d]==='TRUE'||sched[d]===true||sched[d]==='true').map(d=>d.slice(0,2)).join(' '):'';
-      const idate=s.IEPDate?new Date(s.IEPDate).toLocaleDateString('en-US',{month:'short',year:'numeric'}):'';
-      return'<div class="srow"><div class="av" style="'+avs(nm,i)+'">'+ini(nm)+'</div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><span style="font-weight:500;font-size:13px">'+nm+'</span>'+(idate?'<span style="font-size:11px;color:#aaa">IEP '+idate+'</span>':'')+(days?'<span style="font-size:11px;color:#888">'+days+'</span>':'')+'</div><div>'+(pills||'<span style="font-size:11px;color:#aaa">No goals linked</span>')+'</div>'+(s.Notes?'<div style="font-size:11px;color:#aaa;margin-top:3px">'+s.Notes+'</div>':'')+'</div></div>';
-    }).join('')+'</div>';
-  }
-
-  let ihtml=cs.map(c=>'<div class="irow"><span>'+c.lbl+'</span><div style="display:flex;align-items:center;gap:8px;flex-shrink:0;margin-left:10px"><span style="font-size:11px;color:#888;text-align:right;max-width:240px">'+c.note+'</span><span class="badge '+(c.pass?'bok':'berr')+'">'+(c.pass?'pass':'fail')+'</span></div></div>').join('');
-  if(missing.length){
-    ihtml+='<div class="wbox" style="margin-top:12px"><div class="wtitle">Missing goal references — how to fix</div>'+
-      missing.slice(0,6).map(m=>'<div class="witem"><span style="flex-shrink:0">&#9651;</span><span><strong>'+m.stu+'</strong> references <code>'+m.id+'</code> which is no longer in the IEP Goals tab. Fix options: (1) restore that goal row in your Sheet, (2) remove <code>'+m.id+'</code> from this student\'s GoalIDs column, or (3) replace it with the updated goal ID.</span></div>').join('')+
-      (missing.length>6?'<div style="font-size:11px;color:#92400e;padding-top:4px">+'+(missing.length-6)+' more</div>':'')+
-      '</div>';
-  }
-  if(cs.every(c=>c.pass)){ihtml='<div class="okbox" style="margin-bottom:12px">All '+cs.length+' checks passed — data is consistent.</div>'+ihtml;}
-  document.getElementById('int-res').innerHTML=ihtml;
-
-  const prev=buildPayload();
-  document.getElementById('bprev').textContent=JSON.stringify(prev,null,2).slice(0,2000)+(JSON.stringify(prev).length>2000?'\n\n… (truncated in preview — full file downloads correctly)':'');
-}
-
-function buildPayload(){
-  return{exportedAt:new Date().toISOString(),source:DB.source,version:'1.0',summary:{students:DB.students.length,goals:Object.keys(DB.goals).length},students:DB.students,schedule:DB.schedule,goals:Object.values(DB.goals),goalIntegrity:DB.students.map(s=>({id:s.StudentID||s.name,name:s.Name||s.name,goalIDs:parseIds(s.GoalIDs||s.goalIDs||''),missing:parseIds(s.GoalIDs||s.goalIDs||'').filter(id=>!DB.goals[id])}))};
-}
-
-function doExportJSON(){
-  const b=new Blob([JSON.stringify(buildPayload(),null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='classroom_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click();
-}
-
-function doExportCSV(type){
-  let csv='',fn='';
-  if(type==='students'){
-    const rows=DB.students.map(s=>[s.StudentID||'',s.Name||s.name||'',s.IEPDate||'',s.GoalIDs||s.goalIDs||'',s.Notes||'',s.Active!==undefined?s.Active:'TRUE']);
-    csv=['StudentID,Name,IEPDate,GoalIDs,Notes,Active',...rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','))].join('\n');
-    fn='students_'+new Date().toISOString().slice(0,10)+'.csv';
-  } else {
-    const rows=DB.students.flatMap(s=>parseIds(s.GoalIDs||s.goalIDs||'').map(id=>{const g=DB.goals[id];return[s.StudentID||'',s.Name||s.name||'',id,g?g.domain:'MISSING',g?g.desc:'GOAL NOT FOUND'];}));
-    csv=['StudentID,StudentName,GoalID,Domain,GoalDescription',...rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','))].join('\n');
-    fn='student_goals_'+new Date().toISOString().slice(0,10)+'.csv';
-  }
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=fn;a.click();
-}
-
-function doRestore(inp){
-  const f=inp.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      if(!d.version||!d.students)throw new Error('Invalid backup format');
-      DB.students=d.students;DB.schedule=d.schedule||[];
-      if(d.goals){DB.goals={};d.goals.forEach(g=>{if(g.id)DB.goals[g.id]=g;});}
-      DB.source='restored';
-      document.getElementById('rstat').innerHTML='<div class="okbox">Restored '+d.students.length+' students and '+(d.goals?d.goals.length:0)+' goals from backup exported on '+new Date(d.exportedAt).toLocaleDateString()+'.</div>';
-      renderAll();
-    }catch(err){
-      document.getElementById('rstat').innerHTML='<div class="errbox">Could not restore: '+err.message+'</div>';
-    }
-  };r.readAsText(f);
-}
-
-async function reloadAll(){
-  const btn=document.getElementById('rlbtn');
-  const pt=document.getElementById('pttrack');const pf=document.getElementById('pfill');
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Reloading…';
-  pt.style.display='block';
-  for(const s of[20,40,60,80,100]){pf.style.width=s+'%';await new Promise(r=>setTimeout(r,100));}
-  if(DB.url){
-    try{
-      const res=await fetch(DB.url+'?action=all');
-      const data=await res.json();
-      if(data.ok){
-        if(data.data.goals&&data.data.goals.length){DB.goals={};data.data.goals.forEach(g=>{const id=g['Goal ID']||g.GoalID||g.id;if(id)DB.goals[id]={id,domain:g.Domain||g.domain||'Other',sub:g.Subcategories||g.sub||'',desc:g['Goal/Objective Description']||g.desc||''};});}
-        if(data.data.students)DB.students=data.data.students;
-        if(data.data.schedule)DB.schedule=data.data.schedule;
-        if(data.data.resources)DB.resources=data.data.resources;
-        if(data.data.mapping)DB.mapping=data.data.mapping;
-        document.getElementById('sync-t').textContent='Synced '+new Date().toLocaleTimeString();
-      }
-    }catch(e){document.getElementById('sync-t').textContent='Fetch failed — using cached data';}
-  } else {
-    DB.goals={...BGOALS};
-    document.getElementById('sync-t').textContent='Refreshed '+new Date().toLocaleTimeString();
-  }
-  pt.style.display='none';pf.style.width='0%';btn.disabled=false;btn.textContent='Reload data';
-  renderAll();
-}
-
-function valUrl(){
-  const v=document.getElementById('wurl').value.trim();
-  const ok=v.includes('script.google.com/macros/s/')&&v.endsWith('/exec');
-  document.getElementById('sbtn').disabled=!ok;
-  document.getElementById('ufb').textContent=ok?'URL looks valid — click Test & save':'URL should end in /exec';
-  document.getElementById('ufb').style.color=ok?'#059669':'#d97706';
-}
-
-async function testSave(){
-  const url=document.getElementById('wurl').value.trim();
-  const btn=document.getElementById('sbtn');const fb=document.getElementById('ufb');
-  btn.disabled=true;btn.textContent='Testing…';
-  try{
-    const res=await fetch(url+'?action=goals');
-    const data=await res.json();
-    if(data.ok){
-      DB.url=url;DB.source='sheets';
-      document.getElementById('src-lbl').textContent='Google Sheets connected — '+url.slice(0,55)+'…';
-      fb.textContent='Connected! Click Reload data to load everything.';fb.style.color='#059669';
-      btn.textContent='Connected';
-    }else{fb.textContent='Error: '+(data.error||'unknown');fb.style.color='#dc2626';btn.disabled=false;btn.textContent='Test & save';}
-  }catch(e){
-    fb.textContent='Could not reach URL. Make sure "Who has access" = Anyone in deployment settings.';
-    fb.style.color='#dc2626';btn.disabled=false;btn.textContent='Test & save';
-  }
-}
-
-function show(id){
-  document.querySelectorAll('.sec').forEach(s=>s.className='sec');
-  document.querySelectorAll('.tab').forEach(t=>t.className='tab');
-  document.getElementById(id).className='sec on';
-  document.querySelectorAll('.tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.className='tab on';});
-}
+// --- IMPORTER LOGIC ---
 function parseEmbraceText() {
     const raw = document.getElementById('embrace-input').value;
     const previewArea = document.getElementById('preview-rows');
     const previewContainer = document.getElementById('import-preview');
     
-    // Logic to split Goal Statement from Objectives
     const goalMatch = raw.match(/Goal Statement:\s*(.*?)(?=Benchmark|$)/i);
     const objectiveMatch = raw.split(/Benchmark\(s\) or Short-Term Objective\(s\)\s*/i)[1];
     
     let html = '';
-    
-    // 1. Handle the Annual Goal
-    if (goalMatch && goalMatch[1]) {
-        html += createPreviewRow('Annual Goal', goalMatch[1].trim());
-    }
-    
-    // 2. Handle the Objectives (A, B, C...)
+    if (goalMatch && goalMatch[1]) html += createPreviewRow('Annual Goal', goalMatch[1].trim());
     if (objectiveMatch) {
         const objectives = objectiveMatch.split(/[A-Z]\)/).filter(t => t.trim().length > 0);
         objectives.forEach((obj, idx) => {
             html += createPreviewRow(`Objective ${String.fromCharCode(65 + idx)}`, obj.trim());
         });
     }
-
-    previewArea.innerHTML = html;
-    previewContainer.style.display = 'block';
-}
-
-function createPreviewRow(label, text) {
-    return `
-        <div style="background:#f9f9f9; padding:8px; border-radius:6px; margin-bottom:8px; border:1px solid #eee;">
-            <div style="font-size:10px; color:#888; font-weight:bold;">${label}</div>
-            <div style="font-size:12px; margin:4px 0;">${text}</div>
-            <input type="text" placeholder="Assign ID (e.g. G101)" style="width:100px; font-size:11px;">
-        </div>
-    `;
-}
-renderAll();
-</script>
-</body>
-</html>
