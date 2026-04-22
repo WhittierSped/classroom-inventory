@@ -1395,39 +1395,41 @@ function editStudent() {
             if (activePill) activePill.classList.add('active');
         }
 
-        function renderModalGoals() {
-            const container = document.getElementById('modalGoalsList');
-            
-            const filteredGoals = goals.filter(goal => {
-                if (modalDomainFilter === 'all') return true;
-                return goal.domain.toLowerCase() === modalDomainFilter;
-            });
+function renderModalGoals() {
+    const container = document.getElementById('modalGoalsList');
+    
+    // Safety check: if goals is empty, show a message
+    if (goals.length === 0) {
+        container.innerHTML = '<p style="padding: 1rem; color: red;">No goals found. Please click "Load from Google Sheets" first.</p>';
+        return;
+    }
 
-            container.innerHTML = filteredGoals.map(goal => {
-                const isChecked = editingStudentId && 
-                    studentGoalAssignments.some(a => a.studentId === editingStudentId && a.goalId === goal.goalId);
-                
-                const domainClass = goal.domain.toLowerCase();
-                
-                return `
-                    <div class="modal-goal-item">
-                        <input type="checkbox" 
-                               class="modal-goal-checkbox" 
-                               id="modal-goal-${goal.goalId}"
-                               value="${goal.goalId}"
-                               ${isChecked ? 'checked' : ''}>
-                        <label for="modal-goal-${goal.goalId}" style="flex: 1; cursor: pointer;">
-                            <div class="goal-header-row">
-                                <span class="goal-id">${goal.goalId}</span>
-                                <span class="goal-domain-badge ${domainClass}">${goal.domain}</span>
-                            </div>
-                            <div class="goal-subcategories">${goal.subcategories}</div>
-                            <div class="goal-description">${goal.description}</div>
-                        </label>
+    const filteredGoals = goals.filter(goal => {
+        if (modalDomainFilter === 'all') return true;
+        return goal.domain.toLowerCase() === modalDomainFilter.toLowerCase();
+    });
+
+    container.innerHTML = filteredGoals.map(goal => {
+        const isChecked = editingStudentId && 
+            studentGoalAssignments.some(a => a.studentId === editingStudentId && a.goalId === goal.goalId);
+        
+        const domainClass = goal.domain.toLowerCase();
+        
+        return `
+            <div class="modal-goal-item">
+                <input type="checkbox" class="modal-goal-checkbox" id="modal-goal-${goal.goalId}" value="${goal.goalId}" ${isChecked ? 'checked' : ''}>
+                <label for="modal-goal-${goal.goalId}" style="flex: 1; cursor: pointer;">
+                    <div class="goal-header-row">
+                        <span class="goal-id">${goal.goalId}</span>
+                        <span class="goal-domain-badge ${domainClass}">${goal.domain}</span>
                     </div>
-                `;
-            }).join('');
-        }
+                    <div class="goal-subcategories">${goal.subcategories}</div>
+                    <div class="goal-description">${goal.description}</div>
+                </label>
+            </div>
+        `;
+    }).join('');
+}
 
         function saveStudent(event) {
             event.preventDefault();
@@ -1559,25 +1561,26 @@ function parseGoalsCSV(csv) {
     const lines = csv.split('\n');
     const result = [];
     
-    // Starting at i = 1 to skip the header row
+    // Skip header row
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
         
         const values = parseCSVLine(line);
-        // This matches your confirmed headers: ID, Domain, Sub, Description
         if (values.length >= 4) {
             result.push({
-                goalId: values[0],
-                domain: values[1],
-                subcategories: values[2],
-                description: values[3]
+                // .trim() removes hidden spaces that break matching
+                goalId: values[0].trim(), 
+                domain: values[1].trim(),
+                subcategories: values[2].trim(),
+                description: values[3].trim()
             });
         }
     }
     
-    // CRITICAL: This updates the global goals list used by the pop-up
+    // Update the global goals list immediately
     goals = result; 
+    console.log("Goals loaded into app:", goals); // Check your browser console (F12) to see if data arrived
     return result;
 }
 
