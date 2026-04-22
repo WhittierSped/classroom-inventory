@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Goal Mapper - Classroom Inventory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            /* Rainbow Theme Colors */
+            --math-yellow: #FFD93D;
+            --literacy-violet: #9D84FF;
+            --sel-pink: #FF6B9D;
+            --all-teal: #4ECDC4;
+            
+            /* Neutrals */
+            --bg-cream: #FFF8F0;
+            --card-white: #FFFFFF;
+            --text-dark: #2C3E50;
+            --text-gray: #6B7280;
+            --border-light: #E5E7EB;
+            --shadow: rgba(0, 0, 0, 0.1);
+            
+            /* Fonts */
+            --font-display: 'Fredoka', sans-serif;
+            --font-body: 'DM Sans', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-cream);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 3px solid var(--math-yellow);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--math-yellow), var(--literacy-violet), var(--sel-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        /* Buttons */
+        .btn {
+            font-family: var(--font-body);
+            font-weight: 600;
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--literacy-violet);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(157, 132, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--literacy-violet);
+            color: var(--literacy-violet);
+        }
+
+        .btn-success {
+            background: #10B981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+        }
+
+        /* Left Panel - Student List */
+        .left-panel {
+            background: var(--card-white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .panel-header {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--literacy-violet);
+        }
+
+        .add-student-btn {
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .student-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .student-item {
+            padding: 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .student-item:hover {
+            border-color: var(--literacy-violet);
+            transform: translateX(4px);
+        }
+
+        .student-item.active {
+            background: linear-gradient(135deg, rgba(157, 132, 255, 0.1), rgba(255, 107, 157, 0.1));
+            border-color: var(--literacy-violet);
+        }
+
+        .student-id {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .goal-count {
+            background: var(--literacy-violet);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Right Panel */
+        .right-panel {
+            background: var(--card-white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-gray);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        /* View Toggle */
+        .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: var(--bg-cream);
+            border-radius: 10px;
+        }
+
+        .view-toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-gray);
+        }
+
+        .view-toggle-btn.active {
+            background: white;
+            color: var(--literacy-violet);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .student-details {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
+        }
+
+        .student-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .student-details-name {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+
+        /* Filter Pills */
+        .filters {
+            margin-bottom: 2rem;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .filter-pill {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-pill:hover {
+            transform: translateY(-2px);
+        }
+
+        .filter-pill.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-pill.math.active {
+            background: var(--math-yellow);
+            color: var(--text-dark);
+        }
+
+        .filter-pill.literacy.active {
+            background: var(--literacy-violet);
+        }
+
+        .filter-pill.sel.active {
+            background: var(--sel-pink);
+        }
+
+        .filter-pill.all.active {
+            background: var(--all-teal);
+        }
+
+        /* Goals List */
+        .goals-section {
+            margin-top: 1.5rem;
+        }
+
+        .goals-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .goals-count {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .goal-search {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .goal-search:focus {
+            outline: none;
+            border-color: var(--literacy-violet);
+        }
+
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .goal-item {
+            padding: 1rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .goal-item.assigned {
+            border-color: var(--literacy-violet);
+            background: rgba(157, 132, 255, 0.05);
+        }
+
+        .goal-content {
+            flex: 1;
+        }
+
+        .goal-header-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .goal-id {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-gray);
+        }
+
+        .goal-domain-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .goal-domain-badge.math {
+            background: var(--math-yellow);
+            color: var(--text-dark);
+        }
+
+        .goal-domain-badge.literacy {
+            background: var(--literacy-violet);
+        }
+
+        .goal-domain-badge.sel {
+            background: var(--sel-pink);
+        }
+
+        .goal-subcategories {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            font-style: italic;
+            margin-bottom: 0.25rem;
+        }
+
+        .goal-description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: var(--text-dark);
+        }
+
+        /* Students assigned to goal */
+        .assigned-students {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .assigned-students-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .student-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .student-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--literacy-violet);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--literacy-violet);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Goal Selection in Modal */
+        .modal-goals-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border-light);
+        }
+
+        .modal-goal-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .modal-goals-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .modal-goal-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .modal-goal-item:hover {
+            background: rgba(157, 132, 255, 0.05);
+        }
+
+        .modal-goal-checkbox {
+            width: 18px;
+            height: 18px;
+            margin-top: 0.25rem;
+            cursor: pointer;
+            accent-color: var(--literacy-violet);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-cream);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--literacy-violet);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--sel-pink);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .left-panel {
+                position: relative;
+                top: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-container {
+                padding: 0 1rem;
+            }
+
+            .student-details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1>🎯 Student Goal Mapper</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="loadFromGoogleSheets()">
+                    📊 Load from Google Sheets
+                </button>
+                <button class="btn btn-secondary" onclick="exportToExcel()">
+                    💾 Save to Excel
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Panel: Student List -->
+        <div class="left-panel">
+            <h2 class="panel-header">Students</h2>
+            <input type="text" class="search-box" id="studentSearch" placeholder="🔍 Search students..." onkeyup="filterStudents()">
+            <button class="btn btn-primary add-student-btn" onclick="openAddStudentModal()">
+                ➕ Add New Student
+            </button>
+            <div class="student-list" id="studentList">
+                <!-- Students will be populated here -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Student Info + View Toggle -->
+        <div class="right-panel">
+            <div id="emptyState" class="empty-state">
+                <div class="empty-state-icon">👈</div>
+                <h3>Select a student to get started</h3>
+                <p>Choose a student from the list to view their goals or see which goals are assigned</p>
+            </div>
+
+            <div id="studentViewPanel" style="display: none;">
+                <!-- Student Details -->
+                <div class="student-details">
+                    <div class="student-details-header">
+                        <div>
+                            <div class="student-id" id="selectedStudentId"></div>
+                            <div class="student-details-name" id="selectedStudentName"></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="editStudent()">✏️ Edit Student & Goals</button>
+                    </div>
+                    <div class="student-details-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Grade Level</span>
+                            <span class="detail-value" id="selectedStudentGrade"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Assigned Goals</span>
+                            <span class="detail-value" id="selectedStudentGoalCount"></span>
+                        </div>
+                    </div>
+                    <div class="detail-item" style="margin-top: 1rem;" id="studentNotesContainer">
+                        <span class="detail-label">Notes</span>
+                        <span class="detail-value" id="selectedStudentNotes"></span>
+                    </div>
+                </div>
+
+                <!-- View Toggle -->
+                <div class="view-toggle">
+                    <button class="view-toggle-btn active" id="viewStudentGoalsBtn" onclick="switchView('student-goals')">
+                        📋 View Student's Goals
+                    </button>
+                    <button class="view-toggle-btn" id="viewByGoalBtn" onclick="switchView('by-goal')">
+                        👥 View By Goal
+                    </button>
+                </div>
+
+                <!-- Student Goals View -->
+                <div id="studentGoalsView">
+                    <!-- Filters -->
+                    <div class="filters">
+                        <div class="filter-section">
+                            <span class="filter-label">Filter by Domain</span>
+                            <div class="filter-pills" id="domainFilters">
+                                <div class="filter-pill all active" onclick="filterByDomain('all')">All Domains</div>
+                                <div class="filter-pill math" onclick="filterByDomain('math')">Math</div>
+                                <div class="filter-pill literacy" onclick="filterByDomain('literacy')">Literacy</div>
+                                <div class="filter-pill sel" onclick="filterByDomain('sel')">SEL</div>
+                            </div>
+                        </div>
+                        <div class="filter-section">
+                            <span class="filter-label">Filter by Subcategory</span>
+                            <div class="filter-pills" id="subcategoryFilters">
+                                <!-- Dynamic subcategories will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goals Section -->
+                    <div class="goals-section">
+                        <div class="goals-header">
+                            <h3 class="panel-header">Assigned IEP Goals</h3>
+                            <span class="goals-count" id="goalsCount"></span>
+                        </div>
+                        <input type="text" class="goal-search" id="goalSearch" placeholder="🔍 Search goals..." onkeyup="filterGoals()">
+                        <div class="goals-list" id="goalsList">
+                            <!-- Goals will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- By Goal View -->
+                <div id="byGoalView" style="display: none;">
+                    <!-- Filters -->
+                    <div class="filters">
+                        <div class="filter-section">
+                            <span class="filter-label">Filter by Domain</span>
+                            <div class="filter-pills" id="byGoalDomainFilters">
+                                <div class="filter-pill all active" onclick="filterByGoalDomain('all')">All Domains</div>
+                                <div class="filter-pill math" onclick="filterByGoalDomain('math')">Math</div>
+                                <div class="filter-pill literacy" onclick="filterByGoalDomain('literacy')">Literacy</div>
+                                <div class="filter-pill sel" onclick="filterByGoalDomain('sel')">SEL</div>
+                            </div>
+                        </div>
+                        <div class="filter-section">
+                            <span class="filter-label">Filter by Subcategory</span>
+                            <div class="filter-pills" id="byGoalSubcategoryFilters">
+                                <!-- Dynamic subcategories will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goals Section -->
+                    <div class="goals-section">
+                        <div class="goals-header">
+                            <h3 class="panel-header">Goals Assigned to Students</h3>
+                            <span class="goals-count" id="byGoalCount"></span>
+                        </div>
+                        <input type="text" class="goal-search" id="byGoalSearch" placeholder="🔍 Search goals..." onkeyup="filterByGoalView()">
+                        <div class="goals-list" id="byGoalList">
+                            <!-- Goals will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <h2 class="modal-header" id="modalTitle">Add New Student</h2>
+            <form id="studentForm" onsubmit="saveStudent(event)">
+                <div class="form-group">
+                    <label class="form-label">Student ID *</label>
+                    <input type="text" class="form-input" id="studentIdInput" required placeholder="e.g., S001">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Student Name *</label>
+                    <input type="text" class="form-input" id="studentNameInput" required placeholder="First Last">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Grade Level *</label>
+                    <select class="form-select" id="studentGradeInput" required>
+                        <option value="">Select grade...</option>
+                        <option value="Pre-K">Pre-K</option>
+                        <option value="Kindergarten">Kindergarten</option>
+                        <option value="1st Grade">1st Grade</option>
+                        <option value="2nd Grade">2nd Grade</option>
+                        <option value="3rd Grade">3rd Grade</option>
+                        <option value="4th Grade">4th Grade</option>
+                        <option value="5th Grade">5th Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-textarea" id="studentNotesInput" placeholder="Additional information about the student..."></textarea>
+                </div>
+
+                <!-- Goal Selection -->
+                <div class="modal-goals-section">
+                    <h3 class="form-label">Assign IEP Goals</h3>
+                    <div class="modal-goal-filters">
+                        <button type="button" class="filter-pill all active" onclick="filterModalGoals('all')">All</button>
+                        <button type="button" class="filter-pill math" onclick="filterModalGoals('math')">Math</button>
+                        <button type="button" class="filter-pill literacy" onclick="filterModalGoals('literacy')">Literacy</button>
+                        <button type="button" class="filter-pill sel" onclick="filterModalGoals('sel')">SEL</button>
+                    </div>
+                    <div class="modal-goals-list" id="modalGoalsList">
+                        <!-- Goals checkboxes will be populated here -->
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let students = [];
+        let goals = [];
+        let studentGoalAssignments = [];
+        let currentStudentId = null;
+        let currentView = 'student-goals'; // 'student-goals' or 'by-goal'
+        let currentDomainFilter = 'all';
+        let currentSubcategoryFilter = 'all';
+        let byGoalDomainFilter = 'all';
+        let byGoalSubcategoryFilter = 'all';
+        let editingStudentId = null;
+        let modalDomainFilter = 'all';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromLocalStorage();
+            loadSampleData();
+            renderStudents();
+        });
+
+        // Load sample data
+        function loadSampleData() {
+            if (goals.length === 0) {
+                goals = [
+                    { goalId: "G001", domain: "Math", subcategories: "Fact Fluency", description: "Solve 10-16 math facts (addition/subtraction within 20) in one minute" },
+                    { goalId: "G002", domain: "Math", subcategories: "Fact Fluency, Within 10", description: "Given addition or subtraction problems within 5, solve using objects, drawings, or verbal responses" },
+                    { goalId: "G003", domain: "Math", subcategories: "Fact Fluency, Within 20", description: "Given addition problems within 20, solve using math drawings or manipulatives" },
+                    { goalId: "G004", domain: "Math", subcategories: "Fact Fluency, Within 20", description: "Given subtraction problems within 20, solve using math drawings or manipulatives" },
+                    { goalId: "G005", domain: "Math", subcategories: "Place Value and Comparison", description: "Given two numbers from 0-100, use place value strategies to identify the larger number" },
+                    { goalId: "G006", domain: "Math", subcategories: "Counting/Cardinality, Within 10", description: "Given a set of up to 10 objects, count each object using one-to-one correspondence" },
+                    { goalId: "G007", domain: "Math", subcategories: "Counting/Cardinality, Number Sense, Within 10", description: "Given numeral cards and sets of objects within 10, match the correct numeral to quantity" },
+                    { goalId: "G008", domain: "Math", subcategories: "Counting/Cardinality, Within 10, Place Value and Comparison", description: "Given two groups of objects within 10, identify which group has more, fewer, or same" },
+                    { goalId: "G009", domain: "Math", subcategories: "Place Value and Comparison", description: "Given 2-digit numbers, identify tens and ones by matching/drawing base ten blocks" },
+                    { goalId: "G010", domain: "Math", subcategories: "Number Sense", description: "Given a list of numbers 0-99, read the numbers aloud" },
+                    { goalId: "G033", domain: "Literacy", subcategories: "Letter Knowledge, Phonics", description: "Write the correct letter for 8 out of 10 random letter sounds" },
+                    { goalId: "G039", domain: "Literacy", subcategories: "Letter Knowledge, Phonics", description: "State the correct sound for 26 lowercase letters out of order" },
+                    { goalId: "G040", domain: "Literacy", subcategories: "Letter Knowledge, Phonics", description: "State the correct sound for 8 out of 10 random lowercase letters" },
+                    { goalId: "G047", domain: "Literacy", subcategories: "Letter Knowledge, Writing", description: "Write the letter that makes a specific sound when given 10 letter sounds" },
+                    { goalId: "G050", domain: "Literacy", subcategories: "Reading Comprehension", description: "Answer who, what, where questions about a familiar story with 80% accuracy" },
+                    { goalId: "G076", domain: "SEL", subcategories: "On-Task Behavior, Task Initiation", description: "Begin and complete academic task with no more than one verbal prompt" },
+                    { goalId: "G077", domain: "SEL", subcategories: "Self-Regulation, Following Directions", description: "Follow 2-step directions with visual support on first request" },
+                    { goalId: "G078", domain: "SEL", subcategories: "Social Skills, Turn-Taking", description: "Take turns during structured activities with peer modeling" }
+                ];
+                saveDataToLocalStorage();
+            }
+
+            if (students.length === 0) {
+                students = [
+                    { studentId: "S001", name: "Emma Johnson", grade: "1st Grade", notes: "Strong in math, working on reading fluency" },
+                    { studentId: "S002", name: "Liam Martinez", grade: "Kindergarten", notes: "Needs support with letter recognition" },
+                    { studentId: "S003", name: "Sophia Chen", grade: "2nd Grade", notes: "Excellent progress in literacy goals" }
+                ];
+                
+                studentGoalAssignments = [
+                    { studentId: "S001", goalId: "G001" },
+                    { studentId: "S001", goalId: "G005" },
+                    { studentId: "S001", goalId: "G033" },
+                    { studentId: "S001", goalId: "G076" },
+                    { studentId: "S002", goalId: "G006" },
+                    { studentId: "S002", goalId: "G007" },
+                    { studentId: "S002", goalId: "G039" },
+                    { studentId: "S002", goalId: "G077" },
+                    { studentId: "S003", goalId: "G003" },
+                    { studentId: "S003", goalId: "G009" },
+                    { studentId: "S003", goalId: "G047" },
+                    { studentId: "S003", goalId: "G050" },
+                    { studentId: "S003", goalId: "G076" }
+                ];
+                
+                saveDataToLocalStorage();
+            }
+        }
+
+        // LocalStorage Management
+        function saveDataToLocalStorage() {
+            localStorage.setItem('studentGoalMapper_students', JSON.stringify(students));
+            localStorage.setItem('studentGoalMapper_goals', JSON.stringify(goals));
+            localStorage.setItem('studentGoalMapper_assignments', JSON.stringify(studentGoalAssignments));
+        }
+
+        function loadDataFromLocalStorage() {
+            const savedStudents = localStorage.getItem('studentGoalMapper_students');
+            const savedGoals = localStorage.getItem('studentGoalMapper_goals');
+            const savedAssignments = localStorage.getItem('studentGoalMapper_assignments');
+
+            if (savedStudents) students = JSON.parse(savedStudents);
+            if (savedGoals) goals = JSON.parse(savedGoals);
+            if (savedAssignments) studentGoalAssignments = JSON.parse(savedAssignments);
+        }
+
+        // Render Students
+        function renderStudents() {
+            const studentList = document.getElementById('studentList');
+            const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+
+            const filteredStudents = students.filter(student => 
+                student.name.toLowerCase().includes(searchTerm) ||
+                student.studentId.toLowerCase().includes(searchTerm) ||
+                student.grade.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredStudents.length === 0) {
+                studentList.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 2rem;">No students found</p>';
+                return;
+            }
+
+            studentList.innerHTML = filteredStudents.map(student => {
+                const goalCount = getStudentGoalCount(student.studentId);
+                const isActive = student.studentId === currentStudentId ? 'active' : '';
+                
+                return `
+                    <div class="student-item ${isActive}" onclick="selectStudent('${student.studentId}')">
+                        <div class="student-id">${student.studentId}</div>
+                        <div class="student-name">${student.name}</div>
+                        <div class="student-meta">
+                            <span>${student.grade}</span>
+                            <span class="goal-count">${goalCount} goals</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStudentGoalCount(studentId) {
+            return studentGoalAssignments.filter(a => a.studentId === studentId).length;
+        }
+
+        function filterStudents() {
+            renderStudents();
+        }
+
+        // Select Student
+        function selectStudent(studentId) {
+            currentStudentId = studentId;
+            const student = students.find(s => s.studentId === studentId);
+            
+            if (!student) return;
+
+            // Update UI
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('studentViewPanel').style.display = 'block';
+
+            // Populate student details
+            document.getElementById('selectedStudentId').textContent = student.studentId;
+            document.getElementById('selectedStudentName').textContent = student.name;
+            document.getElementById('selectedStudentGrade').textContent = student.grade;
+            document.getElementById('selectedStudentGoalCount').textContent = getStudentGoalCount(studentId);
+            
+            const notesContainer = document.getElementById('studentNotesContainer');
+            if (student.notes && student.notes.trim()) {
+                notesContainer.style.display = 'block';
+                document.getElementById('selectedStudentNotes').textContent = student.notes;
+            } else {
+                notesContainer.style.display = 'none';
+            }
+
+            // Reset filters and show default view
+            currentDomainFilter = 'all';
+            currentSubcategoryFilter = 'all';
+            byGoalDomainFilter = 'all';
+            byGoalSubcategoryFilter = 'all';
+            
+            switchView('student-goals');
+            renderStudents();
+        }
+
+        // View Switching
+        function switchView(view) {
+            currentView = view;
+            
+            // Update toggle buttons
+            document.getElementById('viewStudentGoalsBtn').classList.toggle('active', view === 'student-goals');
+            document.getElementById('viewByGoalBtn').classList.toggle('active', view === 'by-goal');
+            
+            // Show/hide appropriate view
+            document.getElementById('studentGoalsView').style.display = view === 'student-goals' ? 'block' : 'none';
+            document.getElementById('byGoalView').style.display = view === 'by-goal' ? 'block' : 'none';
+            
+            if (view === 'student-goals') {
+                updateDomainFilterUI();
+                updateSubcategoryFilters();
+                renderStudentGoals();
+            } else {
+                updateByGoalDomainFilterUI();
+                updateByGoalSubcategoryFilters();
+                renderByGoalView();
+            }
+        }
+
+        // Student Goals View
+        function renderStudentGoals() {
+            const goalsList = document.getElementById('goalsList');
+            const searchTerm = document.getElementById('goalSearch').value.toLowerCase();
+
+            const assignedGoalIds = studentGoalAssignments
+                .filter(a => a.studentId === currentStudentId)
+                .map(a => a.goalId);
+
+            let filteredGoals = goals.filter(goal => {
+                const isAssigned = assignedGoalIds.includes(goal.goalId);
+                if (!isAssigned) return false;
+
+                const matchesSearch = goal.description.toLowerCase().includes(searchTerm) ||
+                                    goal.goalId.toLowerCase().includes(searchTerm) ||
+                                    goal.subcategories.toLowerCase().includes(searchTerm);
+                
+                const matchesDomain = currentDomainFilter === 'all' || 
+                                    goal.domain.toLowerCase() === currentDomainFilter;
+                
+                const matchesSubcategory = currentSubcategoryFilter === 'all' ||
+                                         goal.subcategories.toLowerCase().includes(currentSubcategoryFilter.toLowerCase());
+                
+                return matchesSearch && matchesDomain && matchesSubcategory;
+            });
+
+            document.getElementById('goalsCount').textContent = `Showing ${filteredGoals.length} of ${assignedGoalIds.length} assigned goals`;
+
+            if (filteredGoals.length === 0) {
+                goalsList.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 2rem;">No goals match your filters</p>';
+                return;
+            }
+
+            goalsList.innerHTML = filteredGoals.map(goal => {
+                const domainClass = goal.domain.toLowerCase();
+                
+                return `
+                    <div class="goal-item assigned">
+                        <div class="goal-content">
+                            <div class="goal-header-row">
+                                <span class="goal-id">${goal.goalId}</span>
+                                <span class="goal-domain-badge ${domainClass}">${goal.domain}</span>
+                            </div>
+                            <div class="goal-subcategories">${goal.subcategories}</div>
+                            <div class="goal-description">${goal.description}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterGoals() {
+            renderStudentGoals();
+        }
+
+        function filterByDomain(domain) {
+            currentDomainFilter = domain;
+            currentSubcategoryFilter = 'all';
+            updateDomainFilterUI();
+            updateSubcategoryFilters();
+            renderStudentGoals();
+        }
+
+        function updateDomainFilterUI() {
+            const pills = document.querySelectorAll('#domainFilters .filter-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            
+            if (currentDomainFilter === 'all') {
+                document.querySelector('#domainFilters .filter-pill.all').classList.add('active');
+            } else {
+                document.querySelector(`#domainFilters .filter-pill.${currentDomainFilter}`).classList.add('active');
+            }
+        }
+
+        function updateSubcategoryFilters() {
+            const subcategoryFilters = document.getElementById('subcategoryFilters');
+            
+            if (currentDomainFilter === 'all') {
+                subcategoryFilters.innerHTML = '<div class="filter-pill all active" onclick="filterBySubcategory(\'all\')">All Subcategories</div>';
+                return;
+            }
+
+            const assignedGoalIds = studentGoalAssignments
+                .filter(a => a.studentId === currentStudentId)
+                .map(a => a.goalId);
+
+            const domainGoals = goals.filter(g => 
+                g.domain.toLowerCase() === currentDomainFilter && 
+                assignedGoalIds.includes(g.goalId)
+            );
+            
+            const subcategories = new Set();
+            
+            domainGoals.forEach(goal => {
+                goal.subcategories.split(',').forEach(sub => {
+                    subcategories.add(sub.trim());
+                });
+            });
+
+            const subcategoryArray = Array.from(subcategories).sort();
+            
+            subcategoryFilters.innerHTML = `
+                <div class="filter-pill all active" onclick="filterBySubcategory('all')">All Subcategories</div>
+                ${subcategoryArray.map(sub => 
+                    `<div class="filter-pill" onclick="filterBySubcategory('${sub}')">${sub}</div>`
+                ).join('')}
+            `;
+        }
+
+        function filterBySubcategory(subcategory) {
+            currentSubcategoryFilter = subcategory;
+            
+            const pills = document.querySelectorAll('#subcategoryFilters .filter-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderStudentGoals();
+        }
+
+        // By Goal View
+        function renderByGoalView() {
+            const goalsList = document.getElementById('byGoalList');
+            const searchTerm = document.getElementById('byGoalSearch').value.toLowerCase();
+
+            // Get all goals that are assigned to at least one student
+            const assignedGoalIds = new Set(studentGoalAssignments.map(a => a.goalId));
+
+            let filteredGoals = goals.filter(goal => {
+                const isAssigned = assignedGoalIds.has(goal.goalId);
+                if (!isAssigned) return false;
+
+                const matchesSearch = goal.description.toLowerCase().includes(searchTerm) ||
+                                    goal.goalId.toLowerCase().includes(searchTerm) ||
+                                    goal.subcategories.toLowerCase().includes(searchTerm);
+                
+                const matchesDomain = byGoalDomainFilter === 'all' || 
+                                    goal.domain.toLowerCase() === byGoalDomainFilter;
+                
+                const matchesSubcategory = byGoalSubcategoryFilter === 'all' ||
+                                         goal.subcategories.toLowerCase().includes(byGoalSubcategoryFilter.toLowerCase());
+                
+                return matchesSearch && matchesDomain && matchesSubcategory;
+            });
+
+            document.getElementById('byGoalCount').textContent = `Showing ${filteredGoals.length} of ${assignedGoalIds.size} assigned goals`;
+
+            if (filteredGoals.length === 0) {
+                goalsList.innerHTML = '<p style="text-align: center; color: var(--text-gray); padding: 2rem;">No goals match your filters</p>';
+                return;
+            }
+
+            goalsList.innerHTML = filteredGoals.map(goal => {
+                const domainClass = goal.domain.toLowerCase();
+                
+                // Get students assigned to this goal
+                const assignedStudentIds = studentGoalAssignments
+                    .filter(a => a.goalId === goal.goalId)
+                    .map(a => a.studentId);
+                
+                const assignedStudents = students.filter(s => assignedStudentIds.includes(s.studentId));
+                
+                return `
+                    <div class="goal-item assigned">
+                        <div class="goal-content">
+                            <div class="goal-header-row">
+                                <span class="goal-id">${goal.goalId}</span>
+                                <span class="goal-domain-badge ${domainClass}">${goal.domain}</span>
+                            </div>
+                            <div class="goal-subcategories">${goal.subcategories}</div>
+                            <div class="goal-description">${goal.description}</div>
+                            <div class="assigned-students">
+                                <div class="assigned-students-label">Students working on this goal:</div>
+                                <div class="student-badges">
+                                    ${assignedStudents.map(s => 
+                                        `<span class="student-badge">${s.name}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterByGoalView() {
+            renderByGoalView();
+        }
+
+        function filterByGoalDomain(domain) {
+            byGoalDomainFilter = domain;
+            byGoalSubcategoryFilter = 'all';
+            updateByGoalDomainFilterUI();
+            updateByGoalSubcategoryFilters();
+            renderByGoalView();
+        }
+
+        function updateByGoalDomainFilterUI() {
+            const pills = document.querySelectorAll('#byGoalDomainFilters .filter-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            
+            if (byGoalDomainFilter === 'all') {
+                document.querySelector('#byGoalDomainFilters .filter-pill.all').classList.add('active');
+            } else {
+                document.querySelector(`#byGoalDomainFilters .filter-pill.${byGoalDomainFilter}`).classList.add('active');
+            }
+        }
+
+        function updateByGoalSubcategoryFilters() {
+            const subcategoryFilters = document.getElementById('byGoalSubcategoryFilters');
+            
+            if (byGoalDomainFilter === 'all') {
+                subcategoryFilters.innerHTML = '<div class="filter-pill all active" onclick="filterByGoalSubcategory(\'all\')">All Subcategories</div>';
+                return;
+            }
+
+            // Get all goals that are assigned
+            const assignedGoalIds = new Set(studentGoalAssignments.map(a => a.goalId));
+            const domainGoals = goals.filter(g => 
+                g.domain.toLowerCase() === byGoalDomainFilter && 
+                assignedGoalIds.has(g.goalId)
+            );
+            
+            const subcategories = new Set();
+            
+            domainGoals.forEach(goal => {
+                goal.subcategories.split(',').forEach(sub => {
+                    subcategories.add(sub.trim());
+                });
+            });
+
+            const subcategoryArray = Array.from(subcategories).sort();
+            
+            subcategoryFilters.innerHTML = `
+                <div class="filter-pill all active" onclick="filterByGoalSubcategory('all')">All Subcategories</div>
+                ${subcategoryArray.map(sub => 
+                    `<div class="filter-pill" onclick="filterByGoalSubcategory('${sub}')">${sub}</div>`
+                ).join('')}
+            `;
+        }
+
+        function filterByGoalSubcategory(subcategory) {
+            byGoalSubcategoryFilter = subcategory;
+            
+            const pills = document.querySelectorAll('#byGoalSubcategoryFilters .filter-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderByGoalView();
+        }
+
+        // Student Modal
+        function openAddStudentModal() {
+            editingStudentId = null;
+            modalDomainFilter = 'all';
+            document.getElementById('modalTitle').textContent = 'Add New Student';
+            document.getElementById('studentForm').reset();
+            document.getElementById('studentIdInput').value = generateStudentId();
+            updateModalDomainFilterUI();
+            renderModalGoals();
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function editStudent() {
+            if (!currentStudentId) return;
+            
+            const student = students.find(s => s.studentId === currentStudentId);
+            if (!student) return;
+
+            editingStudentId = currentStudentId;
+            modalDomainFilter = 'all';
+            document.getElementById('modalTitle').textContent = 'Edit Student & Goals';
+            document.getElementById('studentIdInput').value = student.studentId;
+            document.getElementById('studentNameInput').value = student.name;
+            document.getElementById('studentGradeInput').value = student.grade;
+            document.getElementById('studentNotesInput').value = student.notes || '';
+            updateModalDomainFilterUI();
+            renderModalGoals();
+            document.getElementById('studentModal').classList.add('active');
+        }
+
+        function closeStudentModal() {
+            document.getElementById('studentModal').classList.remove('active');
+            editingStudentId = null;
+        }
+
+        function filterModalGoals(domain) {
+            modalDomainFilter = domain;
+            updateModalDomainFilterUI();
+            renderModalGoals();
+        }
+
+        function updateModalDomainFilterUI() {
+            const pills = document.querySelectorAll('.modal-goal-filters .filter-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            
+            const activePill = Array.from(pills).find(pill => {
+                if (modalDomainFilter === 'all') return pill.classList.contains('all');
+                return pill.classList.contains(modalDomainFilter);
+            });
+            
+            if (activePill) activePill.classList.add('active');
+        }
+
+        function renderModalGoals() {
+            const container = document.getElementById('modalGoalsList');
+            
+            const filteredGoals = goals.filter(goal => {
+                if (modalDomainFilter === 'all') return true;
+                return goal.domain.toLowerCase() === modalDomainFilter;
+            });
+
+            container.innerHTML = filteredGoals.map(goal => {
+                const isChecked = editingStudentId && 
+                    studentGoalAssignments.some(a => a.studentId === editingStudentId && a.goalId === goal.goalId);
+                
+                const domainClass = goal.domain.toLowerCase();
+                
+                return `
+                    <div class="modal-goal-item">
+                        <input type="checkbox" 
+                               class="modal-goal-checkbox" 
+                               id="modal-goal-${goal.goalId}"
+                               value="${goal.goalId}"
+                               ${isChecked ? 'checked' : ''}>
+                        <label for="modal-goal-${goal.goalId}" style="flex: 1; cursor: pointer;">
+                            <div class="goal-header-row">
+                                <span class="goal-id">${goal.goalId}</span>
+                                <span class="goal-domain-badge ${domainClass}">${goal.domain}</span>
+                            </div>
+                            <div class="goal-subcategories">${goal.subcategories}</div>
+                            <div class="goal-description">${goal.description}</div>
+                        </label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function saveStudent(event) {
+            event.preventDefault();
+            
+            const studentData = {
+                studentId: document.getElementById('studentIdInput').value,
+                name: document.getElementById('studentNameInput').value,
+                grade: document.getElementById('studentGradeInput').value,
+                notes: document.getElementById('studentNotesInput').value
+            };
+
+            const selectedGoals = Array.from(document.querySelectorAll('.modal-goal-checkbox:checked'))
+                .map(cb => cb.value);
+
+            if (editingStudentId) {
+                const index = students.findIndex(s => s.studentId === editingStudentId);
+                if (index !== -1) {
+                    students[index] = studentData;
+                }
+
+                studentGoalAssignments = studentGoalAssignments.filter(a => a.studentId !== editingStudentId);
+                selectedGoals.forEach(goalId => {
+                    studentGoalAssignments.push({ studentId: editingStudentId, goalId: goalId });
+                });
+            } else {
+                students.push(studentData);
+                selectedGoals.forEach(goalId => {
+                    studentGoalAssignments.push({ studentId: studentData.studentId, goalId: goalId });
+                });
+            }
+
+            saveDataToLocalStorage();
+            renderStudents();
+            closeStudentModal();
+            
+            if (currentStudentId === studentData.studentId) {
+                selectStudent(studentData.studentId);
+            }
+        }
+
+        function generateStudentId() {
+            const maxId = students.reduce((max, student) => {
+                const num = parseInt(student.studentId.replace('S', ''));
+                return num > max ? num : max;
+            }, 0);
+            
+            return 'S' + String(maxId + 1).padStart(3, '0');
+        }
+
+        // Google Sheets Integration
+        async function loadFromGoogleSheets() {
+            const sheetId = prompt('Enter your Google Sheets ID:\n(Find it in the URL: docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit)');
+            
+            if (!sheetId) return;
+
+            try {
+                const studentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Students`;
+                const studentsResponse = await fetch(studentsUrl);
+                const studentsCSV = await studentsResponse.text();
+                
+                const assignmentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Student-Goal Assignments`;
+                const assignmentsResponse = await fetch(assignmentsUrl);
+                const assignmentsCSV = await assignmentsResponse.text();
+
+                const goalsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=IEP Goals`;
+                const goalsResponse = await fetch(goalsUrl);
+                const goalsCSV = await goalsResponse.text();
+
+                students = parseStudentsCSV(studentsCSV);
+                studentGoalAssignments = parseAssignmentsCSV(assignmentsCSV);
+                goals = parseGoalsCSV(goalsCSV);
+
+                saveDataToLocalStorage();
+                renderStudents();
+                
+                if (currentStudentId) {
+                    selectStudent(currentStudentId);
+                }
+
+                alert('✓ Data loaded successfully from Google Sheets!');
+            } catch (error) {
+                alert('Error loading from Google Sheets. Make sure:\n1. The sheet is published to web\n2. Sheet names are: "Students", "Student-Goal Assignments", and "IEP Goals"\n3. The sheet ID is correct');
+                console.error(error);
+            }
+        }
+
+        function parseStudentsCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = parseCSVLine(line);
+                if (values.length >= 3) {
+                    result.push({
+                        studentId: values[0],
+                        name: values[1],
+                        grade: values[2],
+                        notes: values[3] || ''
+                    });
+                }
+            }
+            
+            return result;
+        }
+
+        function parseAssignmentsCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = parseCSVLine(line);
+                if (values.length >= 2) {
+                    result.push({
+                        studentId: values[0],
+                        goalId: values[1]
+                    });
+                }
+            }
+            
+            return result;
+        }
+
+        function parseGoalsCSV(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const values = parseCSVLine(line);
+                if (values.length >= 4) {
+                    result.push({
+                        goalId: values[0],
+                        domain: values[1],
+                        subcategories: values[2],
+                        description: values[3]
+                    });
+                }
+            }
+            
+            return result;
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current.trim());
+            return result.map(v => v.replace(/^"|"$/g, ''));
+        }
+
+        // Excel Export
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            const studentsData = [
+                ['Student ID', 'Name', 'Grade Level', 'Notes'],
+                ...students.map(s => [s.studentId, s.name, s.grade, s.notes || ''])
+            ];
+            const studentsSheet = XLSX.utils.aoa_to_sheet(studentsData);
+            XLSX.utils.book_append_sheet(wb, studentsSheet, 'Students');
+
+            const goalsData = [
+                ['Goal ID', 'Domain', 'Subcategories', 'Goal/Objective Description'],
+                ...goals.map(g => [g.goalId, g.domain, g.subcategories, g.description])
+            ];
+            const goalsSheet = XLSX.utils.aoa_to_sheet(goalsData);
+            XLSX.utils.book_append_sheet(wb, goalsSheet, 'IEP Goals');
+
+            const assignmentsData = [
+                ['Student ID', 'Goal ID'],
+                ...studentGoalAssignments.map(a => [a.studentId, a.goalId])
+            ];
+            const assignmentsSheet = XLSX.utils.aoa_to_sheet(assignmentsData);
+            XLSX.utils.book_append_sheet(wb, assignmentsSheet, 'Student-Goal Assignments');
+
+            XLSX.writeFile(wb, 'classroom_inventory_students.xlsx');
+        }
+    </script>
+</body>
+</html>
