@@ -1481,9 +1481,7 @@ function renderModalGoals() {
 
 // Google Sheets Integration
 async function loadFromGoogleSheets() {
-    // Your specific Sheet ID is now hardcoded here
     const sheetId = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8u'; 
-    
     try {
         const studentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Students`;
         const studentsResponse = await fetch(studentsUrl);
@@ -1497,21 +1495,18 @@ async function loadFromGoogleSheets() {
         const goalsResponse = await fetch(goalsUrl);
         const goalsCSV = await goalsResponse.text();
 
+        // Parse and immediately assign to the global variables
         students = parseStudentsCSV(studentsCSV);
         studentGoalAssignments = parseAssignmentsCSV(assignmentsCSV);
         goals = parseGoalsCSV(goalsCSV);
 
-        saveDataToLocalStorage();
+        // This saves it so the modal can see it
+        saveDataToLocalStorage(); 
         renderStudents();
         
-        if (currentStudentId) {
-            selectStudent(currentStudentId);
-        }
-
-        alert('✓ Data loaded successfully from your Google Sheet!');
+        alert('✓ Data loaded! Your goals are now ready for the pop-up.');
     } catch (error) {
-        alert('Error loading from Google Sheets. Ensure your sheet is shared as "Anyone with the link can view".');
-        console.error(error);
+        alert('Error loading. Check your internet and sheet sharing settings.');
     }
 }
 
