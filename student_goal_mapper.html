@@ -1556,16 +1556,16 @@ function parseGoalsCSV(csv) {
     const lines = csv.split('\n');
     const result = [];
     
-    // Skip header row
+    // Starting at i = 1 to skip the header row
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (!line) continue;
         
         const values = parseCSVLine(line);
+        // This matches your sheet headers: ID, Domain, Subcategories, Description
         if (values.length >= 4) {
             result.push({
-                // .trim() removes hidden spaces that break matching
-                goalId: values[0].trim(), 
+                goalId: values[0].trim(),
                 domain: values[1].trim(),
                 subcategories: values[2].trim(),
                 description: values[3].trim()
@@ -1573,9 +1573,8 @@ function parseGoalsCSV(csv) {
         }
     }
     
-    // Update the global goals list immediately
+    // CRITICAL: This explicitly updates the list the pop-up uses
     goals = result; 
-    console.log("Goals loaded into app:", goals); // Check your browser console (F12) to see if data arrived
     return result;
 }
 
