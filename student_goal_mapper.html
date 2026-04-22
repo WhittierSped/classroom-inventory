@@ -1549,27 +1549,31 @@ async function loadFromGoogleSheets() {
             return result;
         }
 
-        function parseGoalsCSV(csv) {
-            const lines = csv.split('\n');
-            const result = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
-                const values = parseCSVLine(line);
-                if (values.length >= 4) {
-                    result.push({
-                        goalId: values[0],
-                        domain: values[1],
-                        subcategories: values[2],
-                        description: values[3]
-                    });
-                }
-            }
-            
-            return result;
+function parseGoalsCSV(csv) {
+    const lines = csv.split('\n');
+    const result = [];
+    
+    // Starting at i = 1 to skip the header row
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const values = parseCSVLine(line);
+        // This matches your confirmed headers: ID, Domain, Sub, Description
+        if (values.length >= 4) {
+            result.push({
+                goalId: values[0],
+                domain: values[1],
+                subcategories: values[2],
+                description: values[3]
+            });
         }
+    }
+    
+    // CRITICAL: This updates the global goals list used by the pop-up
+    goals = result; 
+    return result;
+}
 
         function parseCSVLine(line) {
             const result = [];
