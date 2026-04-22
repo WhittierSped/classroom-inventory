@@ -1337,34 +1337,40 @@
         }
 
         // Student Modal
-        function openAddStudentModal() {
-            editingStudentId = null;
-            modalDomainFilter = 'all';
-            document.getElementById('modalTitle').textContent = 'Add New Student';
-            document.getElementById('studentForm').reset();
-            document.getElementById('studentIdInput').value = generateStudentId();
-            updateModalDomainFilterUI();
-            renderModalGoals();
-            document.getElementById('studentModal').classList.add('active');
-        }
+function openAddStudentModal() {
+    editingStudentId = null;
+    modalDomainFilter = 'all';
+    document.getElementById('modalTitle').textContent = 'Add New Student';
+    document.getElementById('studentForm').reset();
+    document.getElementById('studentIdInput').value = generateStudentId();
+    
+    // This line ensures the list is fresh before the pop-up appears
+    updateModalDomainFilterUI();
+    renderModalGoals(); 
+    
+    document.getElementById('studentModal').classList.add('active');
+}
 
-        function editStudent() {
-            if (!currentStudentId) return;
-            
-            const student = students.find(s => s.studentId === currentStudentId);
-            if (!student) return;
+function editStudent() {
+    if (!currentStudentId) return;
+    
+    const student = students.find(s => s.studentId === currentStudentId);
+    if (!student) return;
 
-            editingStudentId = currentStudentId;
-            modalDomainFilter = 'all';
-            document.getElementById('modalTitle').textContent = 'Edit Student & Goals';
-            document.getElementById('studentIdInput').value = student.studentId;
-            document.getElementById('studentNameInput').value = student.name;
-            document.getElementById('studentGradeInput').value = student.grade;
-            document.getElementById('studentNotesInput').value = student.notes || '';
-            updateModalDomainFilterUI();
-            renderModalGoals();
-            document.getElementById('studentModal').classList.add('active');
-        }
+    editingStudentId = currentStudentId;
+    modalDomainFilter = 'all';
+    document.getElementById('modalTitle').textContent = 'Edit Student & Goals';
+    document.getElementById('studentIdInput').value = student.studentId;
+    document.getElementById('studentNameInput').value = student.name;
+    document.getElementById('studentGradeInput').value = student.grade;
+    document.getElementById('studentNotesInput').value = student.notes || '';
+    
+    // This ensures the goals from your sheet show up with the student's current selections
+    updateModalDomainFilterUI();
+    renderModalGoals(); 
+    
+    document.getElementById('studentModal').classList.add('active');
+}
 
         function closeStudentModal() {
             document.getElementById('studentModal').classList.remove('active');
