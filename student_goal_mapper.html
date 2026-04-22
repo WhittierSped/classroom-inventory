@@ -1471,42 +1471,41 @@
             return 'S' + String(maxId + 1).padStart(3, '0');
         }
 
-        // Google Sheets Integration
-        async function loadFromGoogleSheets() {
-            const sheetId = prompt('1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8u');
-            
-            if (!sheetId) return;
+// Google Sheets Integration
+async function loadFromGoogleSheets() {
+    // Your specific Sheet ID is now hardcoded here
+    const sheetId = '1aGE87Qp9zHS2VVW-GnLPHPXyKjzAa8u'; 
+    
+    try {
+        const studentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Students`;
+        const studentsResponse = await fetch(studentsUrl);
+        const studentsCSV = await studentsResponse.text();
+        
+        const assignmentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Student-Goal%20Assignments`;
+        const assignmentsResponse = await fetch(assignmentsUrl);
+        const assignmentsCSV = await assignmentsResponse.text();
 
-            try {
-                const studentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Students`;
-                const studentsResponse = await fetch(studentsUrl);
-                const studentsCSV = await studentsResponse.text();
-                
-                const assignmentsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Student-Goal Assignments`;
-                const assignmentsResponse = await fetch(assignmentsUrl);
-                const assignmentsCSV = await assignmentsResponse.text();
+        const goalsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=IEP%20Goals`;
+        const goalsResponse = await fetch(goalsUrl);
+        const goalsCSV = await goalsResponse.text();
 
-                const goalsUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=IEP Goals`;
-                const goalsResponse = await fetch(goalsUrl);
-                const goalsCSV = await goalsResponse.text();
+        students = parseStudentsCSV(studentsCSV);
+        studentGoalAssignments = parseAssignmentsCSV(assignmentsCSV);
+        goals = parseGoalsCSV(goalsCSV);
 
-                students = parseStudentsCSV(studentsCSV);
-                studentGoalAssignments = parseAssignmentsCSV(assignmentsCSV);
-                goals = parseGoalsCSV(goalsCSV);
-
-                saveDataToLocalStorage();
-                renderStudents();
-                
-                if (currentStudentId) {
-                    selectStudent(currentStudentId);
-                }
-
-                alert('✓ Data loaded successfully from Google Sheets!');
-            } catch (error) {
-                alert('Error loading from Google Sheets. Make sure:\n1. The sheet is published to web\n2. Sheet names are: "Students", "Student-Goal Assignments", and "IEP Goals"\n3. The sheet ID is correct');
-                console.error(error);
-            }
+        saveDataToLocalStorage();
+        renderStudents();
+        
+        if (currentStudentId) {
+            selectStudent(currentStudentId);
         }
+
+        alert('✓ Data loaded successfully from your Google Sheet!');
+    } catch (error) {
+        alert('Error loading from Google Sheets. Ensure your sheet is shared as "Anyone with the link can view".');
+        console.error(error);
+    }
+}
 
         function parseStudentsCSV(csv) {
             const lines = csv.split('\n');
