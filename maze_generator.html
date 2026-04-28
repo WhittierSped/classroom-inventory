@@ -388,8 +388,9 @@
     var n = parseInt(document.getElementById('every-n').value) || 7;
     var allWords = getWords(raw);
 
-    // Split on blank lines OR single newlines to preserve paragraph/line breaks
-    var paragraphs = raw.split(/\n/).filter(function(p) { return p.trim().length > 0; });
+    // Blank lines = paragraph break; single newlines = just a space
+    var normalized = raw.replace(/\n{2,}/g, '\u000b').replace(/\n/g, ' ').split('\u000b');
+    var paragraphs = normalized.filter(function(p) { return p.trim().length > 0; });
 
     var state = { wordCount: 0, mazeCount: 0 };
     var firstDone = false;
