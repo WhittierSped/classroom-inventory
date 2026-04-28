@@ -110,9 +110,9 @@
   .passage p {
     display: block;
     margin-bottom: 1.6em;
-    /* Use word-spacing and line-height on the paragraph so boxes don't inherit crazy spacing */
     line-height: 4.2;
     word-spacing: 0.04em;
+    text-indent: 0.5in;
   }
 
   /* ── Inline choice box ── */
@@ -160,8 +160,28 @@
   }
   .hint-card strong { font-weight: 500; }
 
+  /* Name/date header — visible on screen and in print */
+  .print-header {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2rem;
+    padding: 1rem 2.5rem 0;
+    font-size: 14px;
+    font-family: 'Lexend', sans-serif;
+    color: var(--text);
+  }
+  .print-header-field { display: flex; align-items: baseline; gap: 6px; }
+  .print-header-field span { white-space: nowrap; font-size: 13px; color: var(--text-secondary); }
+  .print-header-line {
+    display: inline-block;
+    border-bottom: 1px solid var(--border);
+    width: 2in;
+    min-width: 120px;
+  }
+  .print-header-line.short { width: 1.2in; min-width: 80px; }
+
   /* Hide print-only elements on screen */
-  .print-header, .print-name-line { display: none; }
+  .print-name-line { display: none; }
 
   /* ── Print ── */
   @media print {
@@ -190,6 +210,7 @@
     .passage p {
       line-height: 4.4;
       margin-bottom: 0.8em;
+      text-indent: 0.5in;
     }
 
     .maze-box {
