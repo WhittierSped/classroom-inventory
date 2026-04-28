@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MAZE Passage Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=Lexend+Deca:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f3ee;
+    --surface: #ffffff;
+    --border: #d8d4cc;
+    --border-light: #e8e4dc;
+    --text: #1a1917;
+    --text-secondary: #6b6760;
+    --text-hint: #a09c97;
+    --accent: #2d5f3f;
+    --accent-light: #e8f0eb;
+    --box-border: #1a1917;
+    --box-divider: #c8c4bc;
+    --radius: 6px;
+    --font: 'Lexend', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  .page {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-mark svg { display: block; }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: var(--text);
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 150px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    resize: vertical;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-hint); }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .control-group input[type=number] {
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    width: 52px;
+    text-align: center;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+
+  .control-group input[type=number]:focus { border-color: var(--accent); }
+
+  button {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    outline: none;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+  }
+
+  .btn-primary:hover { background: #255234; }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--bg); }
+
+  .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .output-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .output-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .stats {
+    font-size: 12px;
+    color: var(--text-hint);
+  }
+
+  .passage {
+    padding: 2rem 2.5rem;
+    font-family: 'Lexend', sans-serif;
+    font-size: 17px;
+    font-weight: 300;
+    line-height: 3;
+    color: var(--text);
+  }
+
+  .maze-box {
+    display: inline-table;
+    vertical-align: middle;
+    margin: 0 3px;
+    border: 1.5px solid var(--box-border);
+    border-radius: 5px;
+    position: relative;
+    top: -1px;
+  }
+
+  .maze-box td {
+    display: block;
+    padding: 0px 12px;
+    font-family: 'Lexend', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text);
+    white-space: nowrap;
+    line-height: 1.9;
+  }
+
+  .maze-box td:not(:last-child) {
+    border-bottom: 1px solid var(--box-divider);
+  }
+
+  .output-footer {
+    padding: 0.75rem 1.5rem;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .hint-card {
+    background: var(--accent-light);
+    border: 1px solid #c2d9c9;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    font-size: 13px;
+    color: #2a5a3a;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .hint-card strong { font-weight: 500; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-hint);
+    font-size: 14px;
+    font-weight: 300;
+  }
+
+  /* ── Print styles ── */
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page { max-width: 100%; }
+    header, .card, .hint-card, .output-header, .output-footer { display: none !important; }
+    .output-card { display: block !important; border: none; box-shadow: none; }
+    .passage {
+      padding: 0.5in 0.75in;
+      font-size: 14pt;
+      line-height: 3.2;
+    }
+    .maze-box { border: 1.5pt solid #000; }
+    .maze-box td { font-size: 11pt; border-bottom-color: #999; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="6" width="16" height="2.5" rx="1.25" fill="white" opacity="0.9"/>
+          <rect x="2" y="10.5" width="10" height="2.5" rx="1.25" fill="white" opacity="0.6"/>
+          <rect x="14" y="9" width="4" height="7" rx="1" fill="white" opacity="0.4"/>
+          <rect x="2" y="15" width="10" height="2.5" rx="1.25" fill="white" opacity="0.3"/>
+        </svg>
+      </div>
+      <h1>MAZE Passage Generator</h1>
+    </div>
+    <p class="subtitle">For reading comprehension assessment · Stacked choice format</p>
+  </header>
+
+  <div class="card">
+    <label class="field-label" for="input">Paste your passage</label>
+    <textarea id="input" placeholder="Paste your story or reading passage here. The first sentence will be kept intact. Every 7th word after that will be replaced with a three-choice selection box."></textarea>
+
+    <div class="controls-row">
+      <div class="control-group">
+        <span>Replace every</span>
+        <input type="number" id="every-n" value="7" min="3" max="20" />
+        <span>words</span>
+      </div>
+      <button class="btn-primary" onclick="generate()">Generate MAZE</button>
+      <button class="btn-secondary" id="print-btn" disabled onclick="window.print()">Print / Save as PDF</button>
+      <button class="btn-secondary" id="regenerate-btn" style="display:none;" onclick="generate()">Reshuffle choices</button>
+    </div>
+  </div>
+
+  <div class="output-card" id="output-card">
+    <div class="output-header">
+      <span class="output-title">MAZE passage</span>
+      <span class="stats" id="stats"></span>
+    </div>
+    <div class="passage" id="passage"></div>
+    <div class="output-footer">
+      <button class="btn-secondary" onclick="window.print()" style="font-size:12px; padding:6px 14px;">Print / Save as PDF</button>
+      <button class="btn-secondary" onclick="generate()" style="font-size:12px; padding:6px 14px;">Reshuffle choices</button>
+    </div>
+  </div>
+
+  <div class="hint-card" id="hint-card" style="display:none;">
+    <strong>How to use:</strong> Each box shows 3 stacked choices — the correct word plus 2 distractors, shuffled randomly. Students circle or underline their choice. Use "Reshuffle choices" to generate a new version with different distractors. Print opens a clean student-ready copy.
+  </div>
+
+</div>
+
+<script>
+  function tokenize(text) {
+    return text.match(/\S+|\s+/g) || [];
+  }
+
+  function splitFirstSentence(text) {
+    const m = text.match(/^([^.!?]+[.!?]+\s*)([\s\S]*)$/);
+    return m ? [m[1], m[2]] : [text, ''];
+  }
+
+  function getWords(text) {
+    return text.match(/\b[a-zA-Z''-]+\b/g) || [];
+  }
+
+  function pickDistractors(word, allWords) {
+    const lower = word.toLowerCase();
+    const pool = allWords.filter(w => w.toLowerCase() !== lower && w.length > 2);
+    const shuffled = pool.sort(() => Math.random() - 0.5);
+    const distractors = [];
+    const seen = new Set([lower]);
+    for (const w of shuffled) {
+      const l = w.toLowerCase();
+      if (!seen.has(l)) { distractors.push(w); seen.add(l); }
+      if (distractors.length === 2) break;
+    }
+    while (distractors.length < 2) {
+      distractors.push(distractors.length === 0 ? 'the' : 'a');
+    }
+    return distractors;
+  }
+
+  function makeBox(correct, distractors) {
+    const choices = [correct, ...distractors].sort(() => Math.random() - 0.5);
+    const rows = choices.map(c => `<td>${c}</td>`).join('');
+    return `<span class="maze-box"><table><tbody>${rows}</tbody></table></span>`;
+  }
+
+  function generate() {
+    const raw = document.getElementById('input').value.trim();
+    if (!raw) {
+      alert('Please paste a passage first.');
+      return;
+    }
+
+    const n = parseInt(document.getElementById('every-n').value) || 7;
+    const [firstSentence, rest] = splitFirstSentence(raw);
+    const allWords = getWords(raw);
+
+    const tokens = tokenize(rest);
+    let wordCount = 0;
+    let mazeCount = 0;
+    let html = '';
+
+    for (const tok of tokens) {
+      if (/\S/.test(tok)) {
+        wordCount++;
+        if (wordCount % n === 0) {
+          const word = tok.replace(/[^a-zA-Z''-]/g, '');
+          const punct = tok.replace(/[a-zA-Z''-]/g, '');
+          const distractors = pickDistractors(word || tok, allWords);
+          html += makeBox(word || tok, distractors) + punct;
+          mazeCount++;
+        } else {
+          html += tok;
+        }
+      } else {
+        html += tok;
+      }
+    }
+
+    document.getElementById('passage').innerHTML = `<span>${firstSentence}</span>${html}`;
+    document.getElementById('stats').textContent = `${mazeCount} blanks · ${allWords.length} words`;
+    document.getElementById('output-card').style.display = 'block';
+    document.getElementById('hint-card').style.display = 'block';
+    document.getElementById('print-btn').disabled = false;
+    document.getElementById('regenerate-btn').style.display = 'inline-block';
+
+    document.getElementById('output-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('input').addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generate();
+  });
+</script>
+</body>
+</html>
