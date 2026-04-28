@@ -112,7 +112,7 @@
     margin-bottom: 1.6em;
     line-height: 4.2;
     word-spacing: 0.04em;
-    text-indent: 0.5in;
+    padding-left: 0.5in;
   }
 
   /* ── Inline choice box ── */
@@ -178,7 +178,8 @@
     width: 2in;
     min-width: 120px;
   }
-  .print-header-line.short { width: 1.2in; min-width: 80px; }
+  .print-header-line.short { width: 1.4in; min-width: 80px; }
+  .print-header-line.shortest { width: 1in; min-width: 60px; }
 
   /* Hide print-only elements on screen */
   .print-name-line { display: none; }
@@ -199,8 +200,9 @@
     }
     .print-header-field { display: flex; align-items: baseline; gap: 8px; font-size: 11pt; }
     .print-header-field span { white-space: nowrap; }
-    .print-header-line { display: inline-block; border-bottom: 1pt solid #000; width: 2in; }
+    .print-header-line { display: inline-block; border-bottom: 1pt solid #000; width: 2.4in; }
     .print-header-line.short { width: 1.4in; }
+    .print-header-line.shortest { width: 1.2in; }
 
     .passage {
       padding: 0.1in 0.75in 0.25in;
@@ -210,7 +212,7 @@
     .passage p {
       line-height: 4.4;
       margin-bottom: 0.8em;
-      text-indent: 0.5in;
+      padding-left: 0.5in;
     }
 
     .maze-box {
@@ -277,13 +279,16 @@
       <span class="stats" id="stats"></span>
     </div>
 
-    <!-- Print only: name + date top right -->
+    <!-- Name / date / skill header -->
     <div class="print-header">
+      <div class="print-header-field">
+        <span>Skill/Grade:</span><span class="print-header-line short"></span>
+      </div>
       <div class="print-header-field">
         <span>Name:</span><span class="print-header-line"></span>
       </div>
       <div class="print-header-field">
-        <span>Date:</span><span class="print-header-line short"></span>
+        <span>Date:</span><span class="print-header-line shortest"></span>
       </div>
     </div>
 
