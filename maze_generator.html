@@ -102,11 +102,10 @@
     font-family: 'Lexend', sans-serif;
     font-size: 18px;
     font-weight: 300;
-    line-height: 1;        /* line-height itself is neutral; spacing comes from word-line-height below */
+    line-height: 1;
     color: var(--text);
   }
 
-  /* Each "line" of the passage is a flex row that wraps naturally */
   .passage p {
     display: block;
     margin-bottom: 1.6em;
@@ -115,11 +114,12 @@
     padding-left: 0.5in;
   }
 
+  /* Sentence wrapper — invisible on screen, used for page-break control in print */
+  .sentence {
+    display: inline;
+  }
+
   /* ── Inline choice box ── */
-  /*
-     Key technique: inline-flex column, vertical-align middle.
-     No tables, no display:block on td — just plain divs.
-  */
   .maze-box {
     display: inline-flex;
     flex-direction: column;
@@ -127,10 +127,8 @@
     border: 1.5px solid var(--box-border);
     border-radius: 4px;
     margin: 0 4px;
-    /* Pull it up slightly so it sits centered on the text baseline */
     position: relative;
     top: -2px;
-    /* Don't inherit the paragraph's huge line-height */
     line-height: 1;
   }
 
@@ -160,7 +158,7 @@
   }
   .hint-card strong { font-weight: 500; }
 
-  /* Name/date header — visible on screen and in print */
+  /* Name/date/skill header — visible on screen and in print */
   .print-header {
     display: flex;
     justify-content: flex-end;
@@ -181,7 +179,7 @@
   .print-header-line.short { width: 1.4in; min-width: 80px; }
   .print-header-line.shortest { width: 1in; min-width: 60px; }
 
-  /* Hide print-only elements on screen */
+  /* Hide print-only bottom name line on screen */
   .print-name-line { display: none; }
 
   /* ── Print ── */
@@ -213,6 +211,18 @@
       line-height: 4.4;
       margin-bottom: 0.8em;
       padding-left: 0.5in;
+    }
+
+    /*
+      Each sentence becomes an inline-block so page-break-inside: avoid
+      applies. Because it's inline-block, sentences still flow naturally
+      side by side within the paragraph — they just won't split mid-sentence
+      across a page boundary.
+    */
+    .sentence {
+      display: inline-block;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
 
     .maze-box {
@@ -312,13 +322,8 @@
 
 </div>
 <script>
-  function tokenize(text) {
-    return text.match(/\S+|\s+/g) || [];
-  }
-
-  function splitFirstSentence(text) {
-    var m = text.match(/^([^.!?]+[.!?]+\s*)([\s\S]*)$/);
-    return m ? [m[1], m[2]] : [text, ''];
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   function getWords(text) {
@@ -329,8 +334,7 @@
     var lower = word.toLowerCase();
     var candidates = pool.filter(function(w) { return w.toLowerCase() !== lower && w.length > 2; });
     candidates.sort(function() { return Math.random() - 0.5; });
-    var result = [];
-    var seen = {};
+    var result = [], seen = {};
     seen[lower] = true;
     for (var i = 0; i < candidates.length; i++) {
       var l = candidates[i].toLowerCase();
@@ -350,12 +354,30 @@
     return '<span class="maze-box">' + inner + '</span>';
   }
 
-  function escHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  /*
+    Split a paragraph into sentences. Each sentence becomes a .sentence span
+    so that page-break-inside:avoid can keep a sentence+box together in print.
+    Splitting on punctuation followed by whitespace or end-of-string.
+  */
+  function splitSentences(text) {
+    // Match sentence-ending punctuation, capturing the punctuation+space as part of the sentence
+    var parts = [];
+    var re = /[^.!?]*[.!?]+[\s]*/g;
+    var match, lastIndex = 0;
+    while ((match = re.exec(text)) !== null) {
+      parts.push(match[0]);
+      lastIndex = re.lastIndex;
+    }
+    // Any trailing text without terminal punctuation
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex));
+    }
+    return parts.filter(function(s) { return s.trim().length > 0; });
   }
 
-  function processBlock(text, allWords, n, state) {
-    var tokens = tokenize(text);
+  function processSentence(text, allWords, n, state) {
+    // Tokenize into words and spaces
+    var tokens = text.match(/\S+|\s+/g) || [];
     var html = '';
     for (var i = 0; i < tokens.length; i++) {
       var tok = tokens[i];
@@ -371,7 +393,6 @@
           html += escHtml(tok);
         }
       } else {
-        // Collapse whitespace tokens to a single space
         html += ' ';
       }
     }
@@ -397,14 +418,28 @@
 
     for (var i = 0; i < paragraphs.length; i++) {
       var para = paragraphs[i];
-      var paraHtml;
+      var paraHtml = '';
+
+      // For the very first paragraph, keep the first sentence intact (no boxes)
       if (!firstDone) {
-        var parts = splitFirstSentence(para);
-        paraHtml = escHtml(parts[0]) + processBlock(parts[1], allWords, n, state);
+        var firstSentMatch = para.match(/^([^.!?]+[.!?]+\s*)([\s\S]*)$/);
+        var firstSent = firstSentMatch ? firstSentMatch[1] : para;
+        var remainder  = firstSentMatch ? firstSentMatch[2] : '';
+        // First sentence: wrap as a .sentence but no MAZE replacements
+        paraHtml += '<span class="sentence">' + escHtml(firstSent) + '</span>';
+        // Process rest of paragraph sentence by sentence
+        var sentences = splitSentences(remainder);
+        for (var j = 0; j < sentences.length; j++) {
+          paraHtml += '<span class="sentence">' + processSentence(sentences[j], allWords, n, state) + '</span>';
+        }
         firstDone = true;
       } else {
-        paraHtml = processBlock(para, allWords, n, state);
+        var sentences = splitSentences(para);
+        for (var j = 0; j < sentences.length; j++) {
+          paraHtml += '<span class="sentence">' + processSentence(sentences[j], allWords, n, state) + '</span>';
+        }
       }
+
       passageHtml += '<p>' + paraHtml + '</p>';
     }
 
