@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌈 Worksheet Generators</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: #fafaf9;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #fd5e88 0%, #fb923c 18%, #fbbf24 28%, #4ade80 44%, #38bdf8 60%, #818cf8 76%, #e879f9 100%);
+            color: white;
+            padding: 2.5rem 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.07);
+        }
+
+        .header h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: relative;
+            margin-bottom: 0.4rem;
+        }
+
+        .header p {
+            font-size: 1rem;
+            opacity: 0.95;
+            position: relative;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 3rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 18px;
+            padding: 2rem 1.75rem;
+            text-decoration: none;
+            color: inherit;
+            box-shadow: 0 3px 14px rgba(0,0,0,0.07);
+            border: 2.5px solid transparent;
+            transition: all 0.22s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            border-radius: 18px 18px 0 0;
+        }
+
+        .card:nth-child(1)::before { background: linear-gradient(90deg, #f87171, #fb923c); }
+        .card:nth-child(2)::before { background: linear-gradient(90deg, #818cf8, #e879f9); }
+        .card:nth-child(3)::before { background: linear-gradient(90deg, #4ade80, #38bdf8); }
+
+        .card:nth-child(1):hover { border-color: #fb923c; }
+        .card:nth-child(2):hover { border-color: #818cf8; }
+        .card:nth-child(3):hover { border-color: #38bdf8; }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+
+        .card-icon { font-size: 2.5rem; line-height: 1; }
+
+        .card-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1c1917;
+        }
+
+        .card-desc {
+            font-size: 0.875rem;
+            color: #78716c;
+            line-height: 1.55;
+        }
+
+        .card-cta {
+            margin-top: auto;
+            padding-top: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #6366f1;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8rem; }
+            .card-grid  { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>✏️ Worksheet Generators</h1>
+    <p>Click a generator below to create a printable math worksheet</p>
+</div>
+
+<div class="container">
+    <div class="card-grid">
+
+        <a class="card" href="https://whittiersped.github.io/classroom-inventory/onedigitgenerator.html">
+            <div class="card-icon">➕➖</div>
+            <div class="card-title">+/− Within 20</div>
+            <div class="card-desc">Single-digit addition and subtraction practice up to 20. Great for building early number sense!</div>
+            <span class="card-cta">Open Generator →</span>
+        </a>
+
+        <a class="card" href="https://whittiersped.github.io/classroom-inventory/2digitgenerator.html">
+            <div class="card-icon">🔢</div>
+            <div class="card-title">2-Digit +/−</div>
+            <div class="card-desc">Two-digit addition and subtraction worksheets, with or without regrouping.</div>
+            <span class="card-cta">Open Generator →</span>
+        </a>
+
+        <a class="card" href="https://whittiersped.github.io/classroom-inventory/maze_generator.html">
+            <div class="card-icon">🌀</div>
+            <div class="card-title">Maze Generator</div>
+            <div class="card-desc">Generate fun printable maze worksheets with adjustable difficulty levels.</div>
+            <span class="card-cta">Open Generator →</span>
+        </a>
+
+    </div>
+</div>
+
+</body>
+</html>
